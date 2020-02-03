@@ -1,0 +1,29 @@
+I"�
+<h1 id="1st-place-solution">1st place solution</h1>
+<h2 id="discussion1">discussion1</h2>
+<p><a href="https://www.kaggle.com/c/ieee-fraud-detection/discussion/111284#latest-644768">link-discussion</a>
+第一名在discussion中提出了几个重点：</p>
+<ol>
+  <li>时间不是最重要的<br />
+因为欺诈行为的特征不会短时间内随时间变化，而是欺诈的人在随着时间变换。训练集、Public LB和Private LB在时间上是分离的，从下图可见，在Private LB中仅有16.4%的clients在训练集中出现过，68.2%的clients没有在训练集中出现，另外15.4%不确定。
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/ieee-fraud-detection-top-team-share/top1-discussion-train-test-time.png" alt="top1-discussion-train-test-time" />
+    <blockquote>
+      <p>注：每条线表示每个client，左端点是初次交易时间，右端点是最后一次交易时间</p>
+    </blockquote>
+  </li>
+  <li>Magic Feature<br />
+根据vesta公司工作人员对数据集的解释
+    <blockquote>
+      <p>The logic of our labeling is define reported chargeback on the card as fraud transaction (isFraud=1) and transactions posterior to it with either user account, email address or billing address directly linked to these attributes as fraud too. If none of above is reported and found beyond 120 days, then we define as legit transaction (isFraud=0).<br />
+比赛不是在预测交易行为，重点在于识别欺诈客户，classifying clients (credit cards) instead of transactions。</p>
+    </blockquote>
+  </li>
+  <li>Fraudulent Clients<br />
+top1队伍利用card、addr1和D1来辨别每个客户。D1是当前交易时间和开卡时间的间隔，D3表示当前交易时间和上笔交易时间的间隔，
+而TransactionDay(从TransactionDT求出)是当前交易日期，所以<code class="highlighter-rouge">D1n = TransactionDay - D1</code>表示开卡时间，<code class="highlighter-rouge">D3n = TransactionDay - D3</code>表示上笔交易时间。下图是2134个欺诈客户中<code class="highlighter-rouge">client=2988694</code>的例子。
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/ieee-fraud-detection-top-team-share/top1-discussion-fraudulent-client.png" alt="top1-discussion-fraudulent-clients" /></li>
+  <li>Preventing Overfitting
+测试集中68.2%的UID没有在训练集中出现过，为了防止在训练集和测试集上过拟合，不能把client UID当作特征。同时其他有利于识别client UID的特征如D, V, ID也不能用。
+相反，必须根据UID创建aggregated group features聚合特征，例如取所有的C,M列，<code class="highlighter-rouge">new_features = df.groupby('uid')[CM_columns].agg(['mean'])</code>。</li>
+</ol>
+:ET

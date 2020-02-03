@@ -1,0 +1,256 @@
+I"7^<h1 id="问题描述">问题描述</h1>
+<p>Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, determine if s can be segmented into a space-separated sequence of one or more dictionary words.</p>
+<h3 id="note">Note:</h3>
+<ul>
+  <li>The same word in the dictionary may be reused multiple times in the segmentation.</li>
+  <li>You may assume the dictionary does not contain duplicate words.</li>
+</ul>
+
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"leetcode"</span><span class="p">,</span> <span class="n">wordDict</span> <span class="o">=</span> <span class="p">[</span><span class="s">"leet"</span><span class="p">,</span> <span class="s">"code"</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">true</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Return</span> <span class="nb">true</span> <span class="n">because</span> <span class="s">"leetcode"</span> <span class="n">can</span> <span class="n">be</span> <span class="n">segmented</span> <span class="n">as</span> <span class="s">"leet code"</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"applepenapple"</span><span class="p">,</span> <span class="n">wordDict</span> <span class="o">=</span> <span class="p">[</span><span class="s">"apple"</span><span class="p">,</span> <span class="s">"pen"</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">true</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Return</span> <span class="nb">true</span> <span class="n">because</span> <span class="s">"applepenapple"</span> <span class="n">can</span> <span class="n">be</span> <span class="n">segmented</span> <span class="n">as</span> <span class="s">"apple pen apple"</span><span class="p">.</span>
+             <span class="n">Note</span> <span class="n">that</span> <span class="n">you</span> <span class="n">are</span> <span class="n">allowed</span> <span class="n">to</span> <span class="n">reuse</span> <span class="n">a</span> <span class="n">dictionary</span> <span class="n">word</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"catsandog"</span><span class="p">,</span> <span class="n">wordDict</span> <span class="o">=</span> <span class="p">[</span><span class="s">"cats"</span><span class="p">,</span> <span class="s">"dog"</span><span class="p">,</span> <span class="s">"sand"</span><span class="p">,</span> <span class="s">"and"</span><span class="p">,</span> <span class="s">"cat"</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">false</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这道题属于经典的动态规划问题，同时动态规划也肯定能用带记忆数组的递归解法求解，如求解斐波那契数列问题。</p>
+<ol>
+  <li>动态规划解法
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">fib</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+<span class="p">{</span>
+ <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+ <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+     <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+ <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+ <span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+ <span class="n">dp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+ <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+     <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">];</span>
+ <span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>记忆数组递归解法
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">helper</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">m</span><span class="p">)</span>
+<span class="p">{</span>
+ <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">m</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">N</span><span class="p">)){</span>
+     <span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">helper</span><span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">helper</span><span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">m</span><span class="p">);</span>
+     <span class="n">m</span><span class="p">[</span><span class="n">N</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+ <span class="p">}</span>
+ <span class="k">return</span> <span class="n">m</span><span class="p">[</span><span class="n">N</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">fib</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+<span class="p">{</span>
+ <span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">m</span><span class="p">;</span>
+ <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+ <span class="k">if</span> <span class="p">(</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+     <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+ <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+ <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+ <span class="k">return</span> <span class="n">helper</span><span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">helper</span><span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">m</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>解法1为记忆数组递归解法，首先找一个可以在字典中找到的切分位置，然后对后面的字符串应用递归，所以仅当当前位置之前可找到才对后面应用递归。为了减少重复计算，用一个memo数组memo[i]表示i到n的字符串可分。为了在字典中加快查找，用哈希集unordered_set<string>存储所有字典，为常数平均查找时间。每次递归用start记录开始位置。</string></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="kt">bool</span> <span class="nf">check</span><span class="p">(</span><span class="n">string</span> <span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">st</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">memo</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">==</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+		<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">memo</span><span class="p">[</span><span class="n">start</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">memo</span><span class="p">[</span><span class="n">start</span><span class="p">];</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">st</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="n">check</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">memo</span><span class="p">)){</span>
+			<span class="k">return</span> <span class="n">memo</span><span class="p">[</span><span class="n">start</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">memo</span><span class="p">[</span><span class="n">start</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="nf">wordBreak</span><span class="p">(</span><span class="n">string</span> <span class="n">s</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">wordDict</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">st</span><span class="p">(</span><span class="n">wordDict</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">wordDict</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">memo</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+	<span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">check</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">memo</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>runtime: 19.63%<br />
+memory usage: 26.41%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>为动态规划解法。动态规划两大问题，动态规划数组定义与状态转移方程，这里数组dp肯定是定义为dp[i]表示前i个可以分离，而状态转移方程为
+dp[i]为true当且在之前能找到位置j满足dp[j]==true且s.substr(j, i -j)在字典中。注意dp数组初始化时dp[0]==true。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">bool</span> <span class="nf">wordBreak</span><span class="p">(</span><span class="n">string</span> <span class="n">s</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">wordDict</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">word</span><span class="p">(</span><span class="n">wordDict</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">wordDict</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">word</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">))){</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>time complexity: O(n^2)<br />
+space complexity: O(n)<br />
+runtime: 76.45%<br />
+memory usage: 50.94%</p>
+
+<h2 id="解法-3">解法 3</h2>
+<p>为广度优先搜索解法。用队列存储可以分离的位置，当队列q不为空时，从中取元素start开始循环，直至字符串尾部。如果在中间s.substr(start, i - start)可以在字典中找到，那么表示i之前也是可分离的，i推入队列。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="kt">bool</span> <span class="nf">wordBreak</span><span class="p">(</span><span class="n">string</span> <span class="n">s</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">wordDict</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">word</span><span class="p">(</span><span class="n">wordDict</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">wordDict</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">visited</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="n">queue</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">q0</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+		<span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+		<span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">visited</span><span class="p">[</span><span class="n">start</span><span class="p">]){</span>
+			<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">start</span><span class="p">))){</span>
+					<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+						<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+					<span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			<span class="n">visited</span><span class="p">[</span><span class="n">start</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>runtime：46.62%<br />
+memory usage: 49.06%</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/word-break/">leetcode-139</a><br />
+<a href="https://zh.cppreference.com/w/cpp/container/unordered_set">unordered_set</a></p>
+:ET

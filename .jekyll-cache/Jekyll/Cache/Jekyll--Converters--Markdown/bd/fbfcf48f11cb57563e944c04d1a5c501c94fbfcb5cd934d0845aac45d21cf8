@@ -1,0 +1,94 @@
+I"�%<h1 id="问题描述">问题描述：</h1>
+<p>Given n non-negative integers representing the histogram’s bar height where the width of each bar is 1, find the area of largest rectangle in the histogram.
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/leetcode/84-1.PNG" alt="81-1" /><br />
+Above is a histogram where width of each bar is 1, given height = [2,1,5,6,2,3].
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/leetcode/84-2.PNG" alt="81-2" /><br />
+The largest rectangle is shown in the shaded area, which has area = 10 unit.<br />
+Example:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">10</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h1 id="分析">分析：</h1>
+<p>题目给出一个表示直方图的向量，要求出直方图内最大的矩形面积。对求面积来说，相当于水桶原理，矮的边对矩形面积形成限制。
+暴力法可以求解，但无法通过OJ。</p>
+
+<h1 id="解法1局部峰值">解法1：局部峰值</h1>
+<p>如例子中1，5，6来说，如果5能形成矩形的右边，则右边大于它的6肯定也能形成矩形的右边，且面积更大，因此应该跳过1，5。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">largestRectangleArea</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">heights</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mn</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">heights</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">while</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">heights</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+			<span class="o">++</span><span class="n">i</span><span class="p">;</span>
+		<span class="n">mn</span> <span class="o">=</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="n">mn</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span> <span class="n">heights</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+			<span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">mn</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+			<span class="n">res</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法2单调栈">解法2：单调栈</h1>
+<p>单调栈的好处就是只用遍历一次数据。再决定用递增栈还是递减栈，在这个问题中，短边形成对矩形面积的限制，当出现短边是才开始处理，短边
+属于触发信号，因此应维护递增栈。大于栈顶元素出现时，矩形面积肯定在增大，直接推入栈，小于栈顶元素出现时开始判断，对递增栈内每一元素，后面的肯定比前面大，因此对每一栈顶，短边就是栈顶值，高度已经确定，宽度就是栈顶元素位置到当前元素位置的差距。因此栈内应该存放元素位置而不是元素值。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">largestRectangleArea</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">heights</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">heights</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+	<span class="n">stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">st</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">heights</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">){</span>
+		<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">st</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">heights</span><span class="p">[</span><span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()]){</span>
+			<span class="kt">int</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+			<span class="n">st</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+			<span class="n">res</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">heights</span><span class="p">[</span><span class="n">cur</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">st</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">?</span> <span class="n">i</span> <span class="o">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)));</span>
+		<span class="p">}</span>
+		<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">i</span><span class="o">++</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>在上面程序中，之所以出现<code class="highlighter-rouge">i - st.top() - 1</code>是因为对原始向量的元素推入递增栈后，后面小的元素会把前面打的元素pop。
+所以在元素中间有峰顶导致位置间断时，栈顶元素位置肯定是左边。如果用<code class="highlighter-rouge">i - cur</code>可能会导致跳过已经pop掉的高的边，博主
+开始也没注意这点。</p>
+:ET

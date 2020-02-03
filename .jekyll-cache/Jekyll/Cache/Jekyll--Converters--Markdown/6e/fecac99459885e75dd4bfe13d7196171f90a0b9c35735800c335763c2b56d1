@@ -1,0 +1,19 @@
+I"[	<h1 id="问题描述">问题描述</h1>
+<p>Given an integer array nums, find the contiguous subarray within an array (containing at least one number) which has the largest product.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">6</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="n">has</span> <span class="n">the</span> <span class="n">largest</span> <span class="n">product</span> <span class="mf">6.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">The</span> <span class="n">result</span> <span class="n">cannot</span> <span class="n">be</span> <span class="mi">2</span><span class="p">,</span> <span class="n">because</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="n">is</span> <span class="n">not</span> <span class="n">a</span> <span class="n">subarray</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

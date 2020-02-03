@@ -1,0 +1,79 @@
+I"�#<h1 id="问题描述">问题描述</h1>
+<p>In the computer world, use restricted resource you have to generate maximum benefit is what we always want to pursue.</p>
+
+<p>For now, suppose you are a dominator of <code class="highlighter-rouge">m</code> 0s and <code class="highlighter-rouge">n</code> 1s respectively. On the other hand, there is an array with strings consisting of only <code class="highlighter-rouge">0s</code> and <code class="highlighter-rouge">1s</code>.</p>
+
+<p>Now your task is to find the maximum number of strings that you can form with given <code class="highlighter-rouge">m 0s</code> and <code class="highlighter-rouge">n 1s</code>. Each 0 and 1 can be used at most once.</p>
+<h3 id="note">Note:</h3>
+<ol>
+  <li>The given numbers of 0s and 1s will both not exceed 100</li>
+  <li>The size of given string array won’t exceed 600.]</li>
+</ol>
+
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">Array</span> <span class="o">=</span> <span class="p">{</span><span class="s">"10"</span><span class="p">,</span> <span class="s">"0001"</span><span class="p">,</span> <span class="s">"111001"</span><span class="p">,</span> <span class="s">"1"</span><span class="p">,</span> <span class="s">"0"</span><span class="p">},</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">4</span>
+
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">This</span> <span class="n">are</span> <span class="n">totally</span> <span class="mi">4</span> <span class="n">strings</span> <span class="n">can</span> <span class="n">be</span> <span class="n">formed</span> <span class="n">by</span> <span class="n">the</span> <span class="k">using</span> <span class="n">of</span> <span class="mi">5</span> <span class="mx">0s</span> <span class="n">and</span> <span class="mi">3</span> <span class="mx">1s</span><span class="p">,</span> <span class="n">which</span> <span class="n">are</span> <span class="err">“</span><span class="mi">10</span><span class="p">,</span><span class="err">”</span><span class="mo">0001</span><span class="err">”</span><span class="p">,</span><span class="err">”</span><span class="mi">1</span><span class="err">”</span><span class="p">,</span><span class="err">”</span><span class="mi">0</span><span class="err">”</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">Array</span> <span class="o">=</span> <span class="p">{</span><span class="s">"10"</span><span class="p">,</span> <span class="s">"0"</span><span class="p">,</span> <span class="s">"1"</span><span class="p">},</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">2</span>
+
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">You</span> <span class="n">could</span> <span class="n">form</span> <span class="s">"10"</span><span class="p">,</span> <span class="n">but</span> <span class="n">then</span> <span class="n">you</span><span class="err">'</span><span class="n">d</span> <span class="n">have</span> <span class="n">nothing</span> <span class="n">left</span><span class="p">.</span> <span class="n">Better</span> <span class="n">form</span> <span class="s">"0"</span> <span class="n">and</span> <span class="s">"1"</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法">解法</h1>
+<p>这道题一看就是动态规划解法，如果用贪心先给数组按长度排序，可能出现1或0消耗过快问题，所以需要穷尽所有情形，只能用动态规划。
+因为用m个0，n个1，那么动态数组肯定是要两维，dp[i][j]表示i个0，j个1所能组成的最大字符串个数。剩下的问题就是求解状态转移方程，
+对每个遍历到的字符串均假设它在最终结果里面，统计它0和1的个数表示为zeros和ones，它的位置也不知，只能穷尽所有情形，下标i从m递减
+到zeros,下表j从n递减到ones，对中间每个位置dp[i][j] = max(dp[i][j], dp[i - zeros][j - ones] + 1),这就是状态转移方程。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findMaxForm</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">strs</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>
+	<span class="k">for</span> <span class="p">(</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">str</span> <span class="o">:</span> <span class="n">strs</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">zeros</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ones</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">char</span><span class="o">&amp;</span> <span class="n">c</span> <span class="o">:</span> <span class="n">str</span><span class="p">)</span>
+			<span class="n">c</span> <span class="o">==</span> <span class="sc">'0'</span> <span class="o">?</span> <span class="o">++</span><span class="n">zeros</span> <span class="o">:</span> <span class="o">++</span><span class="n">ones</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">zeros</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">ones</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">zeros</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="n">ones</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(n^2)<br />
+runtime: 70.76%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/ones-and-zeroes/">leetcode-474</a></p>
+:ET

@@ -1,0 +1,143 @@
+I"C<h1 id="问题描述">问题描述</h1>
+<p>Say you have an array for which the <code class="highlighter-rouge">ith</code> element is the price of a given stock on day i.</p>
+
+<p>Design an algorithm to find the maximum profit. You may complete at most two transactions.</p>
+<h3 id="note">Note:</h3>
+<p>You may not engage in multiple transactions at the same time (i.e., you must sell the stock before you buy again).</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">6</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Buy</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">4</span> <span class="p">(</span><span class="n">price</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="n">and</span> <span class="n">sell</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">6</span> <span class="p">(</span><span class="n">price</span> <span class="o">=</span> <span class="mi">3</span><span class="p">),</span> <span class="n">profit</span> <span class="o">=</span> <span class="mi">3</span><span class="o">-</span><span class="mi">0</span> <span class="o">=</span> <span class="mf">3.</span>
+             <span class="n">Then</span> <span class="n">buy</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">7</span> <span class="p">(</span><span class="n">price</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="n">and</span> <span class="n">sell</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">8</span> <span class="p">(</span><span class="n">price</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span> <span class="n">profit</span> <span class="o">=</span> <span class="mi">4</span><span class="o">-</span><span class="mi">1</span> <span class="o">=</span> <span class="mf">3.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">4</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Buy</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">1</span> <span class="p">(</span><span class="n">price</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="n">and</span> <span class="n">sell</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">5</span> <span class="p">(</span><span class="n">price</span> <span class="o">=</span> <span class="mi">5</span><span class="p">),</span> <span class="n">profit</span> <span class="o">=</span> <span class="mi">5</span><span class="o">-</span><span class="mi">1</span> <span class="o">=</span> <span class="mf">4.</span>
+             <span class="n">Note</span> <span class="n">that</span> <span class="n">you</span> <span class="n">cannot</span> <span class="n">buy</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">1</span><span class="p">,</span> <span class="n">buy</span> <span class="n">on</span> <span class="n">day</span> <span class="mi">2</span> <span class="n">and</span> <span class="n">sell</span> <span class="n">them</span> <span class="n">later</span><span class="p">,</span> <span class="n">as</span> <span class="n">you</span> <span class="n">are</span>
+             <span class="n">engaging</span> <span class="n">multiple</span> <span class="n">transactions</span> <span class="n">at</span> <span class="n">the</span> <span class="n">same</span> <span class="n">time</span><span class="p">.</span> <span class="n">You</span> <span class="n">must</span> <span class="n">sell</span> <span class="n">before</span> <span class="n">buying</span> <span class="n">again</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">In</span> <span class="k">this</span> <span class="k">case</span><span class="p">,</span> <span class="n">no</span> <span class="n">transaction</span> <span class="n">is</span> <span class="n">done</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.</span> <span class="n">max</span> <span class="n">profit</span> <span class="o">=</span> <span class="mf">0.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这道题我刚开始想的是像Best Time to Buy and Sell Stock II那样求出每笔交易的利润，然后把所有利润排序取至多前两个。这个方法只通过了95%的测试，如{1,2,4,2,5,7,2,4,9,0}无法通过，因为第一次交易在4终止，第二笔交易到7终止，第三笔到9终止，最终利润为{7, 5, 3}，取前两个为12，但因为题目限定了最多两笔交易，第一笔应该在7终止，获得6利润。<br />
+那就只有动态规划了。这里需要两个二维动态数组，一个global[i][j]表示到第i天最多进行j笔交易获得的最大利润，一个local[i][j]表示到第i天最多进行j笔交易并且第j天卖出的交易的最大利润。动态转移方程为</p>
+<ul>
+  <li>local[i][j] = max(global[i - 1][j - 1] + max(diff, 0), local[i - 1][j] + diff);其中diff为prices[i] - prices[i - 1],表示相比于前一天价格净增量。local限定了当天卖出，那么只有3种情况：
+    <ol>
+      <li>当天买，当天卖；净利润增量为0，local[i][j] = global[i - 1][j - 1]</li>
+      <li>昨天买，今天卖；净利润增量为diff，local[i][j] = global[i - 1][j - 1] + diff</li>
+      <li>昨天之前(包括昨天)买的昨天不卖了，今天卖。相比于昨天，净利润变动为diff，所以local[i][j] = local[i - 1][j] + diff</li>
+    </ol>
+  </li>
+  <li>global[i][j] = max(global[i - 1][j], local[i][j]);全局最优为在昨天前就进行j笔交易净利润和到今天才进行第j笔交易获得净利润的较大值。</li>
+</ul>
+
+<blockquote>
+  <p>这题可以直接扩展到最多k笔交易。</p>
+</blockquote>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">maxProfit</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">prices</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">prices</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">prices</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">global</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span> <span class="n">local</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">3</span><span class="p">));</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="n">local</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">global</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">max</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">local</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">diff</span><span class="p">);</span>
+			<span class="n">global</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">global</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">local</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">global</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(n)<br />
+runtime: 14.37%<br />
+memory usage: 7.14%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>空间优化。因为解法1中第i天动态数组值仅与i-1天有关，所以用一维数组就行。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">maxProfit</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">prices</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">prices</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">prices</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">global</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">local</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="n">local</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">global</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">max</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">local</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">diff</span><span class="p">);</span>
+			<span class="n">global</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">global</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">local</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">global</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(1)<br />
+runtime: 72.01%<br />
+memory usage: 64.29%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/">leetcode-123</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/4281975.html">solution</a></p>
+
+:ET

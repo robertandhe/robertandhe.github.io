@@ -1,0 +1,16 @@
+I"4<h1 id="问题描述">问题描述：</h1>
+<p>Given n non-negative integers representing the histogram’s bar height where the width of each bar is 1, find the area of largest rectangle in the histogram.
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/leetcode/84-1.PNG" alt="81-1" /><br />
+Above is a histogram where width of each bar is 1, given height = [2,1,5,6,2,3].
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/leetcode/84-2.PNG" alt="81-2" /><br />
+The largest rectangle is shown in the shaded area, which has area = 10 unit.<br />
+Example:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">10</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h1 id="分析">分析：</h1>
+<p>题目给出一个表示直方图的向量，要求出直方图内最大的矩形面积。对求面积来说，相当于水桶原理，矮的边对矩形面积形成限制。
+暴力法可以求解，但无法通过OJ。</p>
+:ET

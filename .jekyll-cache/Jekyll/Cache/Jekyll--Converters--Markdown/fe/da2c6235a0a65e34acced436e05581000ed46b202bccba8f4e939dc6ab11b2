@@ -1,0 +1,75 @@
+I"�<h1 id="问题描述">问题描述</h1>
+<p>A string <code class="highlighter-rouge">S</code> of lowercase letters is given. We want to partition this string into as many parts as possible so that each letter appears in at most one part, and return a list of integers representing the size of these parts.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">S</span> <span class="o">=</span> <span class="s">"ababcbacadefegdehijhklij"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+<span class="n">Explanation</span><span class="o">:</span>
+<span class="n">The</span> <span class="n">partition</span> <span class="n">is</span> <span class="s">"ababcbaca"</span><span class="p">,</span> <span class="s">"defegde"</span><span class="p">,</span> <span class="s">"hijhklij"</span><span class="p">.</span>
+<span class="n">This</span> <span class="n">is</span> <span class="n">a</span> <span class="n">partition</span> <span class="n">so</span> <span class="n">that</span> <span class="n">each</span> <span class="n">letter</span> <span class="n">appears</span> <span class="n">in</span> <span class="n">at</span> <span class="n">most</span> <span class="n">one</span> <span class="n">part</span><span class="p">.</span>
+<span class="n">A</span> <span class="n">partition</span> <span class="n">like</span> <span class="s">"ababcbacadefegde"</span><span class="p">,</span> <span class="s">"hijhklij"</span> <span class="n">is</span> <span class="n">incorrect</span><span class="p">,</span> <span class="n">because</span> <span class="n">it</span> <span class="n">splits</span> <span class="n">S</span> <span class="n">into</span> <span class="n">less</span> <span class="n">parts</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">S</code> will have length in range <code class="highlighter-rouge">[1, 500]</code>.</li>
+  <li><code class="highlighter-rouge">S</code> will consist of lowercase letters <code class="highlighter-rouge">('a' to 'z')</code> only.</li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<p>根据题目的hint即可解题。首先一个partition里面的字符一定不再别的partition里面出现，现在问题就是怎么划分每个parition。首先应该找到第一个
+字符的最后出现位置，这样第一个字符就包含在partition里面，但中间还有别的字符，所以要找到中间所有字符的最后出现位置。直到partition内所有字符
+的最后位置均在partition范围内。用哈希表存储最后出现位置。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">partitionLabels</span><span class="p">(</span><span class="n">string</span> <span class="n">S</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">first</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">m</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">S</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">m</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">first</span> <span class="o">&lt;</span> <span class="n">S</span><span class="p">.</span><span class="n">size</span><span class="p">()){</span>
+		<span class="n">last</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">first</span><span class="p">]];</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">first</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">last</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="n">last</span><span class="p">){</span>
+				<span class="n">last</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">S</span><span class="p">[</span><span class="n">j</span><span class="p">]];</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="n">res</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">last</span> <span class="o">-</span> <span class="n">first</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+		<span class="n">first</span> <span class="o">=</span> <span class="n">last</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(n)<br />
+空间复杂度：O(n)<br />
+runtime: 92.31%<br />
+memory usage: 70.97%</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/partition-labels/">leetcode-763</a></p>
+:ET

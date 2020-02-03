@@ -1,0 +1,9 @@
+I"�<p>最近开始复习机器学习知识，这里总结下聚类里面的Kmeans算法。</p>
+<h2 id="1-理论介绍">1. 理论介绍</h2>
+<h3 id="11-kmeans理论介绍">1.1 KMeans理论介绍</h3>
+<p> K-平均算法（英文：k-means clustering）源于信号处理中的一种向量量化方法，现在则更多地作为一种聚类分析方法流行于数据挖掘领域。k-平均聚类的目的是：把n个点（可以是样本的一次观察或一个实例）划分到k个聚类中，使得每个点都属于离他最近的均值（此即聚类中心）对应的聚类，以之作为聚类的标准。这个问题将归结为一个把数据空间划分为Voronoi cells的问题。<br />
+ 给定样本集<script type="math/tex">D=\left\{x_1,x_2,...,x_m\right\}</script>
+，k-means算法针对聚类所得簇划分
+<script type="math/tex">\Omega=\left\{C_1,C_2,...,C_k\right\}</script>
+最小化平方误差</p>
+:ET

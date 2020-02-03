@@ -1,0 +1,214 @@
+I"�A<h1 id="问题描述">问题描述</h1>
+<p>Given an unsorted array of integers, find the length of longest increasing subsequence.</p>
+<h3 id="example">Example:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">18</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">4</span> 
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">The</span> <span class="n">longest</span> <span class="n">increasing</span> <span class="n">subsequence</span> <span class="n">is</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">101</span><span class="p">],</span> <span class="n">therefore</span> <span class="n">the</span> <span class="n">length</span> <span class="n">is</span> <span class="mf">4.</span> 
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ul>
+  <li>There may be more than one LIS combination, it is only necessary for you to return the length.</li>
+  <li>Your algorithm should run in O(n2) complexity.
+    <h3 id="follow-up">Follow up:</h3>
+    <p>Could you improve it to O(n log n) time complexity?</p>
+  </li>
+</ul>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这题一看就和<a href="https://hexinlin.top/2019/11/14/leetcode-646-Maximum-Length-of-Pair-Chain/">leetcode-646</a>思路一样。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">lengthOfLIS</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">nums</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+			<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>		
+		<span class="p">}</span>
+		<span class="n">res</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n^2)<br />
+space complexity: O(n)<br />
+runtime: 15.74%<br />
+memory usage:  75.00%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>题目follow up提示有O(n*logn)解法，那么应该是二分法。不过不会，网上找找。这个解法维持一个最长长度的数组ends，里面的元素可能不是原始的LIS。ends初始化为nums[0],后面出现比ends[0]小的元素，就用它替换ends[0],如果比ends.back()大，就推入数组，长度增大，如果比开头小，末尾大，就用它替换数组中大于等于它的元素，这些操作背后的思想都是尽量缩小数组中的元素，以使后面长度尽量增长。这里查找大于等于它的位置就是二分法。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">lengthOfLIS</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">nums</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ends</span><span class="p">{</span><span class="n">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]};</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">&lt;</span> <span class="n">ends</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+			<span class="n">ends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+		<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">ends</span><span class="p">.</span><span class="n">back</span><span class="p">())</span>
+			<span class="n">ends</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="kt">int</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">ends</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+			<span class="k">while</span> <span class="p">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">){</span>
+				<span class="kt">int</span> <span class="n">mid</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="p">(</span><span class="n">right</span> <span class="o">-</span> <span class="n">left</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">ends</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">)</span>
+					<span class="n">left</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+				<span class="k">else</span> 
+					<span class="n">right</span> <span class="o">=</span> <span class="n">mid</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="n">ends</span><span class="p">[</span><span class="n">right</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">ends</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n*log(n))<br />
+space complexity: O(n)<br />
+runtime: 90.31%<br />
+memory usage: 95.31%</p>
+
+<h2 id="解法-3">解法 3</h2>
+<p>和解法2一样，代码更加浑然一体。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">lengthOfLIS3</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">nums</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ends</span><span class="p">{</span><span class="n">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]};</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">ends</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+		<span class="k">while</span> <span class="p">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">){</span>
+			<span class="kt">int</span> <span class="n">mid</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="p">(</span><span class="n">right</span> <span class="o">-</span> <span class="n">left</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">ends</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">)</span>
+				<span class="n">left</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+			<span class="k">else</span> 
+				<span class="n">right</span> <span class="o">=</span> <span class="n">mid</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">right</span> <span class="o">&gt;=</span> <span class="n">ends</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+			<span class="n">ends</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+		<span class="k">else</span> 
+			<span class="n">ends</span><span class="p">[</span><span class="n">right</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">ends</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n*log(n))<br />
+space complexity: O(n) 
+runtime: 90.31%<br />
+memory usage: 48.44%</p>
+
+<h2 id="解法-4">解法 4</h2>
+<p>和解法2，3一样，只是用STL lower_bound来查找。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">lengthOfLIS</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">nums</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ends</span><span class="p">{</span><span class="n">nums</span><span class="p">[</span><span class="mi">0</span><span class="p">]};</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">lower_bound</span><span class="p">(</span><span class="n">ends</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">ends</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">a</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">==</span> <span class="n">ends</span><span class="p">.</span><span class="n">end</span><span class="p">())</span>
+			<span class="n">ends</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+		<span class="k">else</span> 
+			<span class="o">*</span><span class="n">it</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">ends</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n*log(n))<br />
+space complexity: O(n)<br />
+runtime: 90.31%<br />
+memory usage: 95.31%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/longest-increasing-subsequence/">leetcode-300</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/4938187.html">solution 2-4</a></p>
+:ET

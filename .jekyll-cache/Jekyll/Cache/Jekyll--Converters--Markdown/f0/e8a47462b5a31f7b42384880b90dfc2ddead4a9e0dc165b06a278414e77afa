@@ -1,0 +1,146 @@
+I"�2<h1 id="问题描述">问题描述</h1>
+<p>Given an array <code class="highlighter-rouge">A</code> of integers, we <code class="highlighter-rouge">must</code> modify the array in the following way: we choose an <code class="highlighter-rouge">i</code> and replace<code class="highlighter-rouge">A[i]</code> with <code class="highlighter-rouge">-A[i]</code>, and we repeat this process <code class="highlighter-rouge">K</code> times in total.  (We may choose the same index <code class="highlighter-rouge">i</code> multiple times.)</p>
+
+<p>Return the largest possible sum of the array after modifying it in this way.</p>
+
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">5</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Choose</span> <span class="n">indices</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="n">and</span> <span class="n">A</span> <span class="n">becomes</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">].</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">6</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Choose</span> <span class="n">indices</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="n">and</span> <span class="n">A</span> <span class="n">becomes</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">].</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="o">-</span><span class="mi">4</span><span class="p">],</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">13</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Choose</span> <span class="n">indices</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="n">and</span> <span class="n">A</span> <span class="n">becomes</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">].</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">1 &lt;= A.length &lt;= 10000</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= K &lt;= 10000</code></li>
+  <li><code class="highlighter-rouge">-100 &lt;= A[i] &lt;= 100</code></li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>肯定优先翻转负数，所以要先排序。负数翻转完就要翻转正数了，如果此时<code class="highlighter-rouge">K%2==0</code>，那么正数翻转偶数次，相当于啥都不做。如果<code class="highlighter-rouge">K%2==1</code>,就要调
+一个正数翻转，应该挑这个正数和前一个非正数绝对值小的翻转。如果前一个非正数绝对值小，那么应该翻转它翻转之后的正数，因为之前已经加过一次正数，就要
+加上<code class="highlighter-rouge">2 * A[i - 1]</code>,在加<code class="highlighter-rouge">A[i]</code>。否则加<code class="highlighter-rouge">-A[i]</code>。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">largestSumAfterKNegations</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="kt">int</span> <span class="n">K</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">K</span><span class="p">){</span>
+			<span class="o">--</span><span class="n">K</span><span class="p">;</span>
+			<span class="n">res</span> <span class="o">+=</span> <span class="o">-</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="p">}</span>
+		<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">%</span> <span class="mi">2</span><span class="p">){</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">abs</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">abs</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">])){</span>
+				<span class="n">res</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+				<span class="n">res</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+			<span class="p">}</span>
+			<span class="k">else</span> 
+				<span class="n">res</span> <span class="o">+=</span> <span class="o">-</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+			<span class="n">K</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span>
+			<span class="n">res</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(1)<br />
+runtime: 68.31%<br />
+memory usage: 50.00%</p>
+
+<h1 id="解法-2">解法 2</h1>
+<p>利用最小堆，每次挑最小的翻转，干净利落。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">largestSumAfterKNegations2</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="kt">int</span> <span class="n">K</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">priority_queue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">greater</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">K</span><span class="p">){</span>
+		<span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+		<span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+		<span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">);</span>
+		<span class="o">--</span><span class="n">K</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+		<span class="n">res</span> <span class="o">+=</span> <span class="n">q</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+		<span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(nlong)<br />
+space complexity: O(n)<br />
+runtime: 24.21%<br />
+memory usage: 85.71%</p>
+
+<html>
+	<body>
+		&lt;p style="color:#9963ff" size=4 face="宋体";&gt;
+			至于为啥解法2比解法1空间占优，暂时唔知啊！！！
+		&lt;/p&gt;
+	</body>
+</html>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/maximize-sum-of-array-after-k-negations/">leetcode-1005</a></p>
+:ET

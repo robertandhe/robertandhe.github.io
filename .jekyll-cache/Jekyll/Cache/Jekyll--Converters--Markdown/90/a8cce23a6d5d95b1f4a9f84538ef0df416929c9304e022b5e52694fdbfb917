@@ -1,0 +1,485 @@
+I"�<h1 id="问题描述">问题描述</h1>
+<p>You are driving a vehicle that has <code class="highlighter-rouge">capacity</code> empty seats initially available for passengers.  The vehicle <code class="highlighter-rouge">only</code> drives east (ie. it <code class="highlighter-rouge">cannot</code> turn around and drive west.)</p>
+
+<p>Given a list of <code class="highlighter-rouge">trips</code>, <code class="highlighter-rouge">trip[i] = [num_passengers, start_location, end_location]</code> contains information about the <code class="highlighter-rouge">i</code>-th trip: the number of passengers that must be picked up, and the locations to pick them up and drop them off.  The locations are given as the number of kilometers due east from your vehicle’s initial location.</p>
+
+<p>Return <code class="highlighter-rouge">true</code> if and only if it is possible to pick up and drop off all passengers for all the given trips.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">trips</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">]],</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">false</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">trips</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">]],</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">true</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">trips</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">]],</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">true</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-4">Example 4:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">trips</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">7</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">9</span><span class="p">]],</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">11</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">true</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="constraints">Constraints:</h3>
+<ol>
+  <li><code class="highlighter-rouge">trips.length &lt;= 1000</code></li>
+  <li><code class="highlighter-rouge">trips[i].length == 3</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= trips[i][0] &lt;= 100</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= trips[i][1] &lt; trips[i][2] &lt;= 1000</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= capacity &lt;= 100000</code></li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>要求出能否走完全程。应该到每个要上车的位置求出能否载满，同时要减去在这要下车的人。为了求出到某个位置要下车的人，用一个priority_queue存储{end_location, num_passengers}的pair，用当前trip的start_location弹出heap中end_location小于当前trip的start_location的pair。为了使priority_queue中按照从小到大排，应该用greater cmp函数。同时原始trips可能是未排序的，应按照start_location排一下。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kt">bool</span> <span class="nf">carPooling</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="kt">int</span> <span class="n">capacity</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">trips</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">trips</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">trips</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">];});</span>
+	<span class="n">priority_queue</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">,</span> <span class="n">greater</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&gt;</span> <span class="n">q</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">cur</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">q</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">0</span><span class="p">]){</span>
+			<span class="n">cnt</span> <span class="o">-=</span> <span class="n">q</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">1</span><span class="p">];</span>
+			<span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>	
+		<span class="p">}</span>
+		<span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">({</span><span class="n">cur</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cur</span><span class="p">[</span><span class="mi">0</span><span class="p">]});</span>
+		<span class="n">cnt</span> <span class="o">+=</span> <span class="n">cur</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">cnt</span> <span class="o">&gt;</span> <span class="n">capacity</span><span class="p">)</span>
+			<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlog(n))<br />
+空间复杂度：O(n)<br />
+runtime: 61.87%<br />
+memory usage: 100.00%</p>
+<h2 id="解法-2">解法 2</h2>
+<p>这个解法利用了start_location和end_location在区间[1, 1000]内的限定条件，用长度为1001的向量seats表示对应里程的位置变动人数。然后遍历求和，求出每个里程车上总人数。有点精巧。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="kt">bool</span> <span class="nf">carPooling2</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="kt">int</span> <span class="n">capacity</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">seats</span><span class="p">(</span><span class="mi">1001</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">trips</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">seats</span><span class="p">[</span><span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+		<span class="n">seats</span><span class="p">[</span><span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]]</span> <span class="o">-=</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">seats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">capacity</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">seats</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">seats</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">seats</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">seats</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">capacity</span><span class="p">)</span>
+			<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(n + m)<br />
+空间复杂度：O(m)<br />
+runtime: 99.82%<br />
+memory usage: 100.00%</p>
+
+<h2 id="解法-3">解法 3</h2>
+<p>今天兴致不错，谢谢排序玩玩，这里是插入排序。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">insertionSort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">trips</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(;</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">trips</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+			<span class="n">trips</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="n">trips</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度： O(n^2)<br />
+空间复杂度： O(1)<br />
+runtime: 5.49%<br />
+memory usage: 100.00%</p>
+<h2 id="解法-4">解法 4</h2>
+<p>这里是希尔排序。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">shellSort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">trips</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">increment</span> <span class="o">=</span> <span class="n">n</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span> <span class="n">increment</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="n">increment</span> <span class="o">/=</span> <span class="mi">2</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">increment</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+			<span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+			<span class="k">for</span> <span class="p">(;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">increment</span><span class="p">;</span> <span class="n">j</span> <span class="o">-=</span> <span class="n">increment</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="n">increment</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]){</span>
+					<span class="n">trips</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="n">increment</span><span class="p">];</span>
+				<span class="p">}</span>
+				<span class="k">else</span> 
+					<span class="k">break</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="n">trips</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 11.81%<br />
+memory usage: 100.00%</p>
+
+<h2 id="解法-5">解法 5</h2>
+<p>这里是堆排序。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+</pre></td><td class="rouge-code"><pre><span class="cp">#define LeftChild(i) (2 * i + 1)
+</span>
+<span class="kt">void</span> <span class="nf">percDown</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="kt">int</span> <span class="n">N</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">child</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+	<span class="k">for</span> <span class="p">(;</span> <span class="n">LeftChild</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span> <span class="o">=</span> <span class="n">child</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">child</span> <span class="o">=</span> <span class="n">LeftChild</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">child</span> <span class="o">!=</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">trips</span><span class="p">[</span><span class="n">child</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">trips</span><span class="p">[</span><span class="n">child</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+			<span class="o">++</span><span class="n">child</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">trips</span><span class="p">[</span><span class="n">child</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+			<span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">child</span><span class="p">];</span>
+		<span class="k">else</span> 
+			<span class="k">break</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">heapSort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">trips</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">n</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">percDown</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">swap</span><span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+		<span class="n">percDown</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 17.12%<br />
+memory usage: 100.00%</p>
+
+<h2 id="解法-6">解法 6</h2>
+<p>这里是归并排序。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">Merge</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">tmpArray</span><span class="p">,</span> <span class="kt">int</span> <span class="n">leftPos</span><span class="p">,</span> <span class="kt">int</span> <span class="n">rightPos</span><span class="p">,</span> <span class="kt">int</span> <span class="n">rightEnd</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">leftEnd</span> <span class="o">=</span> <span class="n">rightPos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">numElement</span> <span class="o">=</span> <span class="n">rightEnd</span> <span class="o">-</span> <span class="n">leftPos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">tmpPos</span> <span class="o">=</span> <span class="n">leftPos</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">leftPos</span> <span class="o">&lt;=</span> <span class="n">leftEnd</span> <span class="o">&amp;&amp;</span> <span class="n">rightPos</span> <span class="o">&lt;=</span> <span class="n">rightEnd</span><span class="p">){</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">leftPos</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">trips</span><span class="p">[</span><span class="n">rightPos</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="n">tmpArray</span><span class="p">[</span><span class="n">tmpPos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">leftPos</span><span class="o">++</span><span class="p">];</span>
+		<span class="p">}</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="n">tmpArray</span><span class="p">[</span><span class="n">tmpPos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">rightPos</span><span class="o">++</span><span class="p">];</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">leftPos</span> <span class="o">&lt;=</span> <span class="n">leftEnd</span><span class="p">)</span>
+		<span class="n">tmpArray</span><span class="p">[</span><span class="n">tmpPos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">leftPos</span><span class="o">++</span><span class="p">];</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">rightPos</span> <span class="o">&lt;=</span> <span class="n">rightEnd</span><span class="p">)</span>
+		<span class="n">tmpArray</span><span class="p">[</span><span class="n">tmpPos</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">rightPos</span><span class="o">++</span><span class="p">];</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numElement</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">,</span> <span class="n">rightEnd</span><span class="o">--</span><span class="p">)</span>
+		<span class="n">trips</span><span class="p">[</span><span class="n">rightEnd</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmpArray</span><span class="p">[</span><span class="n">rightEnd</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">MSort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">tmpArray</span><span class="p">,</span> <span class="kt">int</span> <span class="n">left</span><span class="p">,</span> <span class="kt">int</span> <span class="n">right</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">center</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">){</span>
+		<span class="n">center</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="p">(</span><span class="n">right</span> <span class="o">-</span> <span class="n">left</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+		<span class="n">MSort</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">tmpArray</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">center</span><span class="p">);</span>
+		<span class="n">MSort</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">tmpArray</span><span class="p">,</span> <span class="n">center</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">right</span><span class="p">);</span>
+		<span class="n">Merge</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">tmpArray</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">center</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">right</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">mergeSort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">trips</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">tmpArray</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+	<span class="n">MSort</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">tmpArray</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 61.87%<br />
+memory usage: 100.00%</p>
+
+<h2 id="解法-7">解法 7</h2>
+<p>这里是快排。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">insertSortQ</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="kt">int</span> <span class="n">left</span><span class="p">,</span> <span class="kt">int</span> <span class="n">right</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(;</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="n">left</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+				<span class="n">trips</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">trips</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+			<span class="k">else</span> 
+				<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">trips</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">median3</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="kt">int</span> <span class="n">left</span><span class="p">,</span> <span class="kt">int</span> <span class="n">right</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">center</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="p">(</span><span class="n">right</span> <span class="o">-</span> <span class="n">left</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">left</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">trips</span><span class="p">[</span><span class="n">center</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">swap</span><span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">left</span><span class="p">],</span> <span class="n">trips</span><span class="p">[</span><span class="n">center</span><span class="p">]);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">left</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">trips</span><span class="p">[</span><span class="n">right</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">swap</span><span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">left</span><span class="p">],</span> <span class="n">trips</span><span class="p">[</span><span class="n">right</span><span class="p">]);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">center</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">trips</span><span class="p">[</span><span class="n">right</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">swap</span><span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">center</span><span class="p">],</span> <span class="n">trips</span><span class="p">[</span><span class="n">right</span><span class="p">]);</span>
+	<span class="n">swap</span><span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">center</span><span class="p">],</span> <span class="n">trips</span><span class="p">[</span><span class="n">right</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+	<span class="k">return</span> <span class="n">trips</span><span class="p">[</span><span class="n">right</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">QSort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">,</span> <span class="kt">int</span> <span class="n">left</span><span class="p">,</span> <span class="kt">int</span> <span class="n">right</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">){</span>
+		<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">pivot</span> <span class="o">=</span> <span class="n">median3</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">);</span>
+		<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">left</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">right</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(;;)</span>
+		<span class="p">{</span>
+			<span class="k">while</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="o">++</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pivot</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+				<span class="p">;</span>
+			<span class="k">while</span> <span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="o">--</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pivot</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+				<span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">)</span>
+				<span class="n">swap</span><span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">trips</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+			<span class="k">else</span> 
+				<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">swap</span><span class="p">(</span><span class="n">trips</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">trips</span><span class="p">[</span><span class="n">right</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+		<span class="n">QSort</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+		<span class="n">QSort</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">right</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">insertSortQ</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">quickSort</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">trips</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">trips</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">QSort</span><span class="p">(</span><span class="n">trips</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 61.87%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/car-pooling/">leetcode-1094</a><br />
+<a href="https://www.acwing.com/solution/LeetCode/content/2562/">solution 2</a></p>
+
+:ET

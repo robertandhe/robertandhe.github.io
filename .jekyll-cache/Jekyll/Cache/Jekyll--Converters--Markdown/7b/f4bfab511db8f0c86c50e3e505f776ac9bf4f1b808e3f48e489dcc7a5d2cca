@@ -1,0 +1,118 @@
+I"*><h1 id="问题描述">问题描述</h1>
+<p>In a country popular for train travel, you have planned some train travelling one year in advance.  The days of the year that you will travel is given as an array <code class="highlighter-rouge">days</code>.  Each day is an integer from <code class="highlighter-rouge">1</code> to <code class="highlighter-rouge">365</code>.</p>
+
+<p>Train tickets are sold in 3 different ways:</p>
+<ul>
+  <li>a 1-day pass is sold for <code class="highlighter-rouge">costs[0]</code> dollars;</li>
+  <li>a 7-day pass is sold for <code class="highlighter-rouge">costs[1]</code> dollars;</li>
+  <li>a 30-day pass is sold for <code class="highlighter-rouge">costs[2]</code> dollars.</li>
+</ul>
+
+<p>The passes allow that many days of consecutive travel.  For example, if we get a 7-day pass on day 2, then we can travel for 7 days: day 2, 3, 4, 5, 6, 7, and 8.</p>
+
+<p>Return the minimum number of dollars you need to travel every day in the given list of <code class="highlighter-rouge">days</code>.</p>
+
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">days</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">20</span><span class="p">],</span> <span class="n">costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">15</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">11</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">here</span> <span class="n">is</span> <span class="n">one</span> <span class="n">way</span> <span class="n">to</span> <span class="n">buy</span> <span class="n">passes</span> <span class="n">that</span> <span class="n">lets</span> <span class="n">you</span> <span class="n">travel</span> <span class="n">your</span> <span class="n">travel</span> <span class="n">plan</span><span class="o">:</span>
+<span class="n">On</span> <span class="n">day</span> <span class="mi">1</span><span class="p">,</span> <span class="n">you</span> <span class="n">bought</span> <span class="n">a</span> <span class="mi">1</span><span class="o">-</span><span class="n">day</span> <span class="n">pass</span> <span class="k">for</span> <span class="n">costs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="err">$</span><span class="mi">2</span><span class="p">,</span> <span class="n">which</span> <span class="n">covered</span> <span class="n">day</span> <span class="mf">1.</span>
+<span class="n">On</span> <span class="n">day</span> <span class="mi">3</span><span class="p">,</span> <span class="n">you</span> <span class="n">bought</span> <span class="n">a</span> <span class="mi">7</span><span class="o">-</span><span class="n">day</span> <span class="n">pass</span> <span class="k">for</span> <span class="n">costs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="err">$</span><span class="mi">7</span><span class="p">,</span> <span class="n">which</span> <span class="n">covered</span> <span class="n">days</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">...,</span> <span class="mf">9.</span>
+<span class="n">On</span> <span class="n">day</span> <span class="mi">20</span><span class="p">,</span> <span class="n">you</span> <span class="n">bought</span> <span class="n">a</span> <span class="mi">1</span><span class="o">-</span><span class="n">day</span> <span class="n">pass</span> <span class="k">for</span> <span class="n">costs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="err">$</span><span class="mi">2</span><span class="p">,</span> <span class="n">which</span> <span class="n">covered</span> <span class="n">day</span> <span class="mf">20.</span>
+<span class="n">In</span> <span class="n">total</span> <span class="n">you</span> <span class="n">spent</span> <span class="err">$</span><span class="mi">11</span> <span class="n">and</span> <span class="n">covered</span> <span class="n">all</span> <span class="n">the</span> <span class="n">days</span> <span class="n">of</span> <span class="n">your</span> <span class="n">travel</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">days</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">],</span> <span class="n">costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">15</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">17</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">here</span> <span class="n">is</span> <span class="n">one</span> <span class="n">way</span> <span class="n">to</span> <span class="n">buy</span> <span class="n">passes</span> <span class="n">that</span> <span class="n">lets</span> <span class="n">you</span> <span class="n">travel</span> <span class="n">your</span> <span class="n">travel</span> <span class="n">plan</span><span class="o">:</span>
+<span class="n">On</span> <span class="n">day</span> <span class="mi">1</span><span class="p">,</span> <span class="n">you</span> <span class="n">bought</span> <span class="n">a</span> <span class="mi">30</span><span class="o">-</span><span class="n">day</span> <span class="n">pass</span> <span class="k">for</span> <span class="n">costs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="err">$</span><span class="mi">15</span> <span class="n">which</span> <span class="n">covered</span> <span class="n">days</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">...,</span> <span class="mf">30.</span>
+<span class="n">On</span> <span class="n">day</span> <span class="mi">31</span><span class="p">,</span> <span class="n">you</span> <span class="n">bought</span> <span class="n">a</span> <span class="mi">1</span><span class="o">-</span><span class="n">day</span> <span class="n">pass</span> <span class="k">for</span> <span class="n">costs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="err">$</span><span class="mi">2</span> <span class="n">which</span> <span class="n">covered</span> <span class="n">day</span> <span class="mf">31.</span>
+<span class="n">In</span> <span class="n">total</span> <span class="n">you</span> <span class="n">spent</span> <span class="err">$</span><span class="mi">17</span> <span class="n">and</span> <span class="n">covered</span> <span class="n">all</span> <span class="n">the</span> <span class="n">days</span> <span class="n">of</span> <span class="n">your</span> <span class="n">travel</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">1 &lt;= days.length &lt;= 365</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= days[i] &lt;= 365</code></li>
+  <li><code class="highlighter-rouge">days</code> is in strictly increasing order.</li>
+  <li><code class="highlighter-rouge">costs.length == 3</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= costs[i] &lt;= 1000</code></li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<p> 这题给出一个人的旅行计划，在一年内的某些天要外出旅游，具体的天数在days数组里面，同时用联程票可以买，在costs数组中存储联程票的价格，costs[0]为单日票的价格，costs[1]为7日票的价格，costs[2]为月票30日的价格，问最低的旅行费用为多少？<br />
+ 又是最值问题，只有上动态规划了，动态数组dp[i]表示到days数组第i个位置天数最低的旅行费用。最重要的状态转移方程如何求：</p>
+<ul>
+  <li>假设在当天是用的单日票，那么到当前旅行日的费用就等于到上一个旅行日的费用加上单日票的价格，one = costs[0] + dp[i - 1];</li>
+  <li>假设在当天是用的7日票，那么到当前旅行日的费用就等于到买7日旅行票之前的费用加上7日票的价格。j初始化为i - 1,一直往回退，看退到哪里不能用7日票覆盖，这里注意days[i] - days[j] &lt;= 6才是在7日票覆盖范围内，seven = costs[1] + dp[j];</li>
+  <li>假设在当天是用的30日票，那么到当前旅行日的费用就等于到买30日旅行票之前的费用加上30日票的价格。j初始化为i - 1,一直往回退，看退到哪里不能用30日票覆盖，这里注意days[i] - days[j] &lt;= 29才是在7日票覆盖范围内，thirty = costs[1] + dp[j];</li>
+  <li>最终在one, seven, thirty中取最小值就是到当前旅行日的最低费用。</li>
+</ul>
+
+<p> 这里为了方便计算第一个旅行日的费用，把动态数组大小设置为n+1, dp[0]=0，相应的状态转移方程做出变化即可。最终返回dp.back()。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">mincostTickets</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">days</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">costs</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">days</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">one</span> <span class="o">=</span> <span class="n">costs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">seven</span> <span class="o">=</span> <span class="n">costs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">thirty</span> <span class="o">=</span> <span class="n">costs</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+		<span class="n">one</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span>
+		<span class="k">while</span> <span class="p">(</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">days</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">days</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">6</span><span class="p">)</span>
+			<span class="o">--</span><span class="n">j</span><span class="p">;</span>
+		<span class="n">seven</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span>
+		<span class="k">while</span> <span class="p">(</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">days</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">days</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">29</span><span class="p">)</span>
+			<span class="o">--</span><span class="n">j</span><span class="p">;</span>
+		<span class="n">thirty</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">min</span><span class="p">(</span><span class="n">seven</span><span class="p">,</span> <span class="n">thirty</span><span class="p">));</span>	
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(n)<br />
+runtime: 77.12%<br />
+memory usage: 75.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/minimum-cost-for-tickets/">leetcode-983</a></p>
+:ET

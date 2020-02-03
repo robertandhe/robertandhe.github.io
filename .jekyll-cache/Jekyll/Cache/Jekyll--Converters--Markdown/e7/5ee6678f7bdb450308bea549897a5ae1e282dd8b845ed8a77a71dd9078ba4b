@@ -1,0 +1,138 @@
+I"�7<h1 id="问题描述">问题描述</h1>
+<p>You are given <code class="highlighter-rouge">n</code> pairs of numbers. In every pair, the first number is always smaller than the second number.</p>
+
+<p>Now, we define a pair <code class="highlighter-rouge">(c, d)</code> can follow another pair <code class="highlighter-rouge">(a, b)</code> if and only if<code class="highlighter-rouge">b &lt; c</code>. Chain of pairs can be formed in this fashion.</p>
+
+<p>Given a set of pairs, find the length longest chain which can be formed. You needn’t use up all the given pairs. You can select pairs in any order.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">2</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">The</span> <span class="n">longest</span> <span class="n">chain</span> <span class="n">is</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li>The number of given pairs will be in the range [1, 1000].</li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这题刚开始一看感觉无法用贪心，假设数组为[1, 10], [2, 3], [4, 5], [6, 7]，如果贪心就认为[1, 10]符合，返回了1,正确应该是3。那么只能动态规划了，动态规划就适合这种遍历所有情形的运算。因为要比较后面0位置和前面1位置，所以要先排序。动态数组dp长度为数组长度n，初始化全为1。dp[i]表示到第i+1个pair最大链的长度，动态转移方程就是对每个pair，pairs[i]，找到它之前pairs[j][1]小于pairs[i][0]的j位置长度加1，即dp[i] = max(dp[i], dp[j] + 1)。最终返回dp[n-1]。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findLongestChain</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">pairs</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">pairs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">pairs</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">pairs</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span> <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">];});</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">pairs</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pairs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]){</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>timecomplexity: O(n^2)<br />
+space complexity: O(n)<br />
+runtime: 39.58%<br />
+memory usage: 100.00%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>这题刚开始感觉无法使用贪心，但看了大佬的解法还是太naive。因为题目限定对每个pair，pair[0] &lt; pair[1]。那么这里排序是只按照1位置排序，这个相当关键，因为按照1位置排序就同时按照了0位置排序。再用一个栈存储上个pair，当前pair[0] &gt; st.top()[1]就推入。回到解法1的例子，排序后为[2, 3], [4, 5], [6, 7]，[1, 10]。最终栈内为[2, 3], [4, 5], [6, 7]。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findLongestChain</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">pairs</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">stack</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">st</span><span class="p">;</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">pairs</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">pairs</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">];});</span>
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">pair</span> <span class="o">:</span> <span class="n">pairs</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">st</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+			<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pair</span><span class="p">);</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+				<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">pair</span><span class="p">);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">st</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>timecomplexity: O(n*log(n))<br />
+space complexity: O(n)<br />
+runtime: 73.04%<br />
+memory usage: 66.67%</p>
+
+<h2 id="解法-3">解法 3</h2>
+<p>解法2空间优化。因为当前pair仅与上个pair的1位置元素有关，用end存储，同时不用栈了，直接用res表示大小。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findLongestChain</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">pairs</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">INT_MIN</span><span class="p">;</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">pairs</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">pairs</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">];});</span>
+	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">pair</span> <span class="o">:</span> <span class="n">pairs</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">){</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+			<span class="n">end</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>timecomplexity: O(n*log(n))<br />
+space complexity: O(1)<br />
+runtime: 84.37%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/maximum-length-of-pair-chain/">leetcode-646</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/7381633.html">solution 2,3</a></p>
+:ET

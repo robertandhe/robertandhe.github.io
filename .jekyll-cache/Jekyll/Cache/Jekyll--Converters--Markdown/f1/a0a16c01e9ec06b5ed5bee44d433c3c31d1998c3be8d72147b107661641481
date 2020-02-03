@@ -1,0 +1,623 @@
+I"J*<h1 id="ashrae-great-energy-predictor-iii"><center>ASHRAE-Great Energy Predictor III</center></h1>
+<blockquote>
+  <p>写在前面：第二次参加kaggle比赛，比赛名次为10/3614。这次还是一个数据挖掘的比赛，相比于上个欺诈检测的比赛学到了东西就少了些，而且也没那么有趣，但还是有所收获。感谢给力的队友Clancy Lee。</p>
+</blockquote>
+
+<h2 id="1-比赛介绍">1. 比赛介绍</h2>
+<h3 id="11-比赛背景">1.1 比赛背景</h3>
+<p>ASHRAE协会组织的关于能源消耗预测的比赛。<br />
+Founded in 1894, <a href="https://www.ashrae.org/">ASHRAE</a> serves to advance the arts and sciences of heating, ventilation, air conditioning refrigeration and their allied fields. ASHRAE members represent building system design and industrial process professionals around the world. With over 54,000 members serving in 132 countries, ASHRAE supports research, standards writing, publishing and continuing education - shaping tomorrow’s built environment today.</p>
+<h3 id="12-评价标准">1.2 评价标准</h3>
+<p>比赛评价标准为Root Mean Squared Logarithmic Error(RMSLE).</p>
+
+<script type="math/tex; mode=display">\begin{equation}
+\varepsilon  = \sqrt {\frac{1}{n}\sum\limits_{i = 1}^n {\left( {\log \left( p_i + 1\right) - \log \left( a_i + 1\right)} \right)}^2}
+\end{equation}</script>
+
+<p>其中：<br />
+$\varepsilon$表示RMSLE(score)；<br />
+$n$表示测试集大小；<br />
+$p_i$表示预测值；<br />
+$a_i$表示实际值；<br />
+$log(x)$表示对数。</p>
+
+<h3 id="13-数据集介绍">1.3 数据集介绍</h3>
+<p>train.csv:训练集数据，包括：</p>
+<ul>
+  <li>building_id - Foreign key for the building metadata.</li>
+  <li>meter - The meter id code. Read as {0: electricity, 1: chilledwater, 2: steam, 3: hotwater}. Not every building has all meter types.</li>
+  <li>timestamp - When the measurement was taken</li>
+  <li>meter_reading - The target variable. Energy consumption in kWh (or equivalent). Note that this is real data with measurement error, which we expect will impose a baseline level of modeling error. UPDATE: as discussed here, the site 0 electric meter readings are in kBTU</li>
+</ul>
+
+<p>building_metadata.csv:关于各个建筑信息的文件。</p>
+<ul>
+  <li>site_id - Foreign key for the weather files.</li>
+  <li>building_id - Foreign key for training.csv</li>
+  <li>primary_use - Indicator of the primary category of activities for the building based on EnergyStar property type definitions</li>
+  <li>square_feet - Gross floor area of the building</li>
+  <li>year_built - Year building was opened</li>
+  <li>floor_count - Number of floors of the building</li>
+</ul>
+
+<p>weather_[train/test].csv:天气数据</p>
+<ul>
+  <li>site_id</li>
+  <li>air_temperature - Degrees Celsius</li>
+  <li>cloud_coverage - Portion of the sky covered in clouds, in oktas</li>
+  <li>dew_temperature - Degrees Celsius，露温。</li>
+  <li>precip_depth_1_hr - Millimeters</li>
+  <li>sea_level_pressure - Millibar/hectopascals</li>
+  <li>wind_direction - Compass direction (0-360)</li>
+  <li>wind_speed - Meters per second</li>
+</ul>
+
+<p>test.csv:测试数据</p>
+<ul>
+  <li>row_id - Row id for your submission file</li>
+  <li>building_id - Building id code</li>
+  <li>meter - The meter id code</li>
+  <li>timestamp - Timestamps for the test data period</li>
+</ul>
+
+<p>sample_submission.csv</p>
+
+<h2 id="2-数据预处理">2. 数据预处理</h2>
+<p> 这个比赛特征工程我们做的不多，主要是在于数据预处理。</p>
+<h3 id="21数据压缩">2.1数据压缩</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">is_datetime64_any_dtype</span> <span class="k">as</span> <span class="n">is_datetime</span>
+<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">is_categorical_dtype</span>
+
+<span class="k">def</span> <span class="nf">reduce_mem_usage</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">use_float16</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="s">""" iterate through all the columns of a dataframe and modify the data type
+        to reduce memory usage.        
+    """</span>
+    <span class="n">start_mem</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">()</span><span class="o">.</span><span class="nb">sum</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Memory usage of dataframe is {:.2f} MB'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">start_mem</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="ow">or</span> <span class="n">is_categorical_dtype</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+            <span class="c1"># skip datetime type or categorical type
+</span>            <span class="k">continue</span>
+        <span class="n">col_type</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+        
+        <span class="k">if</span> <span class="n">col_type</span> <span class="o">!=</span> <span class="nb">object</span><span class="p">:</span>
+            <span class="n">c_min</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">min</span><span class="p">()</span>
+            <span class="n">c_max</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">max</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">col_type</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s">'int'</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">c_min</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span><span class="o">.</span><span class="nb">min</span> <span class="ow">and</span> <span class="n">c_max</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span><span class="o">.</span><span class="nb">max</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">c_min</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span><span class="o">.</span><span class="nb">min</span> <span class="ow">and</span> <span class="n">c_max</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span><span class="o">.</span><span class="nb">max</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">c_min</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="nb">min</span> <span class="ow">and</span> <span class="n">c_max</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="nb">max</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">c_min</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="nb">min</span> <span class="ow">and</span> <span class="n">c_max</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="nb">max</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>  
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">use_float16</span> <span class="ow">and</span> <span class="n">c_min</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span><span class="o">.</span><span class="nb">min</span> <span class="ow">and</span> <span class="n">c_max</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span><span class="o">.</span><span class="nb">max</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">c_min</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="nb">min</span> <span class="ow">and</span> <span class="n">c_max</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="nb">max</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'category'</span><span class="p">)</span>
+
+    <span class="n">end_mem</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">()</span><span class="o">.</span><span class="nb">sum</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Memory usage after optimization is: {:.2f} MB'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">end_mem</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Decreased by {:.1f}</span><span class="si">%</span><span class="s">'</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">start_mem</span> <span class="o">-</span> <span class="n">end_mem</span><span class="p">)</span> <span class="o">/</span> <span class="n">start_mem</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">df</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="22-异常值">2.2 异常值</h3>
+<p> 主要做了几个工作：</p>
+<ul>
+  <li>移除site0异常值，因为site0数据为0的太多；</li>
+  <li>时长超过48小时的0读数，；</li>
+  <li>电力消耗为0的读数，可以不用水，不用蒸汽，但不用电现在基本不可能了；</li>
+  <li>对building 1099异常大的数，可能为错误读数，也可去除。
+<a href="https://www.kaggle.com/purist1024/ashrae-simple-data-cleanup-lb-1-08-no-leaks">参照这里</a></li>
+</ul>
+
+<h3 id="23-天气数据时间校正">2.3 天气数据时间校正</h3>
+<p> 根据天气数据可发现许多数据每天的最高温不是出现在中午附近，明显有问题，后面发现应该是记录天气是是用的本地时间，而比赛举办方当作UTC时间给出了，所以应该进行校正，具体就是假设每天最高温出现在下午两点左右，根据最高温校正，<a href="https://www.kaggle.com/patrick0302/locate-cities-according-weather-temperature">参照这里</a>。</p>
+
+<h3 id="24-气温数据插值">2.4 气温数据插值</h3>
+<p> 在这个比赛中温度数据肯定是非常重要的，但天气数据中有许多缺失值，需要进行插值，插值的原理就是天气不会剧烈变化，前后应该有连贯性。具体使用的函数就是</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">weather_df</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">'site_id'</span><span class="p">)</span><span class="o">.</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span>  <span class="n">group</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">limit_direction</span><span class="o">=</span><span class="s">'both'</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>和</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">fill_weather_dataset</span><span class="p">(</span><span class="n">weather_df</span><span class="p">):</span>
+    
+    <span class="c1"># Find Missing Dates
+</span>    <span class="n">time_format</span> <span class="o">=</span> <span class="s">"</span><span class="si">%</span><span class="s">Y-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">d </span><span class="si">%</span><span class="s">H:</span><span class="si">%</span><span class="s">M:</span><span class="si">%</span><span class="s">S"</span>
+    <span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">weather_df</span><span class="p">[</span><span class="s">'timestamp'</span><span class="p">]</span><span class="o">.</span><span class="nb">min</span><span class="p">(),</span><span class="n">time_format</span><span class="p">)</span>
+    <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">weather_df</span><span class="p">[</span><span class="s">'timestamp'</span><span class="p">]</span><span class="o">.</span><span class="nb">max</span><span class="p">(),</span><span class="n">time_format</span><span class="p">)</span>
+    <span class="n">total_hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(((</span><span class="n">end_date</span> <span class="o">-</span> <span class="n">start_date</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">+</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">hours_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">end_date</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">time_format</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">total_hours</span><span class="p">)]</span>
+
+    <span class="n">missing_hours</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">site_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span>
+        <span class="n">site_hours</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">weather_df</span><span class="p">[</span><span class="n">weather_df</span><span class="p">[</span><span class="s">'site_id'</span><span class="p">]</span> <span class="o">==</span> <span class="n">site_id</span><span class="p">][</span><span class="s">'timestamp'</span><span class="p">])</span>
+        <span class="n">new_rows</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">hours_list</span><span class="p">,</span><span class="n">site_hours</span><span class="p">),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'timestamp'</span><span class="p">])</span>
+        <span class="n">new_rows</span><span class="p">[</span><span class="s">'site_id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_id</span>
+        <span class="n">weather_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">weather_df</span><span class="p">,</span><span class="n">new_rows</span><span class="p">])</span>
+
+        <span class="n">weather_df</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> 
+    <span class="n">weather_df</span><span class="p">[</span><span class="s">'timestamp'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">weather_df</span><span class="p">[</span><span class="s">'timestamp'</span><span class="p">])</span>
+    <span class="n">weather_df</span> <span class="o">=</span> <span class="n">timestamp_align</span><span class="p">(</span><span class="n">weather_df</span><span class="p">)</span>
+    <span class="c1"># Add new Features
+</span>    <span class="c1">#     weather_df["datetime"] = pd.to_datetime(weather_df["timestamp"])
+</span>    <span class="n">weather_df</span><span class="p">[</span><span class="s">"datetime"</span><span class="p">]</span> <span class="o">=</span> <span class="n">weather_df</span><span class="p">[</span><span class="s">"timestamp"</span><span class="p">]</span>
+    <span class="n">weather_df</span><span class="p">[</span><span class="s">"day"</span><span class="p">]</span> <span class="o">=</span> <span class="n">weather_df</span><span class="p">[</span><span class="s">"datetime"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span>
+    <span class="n">weather_df</span><span class="p">[</span><span class="s">"week"</span><span class="p">]</span> <span class="o">=</span> <span class="n">weather_df</span><span class="p">[</span><span class="s">"datetime"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">week</span>
+    <span class="n">weather_df</span><span class="p">[</span><span class="s">"month"</span><span class="p">]</span> <span class="o">=</span> <span class="n">weather_df</span><span class="p">[</span><span class="s">"datetime"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span>
+    
+    <span class="c1"># Reset Index for Fast Update
+</span>    <span class="n">weather_df</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])</span>
+
+    <span class="n">air_temperature_filler</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])[</span><span class="s">'air_temperature'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">"air_temperature"</span><span class="p">])</span>
+    <span class="n">weather_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">air_temperature_filler</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c1"># Step 1
+</span>    <span class="n">cloud_coverage_filler</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])[</span><span class="s">'cloud_coverage'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="c1"># Step 2
+</span>    <span class="n">cloud_coverage_filler</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">cloud_coverage_filler</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">'ffill'</span><span class="p">),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">"cloud_coverage"</span><span class="p">])</span>
+
+    <span class="n">weather_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cloud_coverage_filler</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="n">due_temperature_filler</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])[</span><span class="s">'dew_temperature'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">"dew_temperature"</span><span class="p">])</span>
+    <span class="n">weather_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">due_temperature_filler</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c1"># Step 1
+</span>    <span class="n">sea_level_filler</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])[</span><span class="s">'sea_level_pressure'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="c1"># Step 2
+</span>    <span class="n">sea_level_filler</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sea_level_filler</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">'ffill'</span><span class="p">),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'sea_level_pressure'</span><span class="p">])</span>
+
+    <span class="n">weather_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sea_level_filler</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="n">wind_direction_filler</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])[</span><span class="s">'wind_direction'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'wind_direction'</span><span class="p">])</span>
+    <span class="n">weather_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">wind_direction_filler</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="n">wind_speed_filler</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])[</span><span class="s">'wind_speed'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'wind_speed'</span><span class="p">])</span>
+    <span class="n">weather_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">wind_speed_filler</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c1"># Step 1
+</span>    <span class="n">precip_depth_filler</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s">'site_id'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'month'</span><span class="p">])[</span><span class="s">'precip_depth_1_hr'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="c1"># Step 2
+</span>    <span class="n">precip_depth_filler</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">precip_depth_filler</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">'ffill'</span><span class="p">),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'precip_depth_1_hr'</span><span class="p">])</span>
+
+    <span class="n">weather_df</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">precip_depth_filler</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    
+    <span class="n">weather_df</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    
+    <span class="n">weather_df</span> <span class="o">=</span> <span class="n">aggregation_temperature</span><span class="p">(</span><span class="n">weather_df</span><span class="p">,</span> <span class="s">'site_id'</span><span class="p">,</span> <span class="p">[</span><span class="s">'dew_temperature'</span><span class="p">,</span> <span class="s">'air_temperature'</span><span class="p">],</span> <span class="p">[</span><span class="s">'month'</span><span class="p">],</span> <span class="p">[</span><span class="s">'mean'</span><span class="p">])</span>
+    
+    <span class="n">weather_df</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'datetime'</span><span class="p">,</span><span class="s">'day'</span><span class="p">,</span><span class="s">'week'</span><span class="p">,</span><span class="s">'month'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">get_meteorological_features</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">calculate_rh</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">'relative_humidity'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mf">17.625</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s">'dew_temperature'</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">243.04</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s">'dew_temperature'</span><span class="p">]))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mf">17.625</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s">'air_temperature'</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mf">243.04</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s">'air_temperature'</span><span class="p">])))</span>
+        <span class="k">def</span> <span class="nf">calculate_fl</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="n">flike_final</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">flike</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># calculate Feels Like temperature
+</span>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)):</span>
+                <span class="n">at</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'air_temperature'</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">rh</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'relative_humidity'</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">ws</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'wind_speed'</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">flike</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feels_like</span><span class="p">(</span><span class="n">at</span><span class="p">,</span> <span class="n">rh</span><span class="p">,</span> <span class="n">ws</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">flike</span><span class="p">)):</span>
+                <span class="n">flike_final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flike</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">'feels_like'</span><span class="p">]</span> <span class="o">=</span> <span class="n">flike_final</span>
+            <span class="k">del</span> <span class="n">flike_final</span><span class="p">,</span> <span class="n">flike</span><span class="p">,</span> <span class="n">at</span><span class="p">,</span> <span class="n">rh</span><span class="p">,</span> <span class="n">ws</span>
+        <span class="n">calculate_rh</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">calculate_fl</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="n">weather_df</span> <span class="o">=</span> <span class="n">get_meteorological_features</span><span class="p">(</span><span class="n">weather_df</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">weather_df</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p> 这里使用了<a href="https://pypi.org/project/meteocalc/">meteocalc package</a>进行天气特征工程。</p>
+
+<h3 id="25-数据转换">2.5 数据转换</h3>
+<p> log1p转换，meter_reading和square_feet读数值都大，进行对数变换。</p>
+<h2 id="3-特征工程">3. 特征工程</h2>
+<ol>
+  <li>天气聚合特征
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">aggregation_temperature</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">periods</span><span class="p">,</span> <span class="n">agg_types</span><span class="p">):</span>
+ <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+     <span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">periods</span><span class="p">:</span>
+         <span class="k">for</span> <span class="n">agg_type</span> <span class="ow">in</span> <span class="n">agg_types</span><span class="p">:</span>
+             <span class="n">new_col_name</span> <span class="o">=</span> <span class="n">col</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">site</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">period</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">agg_type</span>
+             <span class="n">temp_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">period</span><span class="p">])[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="n">agg_type</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">agg_type</span><span class="p">:</span><span class="n">new_col_name</span><span class="p">})</span>
+             <span class="n">correspond_id</span> <span class="o">=</span> <span class="n">site</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">period</span>
+
+             <span class="n">temp_df</span><span class="p">[</span><span class="n">correspond_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_df</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s">'_'</span> <span class="o">+</span> <span class="n">temp_df</span><span class="p">[</span><span class="n">period</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+             <span class="n">df</span><span class="p">[</span><span class="n">correspond_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s">'_'</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="n">period</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                
+             <span class="n">temp_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">site</span><span class="p">,</span> <span class="n">period</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+             <span class="n">temp_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+             <span class="n">temp_df</span> <span class="o">=</span> <span class="n">temp_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">correspond_id</span><span class="p">)</span>
+             <span class="n">temp_df</span> <span class="o">=</span> <span class="n">temp_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+             <span class="n">df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">correspond_id</span><span class="p">]</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+             <span class="k">del</span> <span class="n">df</span><span class="p">[</span><span class="n">correspond_id</span><span class="p">],</span> <span class="n">temp_df</span>
+             <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+ <span class="k">return</span> <span class="n">df</span>
+<span class="n">weather_df</span> <span class="o">=</span> <span class="n">aggregation_temperature</span><span class="p">(</span><span class="n">weather_df</span><span class="p">,</span> <span class="s">'site_id'</span><span class="p">,</span> <span class="p">[</span><span class="s">'dew_temperature'</span><span class="p">,</span> <span class="s">'air_temperature'</span><span class="p">],</span> <span class="p">[</span><span class="s">'month'</span><span class="p">],</span> <span class="p">[</span><span class="s">'mean'</span><span class="p">])</span>    
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<p> 在每个site内求气温和露温的月均值。</p>
+<ol>
+  <li>天气滞后特征
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">add_lag_feature</span><span class="p">(</span><span class="n">weather_df</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+ <span class="n">group_df</span> <span class="o">=</span> <span class="n">weather_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">'site_id'</span><span class="p">)</span>
+ <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s">'air_temperature'</span><span class="p">,</span> <span class="s">'cloud_coverage'</span><span class="p">,</span> <span class="s">'dew_temperature'</span><span class="p">,</span> <span class="s">'precip_depth_1_hr'</span><span class="p">,</span> <span class="s">'sea_level_pressure'</span><span class="p">,</span> <span class="s">'wind_direction'</span><span class="p">,</span> <span class="s">'wind_speed'</span><span class="p">]</span>
+ <span class="n">rolled</span> <span class="o">=</span> <span class="n">group_df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+ <span class="n">lag_mean</span> <span class="o">=</span> <span class="n">rolled</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+ <span class="n">lag_max</span> <span class="o">=</span> <span class="n">rolled</span><span class="o">.</span><span class="nb">max</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+ <span class="n">lag_min</span> <span class="o">=</span> <span class="n">rolled</span><span class="o">.</span><span class="nb">min</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+ <span class="n">lag_std</span> <span class="o">=</span> <span class="n">rolled</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+ <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+     <span class="n">weather_df</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">+</span> <span class="s">'_mean_lag_'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">window</span><span class="p">)]</span> <span class="o">=</span> <span class="n">lag_mean</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+     <span class="n">weather_df</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">+</span> <span class="s">'_max_lag_'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">window</span><span class="p">)]</span> <span class="o">=</span> <span class="n">lag_max</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+     <span class="n">weather_df</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">+</span> <span class="s">'_min_lag_'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">window</span><span class="p">)]</span> <span class="o">=</span> <span class="n">lag_min</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+     <span class="n">weather_df</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">+</span> <span class="s">'_std_lag_'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">window</span><span class="p">)]</span> <span class="o">=</span> <span class="n">lag_std</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p> 我们的本地测试就只有这几个特征有效。</p>
+  </li>
+</ol>
+
+<h3 id="4模型训练">4.模型训练</h3>
+<p> 因为这个问题的特殊性，可以按照meter_type，site,KFold等训练模型，为了增加模型的多样性，我们分开训练自己的模型。我是按照meter_type来就是4个模型，Clancy_Lee按照GroupKFold，12，1，2月假设为一个季度，3，4，5为一个季度，6，7，8和9，10，11为另外两个季度。</p>
+
+<h3 id="5模型融合">5.模型融合</h3>
+<p> 因为这个比赛存在数据泄露，所以可以根据泄露数据本地测试各个模型的好坏。我们训练个4个结果，融合时进行了一个网格搜索，所有各个模型的最优权重。</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre></td><td class="rouge-code"><pre><span class="n">test_df</span><span class="p">[</span><span class="s">'pred1'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_submission1</span><span class="o">.</span><span class="n">meter_reading</span>
+<span class="n">test_df</span><span class="p">[</span><span class="s">'pred2'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_submission2</span><span class="o">.</span><span class="n">meter_reading</span>
+<span class="n">test_df</span><span class="p">[</span><span class="s">'pred3'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_submission3</span><span class="o">.</span><span class="n">meter_reading</span>
+<span class="n">test_df</span><span class="p">[</span><span class="s">'pred4'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_submission4</span><span class="o">.</span><span class="n">meter_reading</span>
+<span class="n">test_df</span><span class="p">[</span><span class="s">'pred5'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_submission5</span><span class="o">.</span><span class="n">meter_reading</span>
+
+<span class="n">leak_df</span><span class="p">[</span><span class="s">'pred1_l1p'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">leak_df</span><span class="o">.</span><span class="n">pred1</span><span class="p">)</span>
+<span class="n">leak_df</span><span class="p">[</span><span class="s">'pred2_l1p'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">leak_df</span><span class="o">.</span><span class="n">pred2</span><span class="p">)</span>
+<span class="n">leak_df</span><span class="p">[</span><span class="s">'pred3_l1p'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">leak_df</span><span class="o">.</span><span class="n">pred3</span><span class="p">)</span>
+<span class="n">leak_df</span><span class="p">[</span><span class="s">'pred4_l1p'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">leak_df</span><span class="o">.</span><span class="n">pred4</span><span class="p">)</span>
+<span class="n">leak_df</span><span class="p">[</span><span class="s">'pred5_l1p'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">leak_df</span><span class="o">.</span><span class="n">pred5</span><span class="p">)</span>
+<span class="n">leak_df</span><span class="p">[</span><span class="s">'meter_reading_l1p'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">leak_df</span><span class="o">.</span><span class="n">meter_reading</span><span class="p">)</span>
+
+<span class="n">all_combinations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span><span class="mf">0.23</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span> <span class="c1"># 这里是融合5个模型的代码
+</span>
+<span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_combinations</span><span class="p">,</span> <span class="n">all_combinations</span><span class="p">,</span> <span class="n">all_combinations</span><span class="p">,</span> <span class="n">all_combinations</span><span class="p">,</span><span class="n">all_combinations</span><span class="p">]</span>
+<span class="n">all_l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">l</span><span class="p">))</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="nb">reversed</span><span class="p">(</span><span class="n">l</span><span class="p">)))</span>
+<span class="n">filtered_combis</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">all_l</span> <span class="k">if</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.98</span> <span class="ow">and</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">&lt;</span> <span class="mf">1.02</span><span class="p">]</span>
+
+<span class="n">best_combi</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># of the form (i, score)
+</span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">combi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filtered_combis</span><span class="p">):</span>
+    <span class="c1">#print("Now at: " + str(i) + " out of " + str(len(filtered_combis))) # uncomment to view iterations
+</span>    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_combis</span><span class="p">),</span> <span class="s">"</span><span class="si">%</span><span class="s">"</span><span class="p">)</span>
+    <span class="n">score1</span> <span class="o">=</span> <span class="n">combi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">score2</span> <span class="o">=</span> <span class="n">combi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">score3</span> <span class="o">=</span> <span class="n">combi</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">score4</span> <span class="o">=</span> <span class="n">combi</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">score5</span> <span class="o">=</span> <span class="n">combi</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">score1</span> <span class="o">*</span> <span class="n">leak_df</span><span class="p">[</span><span class="s">'pred1'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="n">score2</span> <span class="o">*</span> <span class="n">leak_df</span><span class="p">[</span><span class="s">'pred2'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="n">score3</span> <span class="o">*</span> <span class="n">leak_df</span><span class="p">[</span><span class="s">'pred3'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="o">+</span> <span class="n">score4</span> <span class="o">*</span> <span class="n">leak_df</span><span class="p">[</span><span class="s">'pred4'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="n">score5</span> <span class="o">*</span> <span class="n">leak_df</span><span class="p">[</span><span class="s">'pred5'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">vl1p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">curr_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">vl1p</span><span class="p">,</span> <span class="n">leak_df</span><span class="o">.</span><span class="n">meter_reading_l1p</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">best_combi</span><span class="p">:</span>
+        <span class="n">prev_score</span> <span class="o">=</span> <span class="n">best_combi</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">curr_score</span> <span class="o">&lt;</span> <span class="n">prev_score</span><span class="p">:</span>
+            <span class="n">best_combi</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">best_combi</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">curr_score</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">best_combi</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">curr_score</span><span class="p">)]</span>
+            
+<span class="n">score</span> <span class="o">=</span> <span class="n">best_combi</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+<span class="n">final_combi</span> <span class="o">=</span> <span class="n">filtered_combis</span><span class="p">[</span><span class="n">best_combi</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="6-第一名做法">6. 第一名做法</h2>
+<p> <a href="https://www.kaggle.com/c/ashrae-energy-prediction/discussion/124709">第一名队伍的方案</a>如下：
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2020-01-14/1stSolution.PNG" alt="scheme" /></p>
+<h3 id="61-processing">6.1 Processing</h3>
+<h4 id="remove-anomalies">Remove anomalies</h4>
+<p>As others have noted, cleaning the data was very important in this competition. The assumption is that there are unpredictable and hence unlearnable anomalies in the data that, if trained on, degrade the quality of the predictions. We identified and filtered out three types of anomalies:</p>
+<ol>
+  <li>Long streaks of constant values</li>
+  <li>Large positive/negative spikes</li>
+  <li>Additional anomalies determined by visual inspection</li>
+</ol>
+
+<p>We noticed that some of these anomalies were consistent across multiple buildings at a site. We validated potential anomalies using all buildings in a site–if an anomaly showed up at the same time at multiple buildings, we could be reasonably certain that this was indeed a true anomaly. This allowed us to remove anomalies that were not necessarily part of a long streak of constant values or a large spike.</p>
+<h4 id="impute-missing-temperature-values">Impute Missing Temperature Values</h4>
+<p>There were a lot of missing values in temperature metadata. We found that imputing the missing data using linear interpolation helped our models.</p>
+<h4 id="local-time-zone-correlation">Local Time Zone Correlation</h4>
+<p>As noted in the competition forum, the timezone in the train/test data was different from the timezone in the weather metadata. We used the information in this <a href="https://www.kaggle.com/c/ashrae-energy-prediction/discussion/112841">discussion post</a> to correct the timezones.</p>
+<h4 id="target-transformations">Target Transformations</h4>
+<p>Like most competitors, we started by predicting log1p(meter_reading). We also corrected the units for site 0 as per this <a href="https://www.kaggle.com/c/ashrae-energy-prediction/discussion/119261">discussion post</a>.
+Near the end of the competition, we tried standardizing meter_reading by dividing by square_feet; i.e., we predicted log1p(meter_reading/square_feet). Isamu came up with the idea after reading this <a href="https://www.kaggle.com/c/ashrae-energy-prediction/discussion/122263">discussion post</a> by Artyom Vorobyov. The models trained with the standardized target added diversity to our final ensemble and improved our score by about 0.002. If we had more time we would have liked to explore this idea further; for example, we could have tried to predict log1p(meter_reading)/square_feet or created features using the standardized targets.</p>
+
+<h3 id="62-feature-engineering-and-feature-selection">6.2 Feature Engineering and Feature Selection</h3>
+<ul>
+  <li>Raw features from train/test, weather metadata, and building metadata</li>
+  <li>Categorical interactions such as the concatenation of building_id and meter</li>
+  <li>Time series features including holiday flags and time of day features</li>
+  <li>Count (frequency) features</li>
+  <li>Lag temperature features similar to those found in the public kernels</li>
+  <li>Smoothed and 1st, 2nd-order differentiation temperature features using Savitzky-Golay filter (see the figure below)</li>
+  <li><strong>Cyclic encoding of periodic features</strong>; e.g., hour gets mapped to hour_x = cos(2<em>pi</em>hour/24) and hour_y = sin(2<em>pi</em>hour/24)</li>
+  <li><strong>Bayesian target encoding</strong> (see this <a href="https://www.kaggle.com/mmotoki/hierarchical-bayesian-target-encoding">kernel</a>)</li>
+</ul>
+
+<h3 id="63-models">6.3 Models</h3>
+<ul>
+  <li>1 model per meter</li>
+  <li>1 model per site_id</li>
+  <li>1 model per (building_id, meter)</li>
+</ul>
+
+<p>Our team tried different approaches to validation in this competition. Like other competitors, we tried K-Fold CV using consecutive months as the validation set. The following code shows one approach to getting validation months:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="k">def</span> <span class="nf">get_validation_months</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">)]</span>
+
+<span class="o">&gt;&gt;&gt;</span> <span class="n">get_validation_months</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="p">[</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span> <span class="mi">5</span><span class="p">,</span>  <span class="mi">6</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span> <span class="mi">6</span><span class="p">,</span>  <span class="mi">7</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span> <span class="mi">7</span><span class="p">,</span>  <span class="mi">8</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span> <span class="mi">8</span><span class="p">,</span>  <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">3</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">4</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">5</span><span class="p">])]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="7-改进">7. 改进</h2>
+<ul>
+  <li>模型还是不够丰富，可以融合Catboost,MLP,xgboost等；</li>
+  <li>特征工程太少，本地测试许多特征都没用，可能是数据清洗不到位。</li>
+</ul>
+:ET

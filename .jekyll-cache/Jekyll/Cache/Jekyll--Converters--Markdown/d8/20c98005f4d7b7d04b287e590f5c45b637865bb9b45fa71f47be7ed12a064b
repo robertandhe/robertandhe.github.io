@@ -1,0 +1,3 @@
+I"<h1 id="问题描述">问题描述</h1>
+<p>Given an array <code class="highlighter-rouge">A</code> of integers, we <code class="highlighter-rouge">must</code> modify the array in the following way: we choose an <code class="highlighter-rouge">i</code> and replace<code class="highlighter-rouge">A[i]</code> with <code class="highlighter-rouge">-A[i]</code>, and we repeat this process <code class="highlighter-rouge">K</code> times in total.  (We may choose the same index <code class="highlighter-rouge">i</code> multiple times.)</p>
+:ET

@@ -1,0 +1,7 @@
+I"�<p>最近因项目需要，要做c++ UI界面，毫无疑问的选用qt，这里记录一下踩过的坑。</p>
+<h2 id="1-build-directory">1. build directory</h2>
+<p>打开项目编译时，老是报错: <code class="highlighter-rouge">Could not create directory "E:\Error in " Util.asciify("build-untitled-Desktop_Qt_5_6_2_MSVC2015_64bit-Debug")": TypeError: Property 'asciify' of object Core::Internal::UtilsJsExtension(0x251a700) is not a function"</code>，找了许久才发现是项目build构建目录的问题，默认
+目录老是报错，要自己设为和当前project同级别的目录，见下图所示。
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-05/qt-build-directory.PNG" alt="qt-build-directory" />
+在上图中，我的project在<code class="highlighter-rouge">E:\Project</code>，则build directory设置为<code class="highlighter-rouge">E:\build-Project-Desktop_Qt_5_8_0_MinGW_32bit-Release</code>。</p>
+:ET

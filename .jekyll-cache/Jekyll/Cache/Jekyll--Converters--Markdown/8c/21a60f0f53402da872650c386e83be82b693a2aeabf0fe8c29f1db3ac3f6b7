@@ -1,0 +1,40 @@
+I"<h1 id="问题描述">问题描述</h1>
+<p>One way to serialize a binary tree is to use pre-order traversal. When we encounter a non-null node, we record the node’s value. If it is a null node, we record using a sentinel value such as #.</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>     <span class="n">_9_</span>
+    <span class="o">/</span>   \
+   <span class="mi">3</span>     <span class="mi">2</span>
+  <span class="o">/</span> <span class="err">\</span>   <span class="o">/</span> \
+ <span class="mi">4</span>   <span class="mi">1</span>  <span class="err">#</span>  <span class="mi">6</span>
+<span class="o">/</span> <span class="err">\</span> <span class="o">/</span> <span class="err">\</span>   <span class="o">/</span> \
+<span class="err">#</span> <span class="err">#</span> <span class="err">#</span> <span class="err">#</span>   <span class="err">#</span> <span class="err">#</span>  
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>For example, the above binary tree can be serialized to the string “9,3,4,#,#,1,#,#,2,#,6,#,#”, where # represents a null node.<br />
+Given a string of comma separated values, verify whether it is a correct preorder traversal serialization of a binary tree. Find an algorithm without reconstructing the tree.
+Each comma separated value in the string must be either an integer or a character ‘#’ representing null pointer.
+You may assume that the input format is always valid, for example it could never contain two consecutive commas such as “1,,3”.
+Example 1:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="s">"9,3,4,#,#,1,#,#,2,#,6,#,#"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">true</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Example 2:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="s">"1,#"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">false</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Example 2:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="s">"9,#,#,1"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="nb">false</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

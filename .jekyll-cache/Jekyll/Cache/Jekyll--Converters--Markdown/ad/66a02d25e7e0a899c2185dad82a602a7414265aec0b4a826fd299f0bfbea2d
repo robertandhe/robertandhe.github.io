@@ -1,0 +1,99 @@
+I"�<p>最近因项目需要，要做c++ UI界面，毫无疑问的选用qt，这里记录一下踩过的坑。</p>
+<h2 id="1-build-directory">1. build directory</h2>
+<p>打开项目编译时，老是报错: <code class="highlighter-rouge">Could not create directory "E:\Error in " Util.asciify("build-untitled-Desktop_Qt_5_6_2_MSVC2015_64bit-Debug")": TypeError: Property 'asciify' of object Core::Internal::UtilsJsExtension(0x251a700) is not a function"</code>，找了许久才发现是项目build构建目录的问题，默认
+目录老是报错，要自己设为和当前project同级别的目录，见下图所示。
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-05/qt-build-directory.PNG" alt="qt-build-directory" />
+在上图中，我的project在<code class="highlighter-rouge">E:\Project</code>，则build directory设置为<code class="highlighter-rouge">E:\build-Project-Desktop_Qt_5_8_0_MinGW_32bit-Release</code>。</p>
+
+<h2 id="2-不同编译器问题">2. 不同编译器问题</h2>
+<p>原始项目用的Qt5.8 Mingw 32bit 编译器，我刚开始时用Qt5.12.5 MSVC2017 64bit编译器，在visual studio下打开时编译报了许多语法错误，调了一会儿也没有解决。换到Qt creator下Mingw下则运行正常，现在还有点疑问，按道理编译器不同不会导致语法差别，待解决。</p>
+
+<h2 id="3-编译问题">3. 编译问题</h2>
+<p>编译项目也可通过命令行内构建，对Mingw和MSVC两种不同的编译器有不同的命令。<br />
+(1) Mingw</p>
+<ul>
+  <li>qmake [path-to-dot-pro-file]</li>
+  <li>mingw32-make</li>
+  <li>mingw32-make check</li>
+  <li>mingw32-make install</li>
+</ul>
+
+<p>(2) MSVC</p>
+<ul>
+  <li>qmake [path-to-dot-pro-file]</li>
+  <li>nmake</li>
+  <li>nmake check</li>
+  <li>nmake install
+最稳定的方式还是在creator里面进行。</li>
+</ul>
+
+<h2 id="4-qtxlsx">4. QtXlsx</h2>
+<p>QtXlsx是一个可在Qt5中读写创建修改Excel文件的库。使用QtXlsx有两种方式：<br />
+(1) 把Xlsx当作Qt5的附加模块</p>
+<ol>
+  <li>生成模块
+    <blockquote>
+      <p>这里需要先安装Perl</p>
+    </blockquote>
+
+    <ul>
+      <li>下载<a href="https://github.com/dbzhang800/QtXlsxWriter">源码</a></li>
+      <li>在源码目录构建工程</li>
+      <li>qmake</li>
+      <li>make</li>
+      <li>make install
+ 这里按照编译器差别命令有所不同，见上述第三条</li>
+      <li>添加bin，build，lib，modules中相关文件到Qt安装目录，可见<a href="https://blog.csdn.net/u012532263/article/details/78436431">qt 使用 xlsx库操作excel表格</a></li>
+    </ul>
+  </li>
+  <li>使用模块
+    <ul>
+      <li>添加QT += xlsx到项目.pro文件</li>
+      <li>使用范例
+        <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>   <span class="cp">#include &lt;QtXlsx&gt;
+</span>   <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+   <span class="p">{</span>
+       <span class="n">QXlsx</span><span class="o">::</span><span class="n">Document</span> <span class="n">xlsx</span><span class="p">;</span>
+       <span class="n">xlsx</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">"A1"</span><span class="p">,</span> <span class="s">"Hello Qt!"</span><span class="p">);</span>
+       <span class="n">xlsx</span><span class="p">.</span><span class="n">saveAs</span><span class="p">(</span><span class="s">"Test.xlsx"</span><span class="p">);</span>
+       <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+   <span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>(2) 直接使用源码<br />
+使用方法见<a href="https://github.com/dbzhang800/QtXlsxWriter">Usage(2): Use source code directly</a></p>
+
+<h2 id="5设置应用图标">5.设置应用图标</h2>
+<p>默认情况构建所得exe文件为一白色框文件，为了美观起见需要设置图标文件，可在.pro文件中添加<code class="highlighter-rouge">RC_ICONS = icofilename.ico</code>语句即可。</p>
+
+<h2 id="6文件打包">6.文件打包</h2>
+<p>首先需要在creator中构建release版本，然后把<code class="highlighter-rouge">release</code>文件夹对应的exe文件放在一个新的文件夹。在cmd进入这个文件夹，运行<code class="highlighter-rouge">windeployqt filename.exe</code>即可。<br />
+上述命令打包后在别的电脑上运行时经常报各种错误，基本都是缺少相关.dll文件。我这次报了<code class="highlighter-rouge">应用程序无法正常启动0xc000007b</code>的错误。怎么解决？推荐ProcessExplorer工具，下载链接见<a href="https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer">这里</a>，使用方法见<a href="http://blog.sina.com.cn/s/blog_875a5f5f0102vr3q.html">这里</a>。<br />
+但上述操作没有解决我的问题，然后我用了暴力解法，把mingw的bin目录下所有dll文件复制到项目包，然后逐个删除不相关的。</p>
+
+<h2 id="7-安装包制作">7. 安装包制作</h2>
+<p>推荐<code class="highlighter-rouge">Inno Setup</code>工具, Inno Setup 是一个免费的 Windows 安装程序制作软件，小巧、简便、精美是其最大特点，支持 pascal 脚本，能快速制作出标准 Windows2000 风格的安装界面，足以完成一般安装任务。下载在<a href="http://www.jrsoftware.org/isdl.php#stable">这里</a>，具体使用方法可
+参考<a href="https://www.cnblogs.com/linuxAndMcu/p/10974927.html">这里</a>。</p>
+
+<h2 id="reference">reference</h2>
+<p><a href="https://blog.csdn.net/u012930316/article/details/77160179">Could not create directory</a><br />
+<a href="https://forum.qt.io/topic/66986/make-install-qmake/3">make install - qmake</a><br />
+<a href="https://github.com/dbzhang800/QtXlsxWriter">QtXlsxWriter</a> <br />
+<a href="https://blog.csdn.net/u012532263/article/details/78436431">qt 使用 xlsx库操作excel表格</a><br />
+<a href="https://www.cnblogs.com/linuxAndMcu/p/10974927.html">QT之程序发布以及打包成exe安装包</a> <br />
+<a href="https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer">Process Explorer Download</a><br />
+<a href="http://www.jrsoftware.org/isdl.php#stable">Inno Setup Download</a></p>
+
+:ET

@@ -1,0 +1,8 @@
+I"�<h2 id="1309-decrypt-string-from-alphabet-to-integer-mappingeasy">1309. Decrypt String from Alphabet to Integer Mapping[easy]</h2>
+<h3 id="问题描述">问题描述</h3>
+<p>Given a string <code class="highlighter-rouge">s</code> formed by digits (<code class="highlighter-rouge">'0'</code> - <code class="highlighter-rouge">'9'</code>) and <code class="highlighter-rouge">'#'</code> . We want to map <code class="highlighter-rouge">s</code> to English lowercase characters as follows:</p>
+<ul>
+  <li>Characters (<code class="highlighter-rouge">'a'</code> to <code class="highlighter-rouge">'i'</code>) are represented by (<code class="highlighter-rouge">'1'</code> to <code class="highlighter-rouge">'9'</code>) respectively.</li>
+  <li>Characters (<code class="highlighter-rouge">'j'</code> to <code class="highlighter-rouge">'z'</code>) are represented by (<code class="highlighter-rouge">'10#'</code> to <code class="highlighter-rouge">'26#'</code>) respectively.</li>
+</ul>
+:ET

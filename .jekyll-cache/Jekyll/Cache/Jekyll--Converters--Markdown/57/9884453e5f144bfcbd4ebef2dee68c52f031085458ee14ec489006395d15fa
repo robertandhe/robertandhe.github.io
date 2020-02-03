@@ -1,0 +1,92 @@
+I"&<h1 id="问题描述">问题描述</h1>
+<p>Given an array <code class="highlighter-rouge">A</code> of integers, return the <strong>length</strong> of the longest arithmetic subsequence in <code class="highlighter-rouge">A</code>.</p>
+
+<p>Recall that a subsequence of <code class="highlighter-rouge">A</code> is a list <code class="highlighter-rouge">A[i_1], A[i_2], ..., A[i_k]</code> with <code class="highlighter-rouge">0 &lt;= i_1 &lt; i_2 &lt; ... &lt; i_k &lt;= A.length - 1</code>, and that a sequence B is arithmetic if <code class="highlighter-rouge">B[i+1] - B[i]</code> are all the same value (for <code class="highlighter-rouge">0 &lt;= i &lt; B.length - 1</code>).</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">4</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">whole</span> <span class="n">array</span> <span class="n">is</span> <span class="n">an</span> <span class="n">arithmetic</span> <span class="n">sequence</span> <span class="n">with</span> <span class="n">steps</span> <span class="n">of</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">3.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">3</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">longest</span> <span class="n">arithmetic</span> <span class="n">subsequence</span> <span class="n">is</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">10</span><span class="p">].</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">4</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">longest</span> <span class="n">arithmetic</span> <span class="n">subsequence</span> <span class="n">is</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">].</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">2 &lt;= A.length &lt;= 2000</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= A[i] &lt;= 10000</code></li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<p> 这题和之前某道题有点像，不过题号我忘了:)。这题中要给出一个数组，求出中间最长的Arithmetic Sequence，就是前后元素差值相等的序列。<br />
+ 还是动态规划来解，这里需要保存每个位置对应差值的序列长度，一维动态数组肯定是不行的。同时也不知道数组最小值和最大值差的有点远，二维数组过度消耗内存，所以就这能用哈希表动态数组了,dp[i]为unordered_map&lt;int, int&gt;存储i位置各个差值diff对应的序列长度。<br />
+ 状态转移方程也挺简单，对每个i位置，往前遍历即可，假设位置为j，差值diff = A[i] - A[j]。此时差值为diff的序列最小长度肯定是2，如果dp[i].count(diff)为空，则初始化为dp[i][diff] = 2，还需判断在j位置时能否组成差值为diff的序列，如果有dp[i][diff] = max(dp[i][diff], dp[j][diff] + 1)。<br />
+ 在每个位置res都要及时更新，最终返回res。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">longestArithSeqLength</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">count</span><span class="p">(</span><span class="n">diff</span><span class="p">))</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">diff</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">count</span><span class="p">(</span><span class="n">diff</span><span class="p">)){</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">diff</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">diff</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">diff</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="n">res</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">diff</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n^2)<br />
+space complexity: O(n^2)<br />
+run time: 66.16%<br />
+memory usage: 93.33%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/longest-arithmetic-sequence/">leetcode-1027</a></p>
+:ET

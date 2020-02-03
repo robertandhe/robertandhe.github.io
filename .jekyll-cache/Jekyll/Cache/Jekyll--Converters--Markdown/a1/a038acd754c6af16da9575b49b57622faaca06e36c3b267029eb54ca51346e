@@ -1,0 +1,181 @@
+I"�S<h1 id="问题描述">问题描述</h1>
+<p>We have two integer sequences <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code> of the same non-zero length.</p>
+
+<p>We are allowed to swap elements <code class="highlighter-rouge">A[i]</code> and <code class="highlighter-rouge">B[i]</code>.  Note that both elements are in the same index position in their respective sequences.</p>
+
+<p>At the end of some number of swaps, <code class="highlighter-rouge">A</code> and <code class="highlighter-rouge">B</code> are both strictly increasing.  (A sequence is strictly increasing if and only if <code class="highlighter-rouge">A[0] &lt; A[1] &lt; A[2] &lt; ... &lt; A[A.length - 1]</code>.)</p>
+
+<p>Given A and B, return the minimum number of swaps to make both sequences strictly increasing.  It is guaranteed that the given input always makes it possible.</p>
+<h3 id="example">Example:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="n">B</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">Swap</span> <span class="n">A</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="n">and</span> <span class="n">B</span><span class="p">[</span><span class="mi">3</span><span class="p">].</span>  <span class="n">Then</span> <span class="n">the</span> <span class="n">sequences</span> <span class="n">are</span><span class="o">:</span>
+<span class="n">A</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span> <span class="n">and</span> <span class="n">B</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">which</span> <span class="n">are</span> <span class="n">both</span> <span class="n">strictly</span> <span class="n">increasing</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ul>
+  <li><code class="highlighter-rouge">A, B</code> are arrays with the same length, and that length will be in the range <code class="highlighter-rouge">[1, 1000]</code>.</li>
+  <li><code class="highlighter-rouge">A[i], B[i]</code> are integer values in the range <code class="highlighter-rouge">[0, 2000]</code>.</li>
+</ul>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这题感觉就是动态规划，不过没搞出来。感觉当前位置交换后也会影响后面的交换，所以挺复杂的。看了大佬的解答才懂。<br />
+动态规划首先就是定义dp数组，在这道题中如果把dp数组定义为dp[i]表示[0, i]范围内使子数组严格递增的最小交换次数，那么状态转移方程会比较难写，因为
+没有分开内部的关联，当前位置i是否交换，只取决于和前面一位是否严格递增，而前面一位又有交换和不交换两种选择，和更前面的有关。这道题中我们需要维护两种状态，swap和noSwap，那么swap[i]表示范围[0, i]的子数组同时严格递增且当前位置i需要交换的最小交换次数，noSwap[i]表示[0, i]内的子数组严格递增且当前位置i不交换的最小交换次数。swap[0]初始化为1，noSwap[0]初始化为0。<br />
+接下来解决状态转移方程，因为题目限定一定有解，所以只有两种情况。</p>
+<ul>
+  <li>A[i] &gt; A[i - 1] &amp;&amp; B[i] &gt; B[i - 1];</li>
+  <li>A[i] &gt; B[i - 1] &amp;&amp; B[i] &gt; A[i - 1]。
+注意上述两种情况可能同时满足，此时要做的就是取最小值。如B={1, 3, 5, 7}, A={2, 4, 6, 8}。</li>
+</ul>
+
+<ol>
+  <li>假设当前位置不用交换，当前位置i的数字已经分别大于前一个位置i-1。更新动态数组，因为swap[i]限定了i位置交换，那么i-1位置也要交换，swap[i] = swap[i-1]（或者swap[i] = min(swap[i], swap[i-1]+1)）;如果i-1位置没有交换，i位置也就不用交换了，noSwap[i] = noSwap[i - 1]（或者(noSwap[i]= min(noSwap[i], noSwap[i - 1]))）。</li>
+  <li>假设当前位置需要交换，则swap[i] = min(swap[i], noSwap[i - 1] + 1), noSwap[i] = min(noSwap[i], Swap[i - 1])。</li>
+</ol>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">minSwap</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">noSwap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+	<span class="n">Swap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="n">noSwap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]){</span>
+			<span class="n">Swap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">Swap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Swap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+			<span class="n">noSwap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">noSwap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">noSwap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+			<span class="n">Swap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">Swap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">noSwap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+			<span class="n">noSwap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">noSwap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Swap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">min</span><span class="p">(</span><span class="n">Swap</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">noSwap</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>注意这里代码中是两个if，原因如上所述，这两种情况可能同时满足，此时就要取最小的。</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">minSwap</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">Swap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">noSwap</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+	<span class="n">Swap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="n">noSwap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]){</span>
+			<span class="n">Swap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Swap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+			<span class="n">noSwap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">noSwap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+			<span class="n">Swap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">Swap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">noSwap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+			<span class="n">noSwap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">noSwap</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Swap</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">min</span><span class="p">(</span><span class="n">Swap</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">noSwap</span><span class="p">[</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>两个代码是一样的，因为第一个if一定会减小Swap[i]和noSwap[i]。<br />
+time complexity: O(n)<br />
+space complexity: O(n)<br />
+runtime: 75.63%<br />
+memory usage: 50.00%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>空间优化。i位置至于i-1位置有关，用两个变量存储即可。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">minSwap3</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">n2</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]){</span>
+			<span class="n">s2</span> <span class="o">=</span> <span class="n">s1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+			<span class="n">n2</span> <span class="o">=</span> <span class="n">n1</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]){</span>
+			<span class="n">s2</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span> <span class="n">n1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+			<span class="n">n2</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">s1</span><span class="p">);</span>
+		<span class="p">}</span>
+		<span class="n">n1</span> <span class="o">=</span> <span class="n">n2</span><span class="p">;</span>
+		<span class="n">s1</span> <span class="o">=</span> <span class="n">s2</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">min</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">s1</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(1)<br />
+runtime: 97.74%<br />
+memory usage: 90.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/minimum-swaps-to-make-sequences-increasing/">leetcode-801</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/9311385.html">solution</a></p>
+:ET

@@ -1,0 +1,81 @@
+I"�"<h1 id="问题描述">问题描述</h1>
+<p>Consider the string <code class="highlighter-rouge">s</code> to be the infinite wraparound string of “abcdefghijklmnopqrstuvwxyz”, so <code class="highlighter-rouge">s</code> will look like this: “…zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcd….”.</p>
+
+<p>Now we have another string <code class="highlighter-rouge">p</code>. Your job is to find out how many unique non-empty substrings of <code class="highlighter-rouge">p</code> are present in <code class="highlighter-rouge">s</code>. In particular, your input is the string <code class="highlighter-rouge">p</code>and you need to output the number of different non-empty substrings of <code class="highlighter-rouge">p</code> in the string <code class="highlighter-rouge">s</code>.</p>
+
+<h3 id="note">Note:</h3>
+<p><code class="highlighter-rouge">p</code> consists of only lowercase English letters and the size of p might be over <code class="highlighter-rouge">10000</code>.</p>
+
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="s">"a"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">1</span>
+
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Only</span> <span class="n">the</span> <span class="n">substring</span> <span class="s">"a"</span> <span class="n">of</span> <span class="n">string</span> <span class="s">"a"</span> <span class="n">is</span> <span class="n">in</span> <span class="n">the</span> <span class="n">string</span> <span class="n">s</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="s">"cac"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">2</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">There</span> <span class="n">are</span> <span class="n">two</span> <span class="n">substrings</span> <span class="s">"a"</span><span class="p">,</span> <span class="s">"c"</span> <span class="n">of</span> <span class="n">string</span> <span class="s">"cac"</span> <span class="n">in</span> <span class="n">the</span> <span class="n">string</span> <span class="n">s</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="s">"zab"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">6</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">There</span> <span class="n">are</span> <span class="n">six</span> <span class="n">substrings</span> <span class="s">"z"</span><span class="p">,</span> <span class="s">"a"</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="s">"za"</span><span class="p">,</span> <span class="s">"ab"</span><span class="p">,</span> <span class="s">"zab"</span> <span class="n">of</span> <span class="n">string</span> <span class="s">"zab"</span> <span class="n">in</span> <span class="n">the</span> <span class="n">string</span> <span class="n">s</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法">解法</h1>
+<p>这题很明显要用动态规划，因为当前位置字符p[i]能否组成在s中的子字符串和前面在s中字符串的长度有关，适合状态转移方程来解。 <br />
+首先想了用动态数组dp[i]表示在i位置最长连续子字符串的长度，dp[i]很明显和dp[i-1]有关，如果dp[i]== dp[i - 1] + 1 || dp[i - 1] - dp[i] == 25，则这两个还是连续的，dp[i] = dp[i - 1] + 1。同时需要根据dp[i]往回遍历对应长度内所有以p[i]结尾的字符串看是否出现过，所以需要一个哈希表存储已经出现的子字符串，防止重复计算。这个想法思想是可行的，但TLE，so sad。<br />
+大佬的解法是把动态数组定义为vector<int> dp(26, 0)。 dp[i]表示'a' + i对应字符结尾的最长连续子字符串的长度。假设连续字符串为"abcd"，那么以'd'结尾的在s中的子字符串为"d", "cd", "bcd", "abcd"，这样只要求出所有已26个字符结尾的最长连续子字符串的长度累加就是结果。</int></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findSubstringInWraproundString</span><span class="p">(</span><span class="n">string</span> <span class="n">p</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">cnt</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">len</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">25</span><span class="p">)){</span>
+			<span class="o">++</span><span class="n">len</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="n">len</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">cnt</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'a'</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">cnt</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'a'</span><span class="p">],</span> <span class="n">len</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">cnt</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">cnt</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space compelxity: O(1)<br />
+runtime: 51.46%<br />
+memory usage:  85.71%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/unique-substrings-in-wraparound-string/">leetcode-467</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/6143071.html">solution</a></p>
+:ET

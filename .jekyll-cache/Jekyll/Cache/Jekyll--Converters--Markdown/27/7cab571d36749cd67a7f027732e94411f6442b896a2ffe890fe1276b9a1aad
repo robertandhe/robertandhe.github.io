@@ -1,0 +1,8 @@
+I"�<h1 id="问题描述">问题描述</h1>
+<p>Given a non-empty string s and a dictionary wordDict containing a list of non-empty words, determine if s can be segmented into a space-separated sequence of one or more dictionary words.</p>
+<h3 id="note">Note:</h3>
+<ul>
+  <li>The same word in the dictionary may be reused multiple times in the segmentation.</li>
+  <li>You may assume the dictionary does not contain duplicate words.</li>
+</ul>
+:ET

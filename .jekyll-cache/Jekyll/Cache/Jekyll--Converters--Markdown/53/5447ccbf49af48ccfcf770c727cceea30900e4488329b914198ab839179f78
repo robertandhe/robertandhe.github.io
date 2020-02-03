@@ -1,0 +1,244 @@
+I"�a<h1 id="问题描述">问题描述</h1>
+<p>Alice plays the following game, loosely based on the card game “21”.</p>
+
+<p>Alice starts with <code class="highlighter-rouge">0</code> points, and draws numbers while she has less than <code class="highlighter-rouge">K</code> points.  During each draw, she gains an integer number of points randomly from the range [<code class="highlighter-rouge">1, W</code>], where <code class="highlighter-rouge">W</code> is an integer.  Each draw is independent and the outcomes have equal probabilities.</p>
+
+<p>Alice stops drawing numbers when she gets <code class="highlighter-rouge">K</code> or more points.  What is the probability that she has N or less points?</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mf">1.00000</span>
+<span class="n">Explanation</span><span class="o">:</span>  <span class="n">Alice</span> <span class="n">gets</span> <span class="n">a</span> <span class="n">single</span> <span class="n">card</span><span class="p">,</span> <span class="n">then</span> <span class="n">stops</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mf">0.60000</span>
+<span class="n">Explanation</span><span class="o">:</span>  <span class="n">Alice</span> <span class="n">gets</span> <span class="n">a</span> <span class="n">single</span> <span class="n">card</span><span class="p">,</span> <span class="n">then</span> <span class="n">stops</span><span class="p">.</span>
+<span class="n">In</span> <span class="mi">6</span> <span class="n">out</span> <span class="n">of</span> <span class="n">W</span> <span class="o">=</span> <span class="mi">10</span> <span class="n">possibilities</span><span class="p">,</span> <span class="n">she</span> <span class="n">is</span> <span class="n">at</span> <span class="n">or</span> <span class="n">below</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">6</span> <span class="n">points</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">21</span><span class="p">,</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">17</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mf">0.73278</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">0 &lt;= K &lt;= N &lt;= 10000</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= W &lt;= 10000</code></li>
+  <li>Answers will be accepted as correct if they are within <code class="highlighter-rouge">10^-5</code> of the correct answer.</li>
+  <li>The judging time limit has been reduced for this question.</li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>题目就是21点游戏，每次等概率选出[1, W]范围内整数，大于等于K是不再抽，问最终小于等于N的概率。<br />
+这道题我首先想的是求出停止时取各个数的概率，再求出大于等于K并且小于等于N的概率。动态方程长度肯定是K+W了，因为大于等于K时就不抽了，每次最多抽到W，所以能得到的最大值为K+W-1。dp[i]就表示取到i的概率了。<br />
+那么状态转移方程如何求，这里就是全概率公式了，i可以由之前取到i-1,再抽一个1得到，也可以由之前取到i-2,再抽一个2得到…，也可以由之前取到i-W,再取一个W得到。最多往后退W个，因为可以抽的最大数为W。在这里注意下大于等于K是不能抽，假设之前取j，想得到i需要再抽一个i-j,这个数的概率等于1/W，所以dp[i] += dp[j] / W。<br />
+这题代码是没问题的，可惜TLE了。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kt">double</span> <span class="nf">new21Game</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">K</span><span class="p">,</span> <span class="kt">int</span> <span class="n">W</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">i</span> <span class="o">-</span> <span class="n">W</span> <span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">K</span><span class="p">)</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">W</span><span class="p">;</span>
+		<span class="p">}</span>		
+	<span class="p">}</span>
+	<span class="kt">double</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">K</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">d</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;=</span> <span class="n">N</span><span class="p">)</span>
+			<span class="n">n</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">n</span> <span class="o">/</span> <span class="n">d</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="解法-2">解法 2</h2>
+<p>这道题换了个思路，动态数组sum[i]表示取到[0, i]范围内数的概率之和。即sum[i] = p[0] + p[1] + p[2] + … + p[i]。<br />
+状态转移方程需要分情况来讨论：</p>
+<ul>
+  <li>如果i &lt;= W，那么j可以从i-1推到0，因为抽的最大数不会超过W。例如 p[7] = 1 / W * (p[6] + p[5] + … + p[0])。7可以由6加1，5加2，… ，0加7得到。所以p[i] = 1/ W * sum[i - 1], sum[i] = sum[i - 1] + p[i] = sum[i - 1] + sum[i - 1] / W；</li>
+  <li>如果i &gt; W, 那么j最多可以从i - 1推到i - W。例如W = 10, p[15] = 1 / W * (p[14] + p[13] + p[12] + … + p[5])。即p[i] = 1/ W * (sum[i - 1] - sum[i - W - 1])。sum[i] = sum[i - 1] + p[i] = sum[i - 1] + (sum[i - 1] - sum[i - W - 1]) / W;</li>
+</ul>
+
+<p>但是这里还有一个限制条件，j大于等于K是就不能再抽了，所以上述状态转移方程应该改为：</p>
+<ul>
+  <li>如果i &lt;= W并且i &lt;= K，那么j可以从i-1推到0，因为抽的最大数不会超过W。例如 p[7] = 1 / W * (p[6] + p[5] + … + p[0])。7可以由6加1，5加2，… ，0加7得到。所以p[i] = 1/ W * sum[i - 1], sum[i] = sum[i - 1] + p[i] = sum[i - 1] + sum[i - 1] / W；</li>
+  <li>如果i &gt; W并且i &lt;= K, 那么j最多可以从i - 1推到i - W。例如W = 10, p[15] = 1 / W * (p[14] + p[13] + p[12] + … + p[5])。即p[i] = 1/ W * (sum[i - 1] - sum[i - W - 1])。sum[i] = sum[i - 1] + p[i] = sum[i - 1] + (sum[i - 1] - sum[i - W - 1]) / W;</li>
+</ul>
+
+<p>当i &gt; K时，j不能从i - 1开始，j至多能从K-1开始，所以状态转移方程还包括：</p>
+<ul>
+  <li>如果i &lt;= W 并且i &gt; K, p[i] = 1 / W * sum[K - 1], sum[i] = sum[i - 1] + p[i] = sum[i - 1] + sum[K - 1] / W；</li>
+  <li>如果i &gt; W并且 i &gt; K, p[i] = 1 / W * (sum[K - 1] - sum[i - W - 1]), sum[i] = sum[i - 1] + p[i] = sum[i - 1] + (sum[K - 1] - sum[i - W - 1]) / W。</li>
+</ul>
+
+<p>在下面的代码中，把K和W合二为一，因为我们也不知道K和W谁大谁小。只需按照小的来即可。<br />
+返回最终数大于等于K并且小于等于N的概率，由条件概率公式就是大于等于K并且小于等于N的总概率除以大于等于K的概率，所以返回(sum[N] - sum[K - 1]) / (sum[K + W - 1] - sum[K - 1])。（注：其实sum[K + W - 1] - sum[K - 1] = 1，因为最终肯定大于等于1。）</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">double</span> <span class="nf">new21Game</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">K</span><span class="p">,</span> <span class="kt">int</span> <span class="n">W</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">N</span> <span class="o">&gt;=</span> <span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">)</span>
+		<span class="k">return</span> <span class="mf">1.0</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">sum</span><span class="p">(</span><span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">);</span>
+	<span class="n">sum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">K</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;=</span> <span class="n">W</span><span class="p">)</span>
+			<span class="n">sum</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sum</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">/</span> <span class="n">W</span><span class="p">;</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="n">sum</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">sum</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">-</span> <span class="n">sum</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">W</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>  <span class="o">/</span> <span class="n">W</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">sum</span><span class="p">[</span><span class="n">N</span><span class="p">]</span> <span class="o">-</span> <span class="n">sum</span><span class="p">[</span><span class="n">K</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">sum</span><span class="p">[</span><span class="n">K</span> <span class="o">+</span> <span class="n">W</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">sum</span><span class="p">[</span><span class="n">K</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time compelxity: O(K + W)<br />
+space complexity: O(K + W)<br />
+runtime: 35.31%<br />
+memory usage: 90.91%</p>
+
+<h2 id="解法-3">解法 3</h2>
+<p>和解法2思想一模一样，只是先不区分i和K大小,加上再说，如果i &gt; K,表示加多了，把多的减去即可。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="kt">double</span> <span class="nf">new21Game</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">K</span><span class="p">,</span> <span class="kt">int</span> <span class="n">W</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">N</span> <span class="o">&gt;=</span> <span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">)</span>
+		<span class="k">return</span> <span class="mf">1.0</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">);</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;=</span> <span class="n">W</span><span class="p">)</span>
+			<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">W</span><span class="p">;</span>
+		<span class="k">else</span> 
+			<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">W</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">W</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">K</span><span class="p">)</span>
+			<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">dp</span><span class="p">[</span><span class="n">K</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">W</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">N</span><span class="p">]</span> <span class="o">-</span> <span class="n">dp</span><span class="p">[</span><span class="n">K</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time compelxity: O(K + W)<br />
+space complexity: O(K + W)<br />
+runtime: 82.91%<br />
+memory usage: 90.91%</p>
+
+<h2 id="解法-4">解法 4</h2>
+<p>和解法2，3思想大同小异，这里动态数组大小为N+1,因为我们只关心大于等于K并且小于等于N的概率。动态数组dp[i]表示取到i的概率而不是解法2，3中的累加概率。在遍历过程中如果大于等于K，表示到末尾，加入res。小于K还能继续抽。大于等于W要减去多加的。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kt">double</span> <span class="nf">new21Game</span><span class="p">(</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">K</span><span class="p">,</span> <span class="kt">int</span> <span class="n">W</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">K</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">N</span> <span class="o">&gt;=</span> <span class="n">K</span> <span class="o">+</span> <span class="n">W</span><span class="p">)</span>
+		<span class="k">return</span> <span class="mf">1.0</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+	<span class="kt">double</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sumW</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sumW</span> <span class="o">/</span> <span class="n">W</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">K</span><span class="p">)</span>
+			<span class="n">sumW</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="k">else</span> 
+			<span class="n">res</span> <span class="o">+=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="n">W</span><span class="p">)</span>
+			<span class="n">sumW</span> <span class="o">-=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">W</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time compelxity: O(N)<br />
+space complexity: O(N)<br />
+runtime:  35.31%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/new-21-game/">leetcode-837</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/10386525.html">solution 2-4</a></p>
+:ET

@@ -1,0 +1,407 @@
+I"��<h2 id="1309-decrypt-string-from-alphabet-to-integer-mappingeasy">1309. Decrypt String from Alphabet to Integer Mapping[easy]</h2>
+<h3 id="问题描述">问题描述</h3>
+<p>Given a string <code class="highlighter-rouge">s</code> formed by digits (<code class="highlighter-rouge">'0'</code> - <code class="highlighter-rouge">'9'</code>) and <code class="highlighter-rouge">'#'</code> . We want to map <code class="highlighter-rouge">s</code> to English lowercase characters as follows:</p>
+<ul>
+  <li>Characters (<code class="highlighter-rouge">'a'</code> to <code class="highlighter-rouge">'i'</code>) are represented by (<code class="highlighter-rouge">'1'</code> to <code class="highlighter-rouge">'9'</code>) respectively.</li>
+  <li>Characters (<code class="highlighter-rouge">'j'</code> to <code class="highlighter-rouge">'z'</code>) are represented by (<code class="highlighter-rouge">'10#'</code> to <code class="highlighter-rouge">'26#'</code>) respectively.</li>
+</ul>
+
+<p>Return the string formed after mapping.
+It’s guaranteed that a unique mapping will always exist.</p>
+<h4 id="example-1">Example 1:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"10#11#12"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="s">"jkab"</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="s">"j"</span> <span class="o">-&gt;</span> <span class="s">"10#"</span> <span class="p">,</span> <span class="s">"k"</span> <span class="o">-&gt;</span> <span class="s">"11#"</span> <span class="p">,</span> <span class="s">"a"</span> <span class="o">-&gt;</span> <span class="s">"1"</span> <span class="p">,</span> <span class="s">"b"</span> <span class="o">-&gt;</span> <span class="s">"2"</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"1326#"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="s">"acz"</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-3">Example 3:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"25#"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="s">"y"</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-4">Example 4:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"12345678910#11#12#13#14#15#16#17#18#19#20#21#22#23#24#25#26#"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="s">"abcdefghijklmnopqrstuvwxyz"</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="constraints">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= s.length &lt;= 1000</code></li>
+  <li><code class="highlighter-rouge">s[i]</code> only contains digits letters (<code class="highlighter-rouge">'0'</code>-<code class="highlighter-rouge">'9'</code>) and <code class="highlighter-rouge">'#'</code> letter.</li>
+  <li><code class="highlighter-rouge">s</code> will be valid string such that mapping is always possible.</li>
+</ul>
+
+<h3 id="解法">解法</h3>
+<p> 解法挺简单，对每个字符看它后面第二个是否为’#’即可确定它是否和后面相连。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="n">string</span> <span class="nf">freqAlphabets</span><span class="p">(</span><span class="n">string</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">res</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'#'</span><span class="p">){</span>
+            <span class="n">string</span> <span class="n">t</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+            <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="n">stoi</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="mi">10</span> <span class="o">+</span> <span class="sc">'j'</span><span class="p">;</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">c</span><span class="p">;</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'1'</span> <span class="o">+</span> <span class="sc">'a'</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'1'</span> <span class="o">+</span> <span class="sc">'a'</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">;</span>   
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="1310-xor-queries-of-a-subarray">1310. XOR Queries of a Subarray</h2>
+<h3 id="问题描述-1">问题描述</h3>
+<p>Given the array <code class="highlighter-rouge">arr</code> of positive integers and the array <code class="highlighter-rouge">queries</code> where <code class="highlighter-rouge">queries[i] = [Li, Ri]</code>, for each query <code class="highlighter-rouge">i</code> compute the XOR of elements from <code class="highlighter-rouge">Li</code> to <code class="highlighter-rouge">Ri</code> (that is, <code class="highlighter-rouge">arr[Li] xor arr[Li+1] xor ... xor arr[Ri]</code> ). Return an array containing the result for the given <code class="highlighter-rouge">queries</code>.</p>
+<h4 id="example-1-1">Example 1:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">],</span> <span class="n">queries</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span> 
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">binary</span> <span class="n">representation</span> <span class="n">of</span> <span class="n">the</span> <span class="n">elements</span> <span class="n">in</span> <span class="n">the</span> <span class="n">array</span> <span class="n">are</span><span class="o">:</span>
+<span class="mi">1</span> <span class="o">=</span> <span class="mo">0001</span> 
+<span class="mi">3</span> <span class="o">=</span> <span class="mo">0011</span> 
+<span class="mi">4</span> <span class="o">=</span> <span class="mo">0100</span> 
+<span class="mi">8</span> <span class="o">=</span> <span class="mi">1000</span> 
+<span class="n">The</span> <span class="n">XOR</span> <span class="n">values</span> <span class="k">for</span> <span class="n">queries</span> <span class="n">are</span><span class="o">:</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">xor</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">2</span> 
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span> <span class="n">xor</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">7</span> 
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">xor</span> <span class="mi">3</span> <span class="n">xor</span> <span class="mi">4</span> <span class="n">xor</span> <span class="mi">8</span> <span class="o">=</span> <span class="mi">14</span> 
+<span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2-1">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span> <span class="n">queries</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="constraints-1">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= arr.length &lt;= 3 * 10^4</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= arr[i] &lt;= 10^9</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= queries.length &lt;= 3 * 10^4</code></li>
+  <li><code class="highlighter-rouge">queries[i].length == 2</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= queries[i][0] &lt;= queries[i][1] &lt; arr.length</code></li>
+</ul>
+
+<h3 id="解法-1">解法</h3>
+<p> 这道题属于动态规划的范围，异或有个性质，任何数与0异或还是本身，相同数异或就是0。所以这里可以利用相当于数组累加和的数组累计异或，从头到尾不停异或，为了处理方便，在开头补个0。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">xorQueries</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">arr</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">queries</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">;</span>
+    <span class="n">arr</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">t</span> <span class="o">^=</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">queries</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">res</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">queries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">^</span> <span class="n">dp</span><span class="p">[</span><span class="n">queries</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">;</span>      
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="5305-get-watched-videos-by-your-friendsmedium">5305. Get Watched Videos by Your Friends[medium]</h2>
+<h3 id="问题描述-2">问题描述</h3>
+<p>There are <code class="highlighter-rouge">n</code> people, each person has a unique id between <code class="highlighter-rouge">0</code> and <code class="highlighter-rouge">n-1</code>. Given the arrays <code class="highlighter-rouge">watchedVideos</code> and <code class="highlighter-rouge">friends</code>, where <code class="highlighter-rouge">watchedVideos[i]</code> and <code class="highlighter-rouge">friends[i]</code> contain the list of watched videos and the list of friends respectively for the person with <code class="highlighter-rouge">id = i</code>.</p>
+
+<p>Level <strong>1</strong> of videos are all watched videos by your friends, level <strong>2</strong> of videos are all watched videos by the friends of your friends and so on. In general, the level <strong>k</strong> of videos are all watched videos by people with the shortest path equal to k with you. Given your <code class="highlighter-rouge">id</code> and the <code class="highlighter-rouge">level</code> of videos, return the list of videos ordered by their frequencies (increasing). For videos with the same frequency order them alphabetically from least to greatest.</p>
+<h4 id="example-1-2">Example 1:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">watchedVideos</span> <span class="o">=</span> <span class="p">[[</span><span class="s">"A"</span><span class="p">,</span><span class="s">"B"</span><span class="p">],[</span><span class="s">"C"</span><span class="p">],[</span><span class="s">"B"</span><span class="p">,</span><span class="s">"C"</span><span class="p">],[</span><span class="s">"D"</span><span class="p">]],</span> <span class="n">friends</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="s">"B"</span><span class="p">,</span><span class="s">"C"</span><span class="p">]</span> 
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">You</span> <span class="n">have</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">(</span><span class="n">green</span> <span class="n">color</span> <span class="n">in</span> <span class="n">the</span> <span class="n">figure</span><span class="p">)</span> <span class="n">and</span> <span class="n">your</span> <span class="n">friends</span> <span class="n">are</span> <span class="p">(</span><span class="n">yellow</span> <span class="n">color</span> <span class="n">in</span> <span class="n">the</span> <span class="n">figure</span><span class="p">)</span><span class="o">:</span>
+<span class="n">Person</span> <span class="n">with</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-&gt;</span> <span class="n">watchedVideos</span> <span class="o">=</span> <span class="p">[</span><span class="s">"C"</span><span class="p">]</span> 
+<span class="n">Person</span> <span class="n">with</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-&gt;</span> <span class="n">watchedVideos</span> <span class="o">=</span> <span class="p">[</span><span class="s">"B"</span><span class="p">,</span><span class="s">"C"</span><span class="p">]</span> 
+<span class="n">The</span> <span class="n">frequencies</span> <span class="n">of</span> <span class="n">watchedVideos</span> <span class="n">by</span> <span class="n">your</span> <span class="n">friends</span> <span class="n">are</span><span class="o">:</span> 
+<span class="n">B</span> <span class="o">-&gt;</span> <span class="mi">1</span> 
+<span class="n">C</span> <span class="o">-&gt;</span> <span class="mi">2</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2-2">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">watchedVideos</span> <span class="o">=</span> <span class="p">[[</span><span class="s">"A"</span><span class="p">,</span><span class="s">"B"</span><span class="p">],[</span><span class="s">"C"</span><span class="p">],[</span><span class="s">"B"</span><span class="p">,</span><span class="s">"C"</span><span class="p">],[</span><span class="s">"D"</span><span class="p">]],</span> <span class="n">friends</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]],</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="s">"B"</span><span class="p">,</span><span class="s">"C"</span><span class="p">]</span> 
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">You</span> <span class="n">have</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">(</span><span class="n">green</span> <span class="n">color</span> <span class="n">in</span> <span class="n">the</span> <span class="n">figure</span><span class="p">)</span> <span class="n">and</span> <span class="n">your</span> <span class="n">friends</span> <span class="n">are</span> <span class="p">(</span><span class="n">yellow</span> <span class="n">color</span> <span class="n">in</span> <span class="n">the</span> <span class="n">figure</span><span class="p">)</span><span class="o">:</span>
+<span class="n">Person</span> <span class="n">with</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-&gt;</span> <span class="n">watchedVideos</span> <span class="o">=</span> <span class="p">[</span><span class="s">"C"</span><span class="p">]</span> 
+<span class="n">Person</span> <span class="n">with</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-&gt;</span> <span class="n">watchedVideos</span> <span class="o">=</span> <span class="p">[</span><span class="s">"B"</span><span class="p">,</span><span class="s">"C"</span><span class="p">]</span> 
+<span class="n">The</span> <span class="n">frequencies</span> <span class="n">of</span> <span class="n">watchedVideos</span> <span class="n">by</span> <span class="n">your</span> <span class="n">friends</span> <span class="n">are</span><span class="o">:</span> 
+<span class="n">B</span> <span class="o">-&gt;</span> <span class="mi">1</span> 
+<span class="n">C</span> <span class="o">-&gt;</span> <span class="mi">2</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="constraints-2">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">n == watchedVideos.length == friends.length</code></li>
+  <li><code class="highlighter-rouge">2 &lt;= n &lt;= 100</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= watchedVideos[i].length &lt;= 100</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= watchedVideos[i][j].length &lt;= 8</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= friends[i].length &lt; n</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= friends[i][j] &lt; n</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= id &lt; n</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= level &lt; n</code></li>
+  <li><code class="highlighter-rouge">if friends[i] contains j, then friends[j] contains i</code></li>
+</ul>
+
+<h3 id="解法-2">解法</h3>
+<p> 题目中有句话”by people with the shortest path equal to <strong>k</strong> with you”,仅在第k层出现的才计算。这里如果采用dfs可能会提前遇到某些person，导致忽略某些应该考虑的person，所以这里应该是bfs。用visited数组记录已经遇到的person，后面层遇到就可跳过。这里借用queue遍历每一层，对每层中每个人找他的friend，如果没visited过就可计算。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+</pre></td><td class="rouge-code"><pre><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">watchedVideosByFriends</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;&amp;</span> <span class="n">watchedVideos</span><span class="p">,</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">friends</span><span class="p">,</span> <span class="kt">int</span> <span class="n">id</span><span class="p">,</span> <span class="kt">int</span> <span class="n">level</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">;</span>
+    <span class="n">queue</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">q</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">visited</span><span class="p">(</span><span class="n">friends</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="nb">false</span><span class="p">);</span>
+    <span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">m</span><span class="p">;</span>
+    <span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">mem</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">size</span><span class="p">;</span>
+    <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+    <span class="n">visited</span><span class="p">[</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">level</span><span class="p">){</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">size</span><span class="o">--</span><span class="p">){</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">i</span> <span class="o">:</span> <span class="n">friends</span><span class="p">[</span><span class="n">q</span><span class="p">.</span><span class="n">front</span><span class="p">()])</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">visited</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="k">continue</span><span class="p">;</span>
+                <span class="n">visited</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+                <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="o">--</span><span class="n">level</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span> <span class="o">:</span> <span class="n">watchedVideos</span><span class="p">[</span><span class="n">q</span><span class="p">.</span><span class="n">front</span><span class="p">()])</span>
+            <span class="n">m</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">m</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">mem</span><span class="p">[</span><span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">mem</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">sort</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span> <span class="o">:</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">)</span>
+            <span class="n">res</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="1312-minimum-insertion-steps-to-make-a-string-palindromehard">1312. Minimum Insertion Steps to Make a String Palindrome[hard]</h2>
+<h3 id="问题描述-3">问题描述</h3>
+<p>Given a string <code class="highlighter-rouge">s</code>. In one step you can insert any character at any index of the string.</p>
+
+<p>Return the <em>minimum</em> number of steps to make <code class="highlighter-rouge">s</code> palindrome.</p>
+
+<p>A <strong>Palindrome String</strong> is one that reads the same backward as well as forward.</p>
+
+<h4 id="example-1-3">Example 1:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"zzazz"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">The</span> <span class="n">string</span> <span class="s">"zzazz"</span> <span class="n">is</span> <span class="n">already</span> <span class="n">palindrome</span> <span class="n">we</span> <span class="n">don</span><span class="err">'</span><span class="n">t</span> <span class="n">need</span> <span class="n">any</span> <span class="n">insertions</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2-3">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"mbadm"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">2</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">String</span> <span class="n">can</span> <span class="n">be</span> <span class="s">"mbdadbm"</span> <span class="n">or</span> <span class="s">"mdbabdm"</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-3-1">Example 3:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"leetcode"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">5</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Inserting</span> <span class="mi">5</span> <span class="n">characters</span> <span class="n">the</span> <span class="n">string</span> <span class="n">becomes</span> <span class="s">"leetcodocteel"</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-4-1">Example 4:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"g"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">0</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-5">Example 5:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s</span> <span class="o">=</span> <span class="s">"no"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">1</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="contraints">Contraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= s.length &lt;= 500</code></li>
+  <li>All characters of <code class="highlighter-rouge">s</code> are lower case English letters.</li>
+</ul>
+
+<h3 id="解法-3">解法</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">dp</span><span class="p">(</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="kt">int</span> <span class="n">j</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">m</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="n">j</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+    <span class="k">return</span> <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">?</span> <span class="n">dp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="o">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">min</span><span class="p">(</span><span class="n">dp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)));</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">minInsertions</span><span class="p">(</span><span class="n">string</span> <span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
+    <span class="n">m</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+    <span class="k">return</span> <span class="n">dp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="reference">reference</h3>
+<p><a href="https://leetcode.com/contest/weekly-contest-170/problems/decrypt-string-from-alphabet-to-integer-mapping/">problem 1309</a><br />
+<a href="https://leetcode.com/contest/weekly-contest-170/problems/xor-queries-of-a-subarray/">problem 1310</a><br />
+<a href="https://leetcode.com/contest/weekly-contest-170/problems/get-watched-videos-by-your-friends/">problem 1311</a><br />
+<a href="https://leetcode.com/problems/get-watched-videos-by-your-friends/discuss/470695/C%2B%2B-BFS-%2B-Count-Sort">solution 3</a><br />
+<a href="https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome/discuss/470684/C%2B%2B-Simple-DP-(Memoization)-and-Bottom-up-O(n)-Space">solution 4</a></p>
+:ET

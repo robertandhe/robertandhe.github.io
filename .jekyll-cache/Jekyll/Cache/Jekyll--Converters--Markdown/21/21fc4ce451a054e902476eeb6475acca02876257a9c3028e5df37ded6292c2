@@ -1,0 +1,162 @@
+I"r*<blockquote>
+  <p>reference:https://www.zhihu.com/question/30315894/answer/154979413<br />
+-thx to <a href="https://www.zhihu.com/people/tan-jiu-ding/activities">谭九鼎</a></p>
+</blockquote>
+
+<h1 id="安装扩展">安装扩展</h1>
+<p>我安装的扩展为</p>
+<ul>
+  <li>C/C++ Tools</li>
+  <li>Coder Runner</li>
+  <li>Markdown All in One</li>
+  <li>Markdown Preview Github Styling</li>
+  <li>One Dark Pro主题</li>
+</ul>
+
+<h1 id="安装编译器">安装编译器</h1>
+<ul>
+  <li><a href="http://releases.llvm.org/download.html">LLVM Download Page</a> 在此页面下载Clang。选 Pre-Built Binaries 中的 Windows (64-bit)，不需要下.sig文件</li>
+  <li><a href="https://sourceforge.net/projects/mingw-w64/files/">MinGW-w64- for 32 and 64 bit Windows</a>选最新版本中的x86_64-posix-seh
+<em>安装clang</em> 添加环境变量时，选 Add LLVM to the system PATH for all users, 我的路径为C:\LLVM
+<em>安装MigGW-w64</em>解压压缩包，复制所有文件到clang文件夹</li>
+</ul>
+
+<h1 id="验证">验证</h1>
+<p>运行cmd，输入clang-v 或 gcc-v显示各自版本</p>
+
+<h1 id="配置json文件">配置json文件</h1>
+<p>创建工作目录，在工作目录下创建.vscode文件夹，json配置文件放在.vscode下。
+经验证仅需配置两个即可</p>
+<h2 id="1-launchjson">1. launch.json</h2>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre><span class="c1">// https://github.com/Microsoft/vscode-cpptools/blob/master/launch.md</span>
+<span class="p">{</span>
+    <span class="s">"version"</span><span class="o">:</span> <span class="s">"0.2.0"</span><span class="p">,</span>
+    <span class="s">"configurations"</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">"name"</span><span class="o">:</span> <span class="s">"(gdb) Launch"</span><span class="p">,</span> <span class="c1">// 配置名称，将会在启动配置的下拉菜单中显示</span>
+            <span class="s">"type"</span><span class="o">:</span> <span class="s">"cppdbg"</span><span class="p">,</span> <span class="c1">// 配置类型，cppdbg对应cpptools提供的调试功能；可以认为此处只能是cppdbg</span>
+            <span class="s">"request"</span><span class="o">:</span> <span class="s">"launch"</span><span class="p">,</span> <span class="c1">// 请求配置类型，可以为launch（启动）或attach（附加）</span>
+            <span class="s">"program"</span><span class="o">:</span> <span class="s">"${fileDirname}/${fileBasenameNoExtension}.exe"</span><span class="p">,</span> <span class="c1">// 将要进行调试的程序的路径</span>
+            <span class="s">"args"</span><span class="o">:</span> <span class="p">[],</span> <span class="c1">// 程序调试时传递给程序的命令行参数，一般设为空即可</span>
+            <span class="s">"stopAtEntry"</span><span class="o">:</span> <span class="nb">false</span><span class="p">,</span> <span class="c1">// 设为true时程序将暂停在程序入口处，相当于在main上打断点</span>
+            <span class="s">"cwd"</span><span class="o">:</span> <span class="s">"${workspaceFolder}"</span><span class="p">,</span> <span class="c1">// 调试程序时的工作目录，此为工作区文件夹；改成${fileDirname}可变为文件所在目录</span>
+            <span class="s">"environment"</span><span class="o">:</span> <span class="p">[],</span> <span class="c1">// 环境变量</span>
+            <span class="s">"externalConsole"</span><span class="o">:</span> <span class="nb">true</span><span class="p">,</span> <span class="c1">// 为true时使用单独的cmd窗口，与其它IDE一致；18年10月后设为false可调用VSC内置终端</span>
+            <span class="s">"internalConsoleOptions"</span><span class="o">:</span> <span class="s">"neverOpen"</span><span class="p">,</span> <span class="c1">// 如果不设为neverOpen，调试时会跳到“调试控制台”选项卡，你应该不需要对gdb手动输命令吧？</span>
+            <span class="s">"MIMode"</span><span class="o">:</span> <span class="s">"gdb"</span><span class="p">,</span> <span class="c1">// 指定连接的调试器，可以为gdb或lldb。但我没试过lldb</span>
+            <span class="s">"miDebuggerPath"</span><span class="o">:</span> <span class="s">"gdb.exe"</span><span class="p">,</span> <span class="c1">// 调试器路径，Windows下后缀不能省略，Linux下则不要</span>
+            <span class="s">"setupCommands"</span><span class="o">:</span> <span class="p">[</span>
+                <span class="p">{</span> <span class="c1">// 模板自带，好像可以更好地显示STL容器的内容，具体作用自行Google</span>
+                    <span class="s">"description"</span><span class="o">:</span> <span class="s">"Enable pretty-printing for gdb"</span><span class="p">,</span>
+                    <span class="s">"text"</span><span class="o">:</span> <span class="s">"-enable-pretty-printing"</span><span class="p">,</span>
+                    <span class="s">"ignoreFailures"</span><span class="o">:</span> <span class="nb">false</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s">"preLaunchTask"</span><span class="o">:</span> <span class="s">"Compile"</span> <span class="c1">// 调试会话开始前执行的任务，一般为编译程序。与tasks.json的label相对应</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="2-tasksjson">2. tasks.json</h2>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+</pre></td><td class="rouge-code"><pre><span class="c1">// https://code.visualstudio.com/docs/editor/tasks</span>
+<span class="p">{</span>
+    <span class="s">"version"</span><span class="o">:</span> <span class="s">"2.0.0"</span><span class="p">,</span>
+    <span class="s">"tasks"</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">"label"</span><span class="o">:</span> <span class="s">"Compile"</span><span class="p">,</span> <span class="c1">// 任务名称，与launch.json的preLaunchTask相对应</span>
+            <span class="s">"command"</span><span class="o">:</span> <span class="s">"clang++"</span><span class="p">,</span> <span class="c1">// 要使用的编译器，C++用clang++；如果编译失败，改成gcc或g++试试，还有问题那就是你自己的代码有错误</span>
+            <span class="s">"args"</span><span class="o">:</span> <span class="p">[</span>
+                <span class="s">"${file}"</span><span class="p">,</span>
+                <span class="s">"-o"</span><span class="p">,</span> <span class="c1">// 指定输出文件名，不加该参数则默认输出a.exe，Linux下默认a.out</span>
+                <span class="s">"${fileDirname}/${fileBasenameNoExtension}.exe"</span><span class="p">,</span>
+                <span class="s">"-g"</span><span class="p">,</span> <span class="c1">// 生成和调试有关的信息</span>
+                <span class="s">"-Wall"</span><span class="p">,</span> <span class="c1">// 开启额外警告</span>
+                <span class="s">"-static-libgcc"</span><span class="p">,</span> <span class="c1">// 静态链接libgcc，一般都会加上</span>
+                <span class="c1">// "--target=x86_64-w64-mingw", // clang的默认target为msvc，不加这一条就会找不到头文件；用gcc或者Linux则掉这一条</span>
+                <span class="s">"--target=x86_64-w64-mingw32"</span><span class="p">,</span> <span class="c1">// clang的默认target为msvc，不加这一条就会找不到头文件；用gcc或者Linux则掉这一条</span>
+                <span class="s">"-fno-limit-debug-info"</span><span class="p">,</span>
+                <span class="c1">// "-exec -enable-pretty-printing",</span>
+                <span class="c1">//"-std=c17", // C++最新标准为c++17，或根据自己的需要进行修改</span>
+            <span class="p">],</span> <span class="c1">// 编译命令参数</span>
+            <span class="s">"type"</span><span class="o">:</span> <span class="s">"process"</span><span class="p">,</span> <span class="c1">// process是vsc把预定义变量和转义解析后直接全部传给command；shell相当于先打开shell再输入命令，所以args还会经过shell再解析一遍</span>
+            <span class="s">"group"</span><span class="o">:</span> <span class="p">{</span>
+                <span class="s">"kind"</span><span class="o">:</span> <span class="s">"build"</span><span class="p">,</span>
+                <span class="s">"isDefault"</span><span class="o">:</span> <span class="nb">true</span> <span class="c1">// 不为true时ctrl shift B就要手动选择了</span>
+            <span class="p">},</span>
+            <span class="s">"presentation"</span><span class="o">:</span> <span class="p">{</span>
+                <span class="s">"echo"</span><span class="o">:</span> <span class="nb">true</span><span class="p">,</span>
+                <span class="s">"reveal"</span><span class="o">:</span> <span class="s">"always"</span><span class="p">,</span> <span class="c1">// 执行任务时是否跳转到终端面板，可以为always，silent，never。具体参见VSC的文档</span>
+                <span class="s">"focus"</span><span class="o">:</span> <span class="nb">false</span><span class="p">,</span> <span class="c1">// 设为true后可以使执行task时焦点聚集在终端，但对编译C/C++来说，设为true没有意义</span>
+                <span class="s">"panel"</span><span class="o">:</span> <span class="s">"shared"</span> <span class="c1">// 不同的文件的编译信息共享一个终端面板</span>
+            <span class="p">},</span>
+            <span class="c1">// "problemMatcher":"$gcc" // 此选项可以捕捉编译时终端里的报错信息；本文用的是clang，开了可能会出现双重报错信息；只用cpptools可以考虑启用</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>实测<code class="highlighter-rouge">-fno-limit-debug-info</code>必须要有，否则调试时无法显示字符串。</p>
+:ET

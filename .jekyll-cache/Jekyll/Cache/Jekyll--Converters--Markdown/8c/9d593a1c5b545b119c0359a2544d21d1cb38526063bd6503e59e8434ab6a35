@@ -1,0 +1,24 @@
+I"�
+<h2 id="问题描述">问题描述</h2>
+<p>There is an <strong>m</strong> by <strong>n</strong> grid with a ball. Given the start coordinate <strong>(i,j)</strong> of the ball, you can move the ball to <strong>adjacent</strong> cell or cross the grid boundary in four directions (up, down, left, right). However, you can <strong>at most</strong> move <strong>N</strong> times. Find out the number of paths to move the ball out of grid boundary. The answer may be very large, return it after mod 109 + 7.</p>
+<h3 id="example-1">Example 1:</h3>
+<p><img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-25/leetcode576-example1.PNG" alt="example1" /></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">6</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<p><img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-25/leetcode576-example2.PNG" alt="example2" /></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">12</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ul>
+  <li>Once you move the ball out of boundary, you cannot move it back.</li>
+  <li>The length and height of the grid is in range [1,50].</li>
+  <li>N is in range [0,50].</li>
+</ul>
+:ET

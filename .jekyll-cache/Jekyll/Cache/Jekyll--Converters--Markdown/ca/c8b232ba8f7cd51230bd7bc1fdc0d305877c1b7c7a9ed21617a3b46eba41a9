@@ -1,0 +1,39 @@
+I"(<h1 id="题目1-1295-find-numbers-with-even-number-of-digits">题目1 1295. Find Numbers with Even Number of Digits</h1>
+<h2 id="题目描述">题目描述</h2>
+<p>Given an array <code class="highlighter-rouge">nums</code> of integers, return how many of them contain an <code class="highlighter-rouge">even</code> number of digits.</p>
+<h4 id="example-1">Example 1:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="mi">345</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7896</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">2</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="mi">12</span> <span class="n">contains</span> <span class="mi">2</span> <span class="n">digits</span> <span class="p">(</span><span class="n">even</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span><span class="p">).</span> 
+<span class="mi">345</span> <span class="n">contains</span> <span class="mi">3</span> <span class="n">digits</span> <span class="p">(</span><span class="n">odd</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span><span class="p">).</span> 
+<span class="mi">2</span> <span class="n">contains</span> <span class="mi">1</span> <span class="n">digit</span> <span class="p">(</span><span class="n">odd</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span><span class="p">).</span> 
+<span class="mi">6</span> <span class="n">contains</span> <span class="mi">1</span> <span class="n">digit</span> <span class="p">(</span><span class="n">odd</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span><span class="p">).</span> 
+<span class="mi">7896</span> <span class="n">contains</span> <span class="mi">4</span> <span class="n">digits</span> <span class="p">(</span><span class="n">even</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span><span class="p">).</span> 
+<span class="n">Therefore</span> <span class="n">only</span> <span class="mi">12</span> <span class="n">and</span> <span class="mi">7896</span> <span class="n">contain</span> <span class="n">an</span> <span class="n">even</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">555</span><span class="p">,</span><span class="mi">901</span><span class="p">,</span><span class="mi">482</span><span class="p">,</span><span class="mi">1771</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">1</span> 
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">Only</span> <span class="mi">1771</span> <span class="n">contains</span> <span class="n">an</span> <span class="n">even</span> <span class="n">number</span> <span class="n">of</span> <span class="n">digits</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="constraints">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= nums.length &lt;= 500</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= nums[i] &lt;= 10^5</code></li>
+</ul>
+:ET

@@ -1,0 +1,113 @@
+I"�"<h1 id="问题描述">问题描述</h1>
+<p>Given a non-empty array containing only positive integers, find if the array can be partitioned into two subsets such that the sum of elements in both subsets is equal.</p>
+<h3 id="note">Note:</h3>
+<ol>
+  <li>Each of the array element will not exceed 100.</li>
+  <li>The array size will not exceed 200.</li>
+</ol>
+
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+
+<span class="n">Output</span><span class="o">:</span> <span class="nb">true</span>
+
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">The</span> <span class="n">array</span> <span class="n">can</span> <span class="n">be</span> <span class="n">partitioned</span> <span class="n">as</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span> <span class="n">and</span> <span class="p">[</span><span class="mi">11</span><span class="p">].</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+
+<span class="n">Output</span><span class="o">:</span> <span class="nb">false</span>
+
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">The</span> <span class="n">array</span> <span class="n">cannot</span> <span class="n">be</span> <span class="n">partitioned</span> <span class="n">into</span> <span class="n">equal</span> <span class="n">sum</span> <span class="n">subsets</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这道题要求把数组分成两部分，每部分的和相等。为了判断某个和是否出现，应选用dp来做。数组和应该为偶数，target为数组和的一半。
+建立target+1长度的数组dp,dp[0]设为true, dp[i]为1表示和i能够出现，那么关键就是建立状态转移方程。在遍历过程中，对每个遍历到的数num，dp[j]是否为1，要看现在的dp[j]和dp[j-num]，即dp[j] = dp[j] || dp[j - num]。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">bool</span> <span class="nf">canPartition</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+		<span class="n">sum</span> <span class="o">+=</span> <span class="n">num</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">sum</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">target</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">target</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">target</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">num</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span>
+			<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">||</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">num</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">target</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(m)<br />
+runtime: 25.73%<br />
+memory usage: 94.12%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>利用bitset，长度为10001，因为nums最长为200，nums中每个数不超过100，除2加个0，就为10001。bitset初始化为1，遍历到num时，bs |= bs « num，每个和对应的位置都为1，最后判断bs[target]。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="kt">bool</span> <span class="nf">canPartition</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+		<span class="n">sum</span> <span class="o">+=</span> <span class="n">num</span><span class="p">;</span>
+	<span class="n">bitset</span><span class="o">&lt;</span><span class="mi">10001</span><span class="o">&gt;</span> <span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">bs</span> <span class="o">|=</span> <span class="n">bs</span> <span class="o">&lt;&lt;</span> <span class="n">num</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">sum</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">bs</span><span class="p">[</span><span class="n">sum</span> <span class="o">/</span> <span class="mi">2</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(1)<br />
+runtime: 87.03%<br />
+memory usage: 94.12%</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/partition-equal-subset-sum/">leetcode-416</a> 
+<a href="https://www.cnblogs.com/grandyang/p/5951422.html">solution</a></p>
+:ET

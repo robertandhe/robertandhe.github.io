@@ -1,0 +1,199 @@
+I"�M<h1 id="问题描述">问题描述</h1>
+<p>Given a collection of intervals, find the minimum number of intervals you need to remove to make the rest of the intervals non-overlapping. <br />
+Example 1:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="n">can</span> <span class="n">be</span> <span class="n">removed</span> <span class="n">and</span> <span class="n">the</span> <span class="n">rest</span> <span class="n">of</span> <span class="n">intervals</span> <span class="n">are</span> <span class="n">non</span><span class="o">-</span><span class="n">overlapping</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Example 2:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">2</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">You</span> <span class="n">need</span> <span class="n">to</span> <span class="n">remove</span> <span class="n">two</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="n">to</span> <span class="n">make</span> <span class="n">the</span> <span class="n">rest</span> <span class="n">of</span> <span class="n">intervals</span> <span class="n">non</span><span class="o">-</span><span class="n">overlapping</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Example 3:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">You</span> <span class="n">don</span><span class="err">'</span><span class="n">t</span> <span class="n">need</span> <span class="n">to</span> <span class="n">remove</span> <span class="n">any</span> <span class="n">of</span> <span class="n">the</span> <span class="n">intervals</span> <span class="n">since</span> <span class="n">they</span><span class="err">'</span><span class="n">re</span> <span class="n">already</span> <span class="n">non</span><span class="o">-</span><span class="n">overlapping</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Note:</p>
+<ul>
+  <li>You may assume the interval’s end point is always bigger than its start point.</li>
+  <li>Intervals like [1,2] and [2,3] have borders “touching” but they don’t overlap each other.</li>
+</ul>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法1">解法1</h2>
+<p>挺简单的贪心问题，首先应把数组排序，直接STL sort，实在闲的慌可以自己写sort。sort的标准是0位置小的在前，0位置相同则1位置小的在前。
+然后开始遍历，这里用栈存储上一个位置元素，如果当前位置元素0位置和上一个相同，则res加1，因为1位置肯定大于等于上一个元素1位置，形成对
+后面的限制，应舍去。如果当前位置元素0位置大于等于前一元素1位置，则两个区间是断开的，符合条件，存入堆栈，继续遍历。到最后当前元素0位置肯定是小于前一元素1位置了，这是应看那个1位置小就留那个，因为这会给后面元素更大余量，更新堆栈，继续遍历。<br />
+边界条件处理。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">eraseOverlapIntervals</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">intervals</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+	<span class="n">stack</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">st</span><span class="p">;</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">intervals</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">intervals</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span> <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">];});</span>
+	<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">intervals</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">0</span><span class="p">]){</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>	
+		<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="n">st</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+			<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span> 
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlogn)<br />
+空间复杂度：O(n)</p>
+<h2 id="解法2">解法2</h2>
+<p>解法1用堆栈存储上一个元素，其实只需要知道上一个元素位置就行了，减小内存开销。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">eraseOverlapIntervals</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">intervals</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+	<span class="n">stack</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">st</span><span class="p">;</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">intervals</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">intervals</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span> <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">];});</span>
+	<span class="kt">int</span> <span class="n">pre</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">intervals</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">intervals</span><span class="p">[</span><span class="n">pre</span><span class="p">][</span><span class="mi">0</span><span class="p">]){</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">intervals</span><span class="p">[</span><span class="n">pre</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="n">pre</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">intervals</span><span class="p">[</span><span class="n">pre</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="n">pre</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span> 
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlogn)<br />
+空间复杂度：O(1)<br />
+虽然没有堆栈开销，但oJ时时间空间效率并没有提升。</p>
+<h2 id="解法3">解法3</h2>
+<p>和解法2一样，代码更优美。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">eraseOverlapIntervals</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">intervals</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">intervals</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">intervals</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">intervals</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">intervals</span><span class="p">[</span><span class="n">last</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">intervals</span><span class="p">[</span><span class="n">last</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+				<span class="n">last</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span> 
+			<span class="n">last</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlogn)<br />
+空间复杂度：O(1)</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/non-overlapping-intervals/">leetcode-435</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/6017505.html">solution 3</a></p>
+:ET

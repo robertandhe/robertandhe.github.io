@@ -1,0 +1,577 @@
+I"W<h1 id="来源">来源</h1>
+<p>第一次参加weekly contest,共四道题目，排名一般。</p>
+
+<h1 id="第一道-1260-shift-2d-grid">第一道 1260. Shift 2D Grid</h1>
+<h2 id="问题描述">问题描述</h2>
+<p>Given a 2D <code class="highlighter-rouge">grid</code> of size <code class="highlighter-rouge">n * m</code> and an integer<code class="highlighter-rouge">k</code>. You need to shift the <code class="highlighter-rouge">grid k</code>times. <br />
+In one shift operation:</p>
+<ul>
+  <li>Element at <code class="highlighter-rouge">grid[i][j]</code> becomes at <code class="highlighter-rouge">grid[i][j + 1]</code>.</li>
+  <li>Element at <code class="highlighter-rouge">grid[i][m - 1]</code> becomes at <code class="highlighter-rouge">grid[i + 1][0]</code>.</li>
+  <li>Element at <code class="highlighter-rouge">grid[n - 1][m - 1]</code> becomes at <code class="highlighter-rouge">grid[0][0]</code>.</li>
+</ul>
+
+<p>Return the 2D grid after applying shift operation <code class="highlighter-rouge">k</code> times.</p>
+<h4 id="example-1">Example 1:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">]],</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[[</span><span class="mi">9</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">19</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="mi">12</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">13</span><span class="p">]],</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[[</span><span class="mi">12</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">13</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">19</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">10</span><span class="p">]]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-3">Example 3:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">]],</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">]]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="constraints">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= grid.length &lt;= 50</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= grid[i].length &lt;= 50</code></li>
+  <li><code class="highlighter-rouge">-1000 &lt;= grid[i][j] &lt;= 1000</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= k &lt;= 100</code></li>
+</ul>
+
+<h2 id="解法">解法</h2>
+<p>挺简单的一道题，就是二维数组内元素往右移位，超出一行就移到下一行开头。建立另一二维数组存储结果，首先需要统计元素个数numElement，因为超出了要从左上角开始。k要先取余numElement的余数，移位过程也要余numElement。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">shiftGrid</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">grid</span><span class="p">,</span> <span class="kt">int</span> <span class="n">k</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">n</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">(),</span> <span class="n">numElements</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">n</span><span class="p">;</span>
+	<span class="n">k</span> <span class="o">%=</span> <span class="n">numElements</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">res</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">j</span><span class="p">;</span>
+			<span class="n">t</span> <span class="o">+=</span> <span class="n">k</span><span class="p">;</span>
+			<span class="n">t</span> <span class="o">%=</span> <span class="n">numElements</span><span class="p">;</span>
+			<span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">t</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">t</span> <span class="o">%</span> <span class="n">n</span><span class="p">;</span>
+			<span class="n">res</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="第二道-1261-find-elements-in-a-contaminated-binary-tree">第二道 1261. Find Elements in a Contaminated Binary Tree</h1>
+<h2 id="问题描述-1">问题描述</h2>
+<p>Given a binary tree with the following rules:</p>
+<ol>
+  <li><code class="highlighter-rouge">root.val == 0</code></li>
+  <li>If <code class="highlighter-rouge">treeNode.val == x</code> and <code class="highlighter-rouge">treeNode.left != null</code>, then <code class="highlighter-rouge">treeNode.left.val == 2 * x + 1</code></li>
+  <li>If <code class="highlighter-rouge">treeNode.val == x</code> and <code class="highlighter-rouge">treeNode.right != null</code>, then <code class="highlighter-rouge">treeNode.right.val == 2 * x + 2</code></li>
+</ol>
+
+<p>Now the binary tree is contaminated, which means all <code class="highlighter-rouge">treeNode.val</code> have been changed to <code class="highlighter-rouge">-1</code>.<br />
+You need to first recover the binary tree and then implement the <code class="highlighter-rouge">FindElements</code> class:</p>
+<ul>
+  <li><code class="highlighter-rouge">FindElements(TreeNode* root)</code> Initializes the object with a contamined binary tree, you need to recover it first.</li>
+  <li><code class="highlighter-rouge">bool find(int target)</code> Return if the <code class="highlighter-rouge">target</code> value exists in the recovered binary tree.</li>
+</ul>
+
+<h4 id="example-1-1">Example 1:</h4>
+<p><img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-17/1261-example1.PNG" alt="example1" /></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="n">Input</span>
+<span class="p">[</span><span class="s">"FindElements"</span><span class="p">,</span><span class="s">"find"</span><span class="p">,</span><span class="s">"find"</span><span class="p">]</span>
+<span class="p">[[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">null</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]],[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">]]</span>
+<span class="n">Output</span>
+<span class="p">[</span><span class="n">null</span><span class="p">,</span><span class="nb">false</span><span class="p">,</span><span class="nb">true</span><span class="p">]</span>
+<span class="n">Explanation</span>
+<span class="n">FindElements</span> <span class="n">findElements</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FindElements</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">null</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span> 
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// return False </span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">// return True </span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2-1">Example 2:</h4>
+<p><img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-17/1261-example2.PNG" alt="example2" /></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="n">Input</span>
+<span class="p">[</span><span class="s">"FindElements"</span><span class="p">,</span><span class="s">"find"</span><span class="p">,</span><span class="s">"find"</span><span class="p">,</span><span class="s">"find"</span><span class="p">]</span>
+<span class="p">[[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]],[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">5</span><span class="p">]]</span>
+<span class="n">Output</span>
+<span class="p">[</span><span class="n">null</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="nb">false</span><span class="p">]</span>
+<span class="n">Explanation</span>
+<span class="n">FindElements</span> <span class="n">findElements</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FindElements</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// return True</span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="c1">// return True</span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span> <span class="c1">// return False</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-3-1">Example 3:</h4>
+<p><img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-17/1261-example3.PNG" alt="example3" /></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="n">Input</span>
+<span class="p">[</span><span class="s">"FindElements"</span><span class="p">,</span><span class="s">"find"</span><span class="p">,</span><span class="s">"find"</span><span class="p">,</span><span class="s">"find"</span><span class="p">,</span><span class="s">"find"</span><span class="p">]</span>
+<span class="p">[[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">null</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">null</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">],[</span><span class="mi">5</span><span class="p">]]</span>
+<span class="n">Output</span>
+<span class="p">[</span><span class="n">null</span><span class="p">,</span><span class="nb">true</span><span class="p">,</span><span class="nb">false</span><span class="p">,</span><span class="nb">false</span><span class="p">,</span><span class="nb">true</span><span class="p">]</span>
+<span class="n">Explanation</span>
+<span class="n">FindElements</span> <span class="n">findElements</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">FindElements</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">null</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">null</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">// return True</span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span> <span class="c1">// return False</span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="c1">// return False</span>
+<span class="n">findElements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span> <span class="c1">// return True</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="constraints-1">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">TreeNode.val == -1</code></li>
+  <li>The height of the binary tree is less than or equal to <code class="highlighter-rouge">20</code></li>
+  <li>The total number of nodes is between <code class="highlighter-rouge">[1, 10^4]</code></li>
+  <li>Total calls of <code class="highlighter-rouge">find()</code> is between <code class="highlighter-rouge">[1, 10^4]</code></li>
+  <li><code class="highlighter-rouge">0 &lt;= target &lt;= 10^6</code></li>
+</ul>
+
+<h2 id="解法-1">解法</h2>
+<p>挺简单一题，FindElements遍历二叉树，恢复被污染的树，因为要重置树节点值，所以要借用辅助函数。为了以后查找二叉树结点，要新建私有成员变量head
+存储二叉树根节点。<br />
+FindElements函数开始应该把根节点值置为0，左结点传入2 * node-&gt;val + 1,右节点传入2 * node-&gt;val + 2。递归中依然如此。<br />
+查找就是普通的二叉树查找。
+这里遍历过程中可以把所有结点存到某个set里面，后面直接查找set就行，不过这不符合我程序完整性思想。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+</pre></td><td class="rouge-code"><pre><span class="k">struct</span> <span class="n">TreeNode</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
+  	<span class="n">TreeNode</span> <span class="o">*</span><span class="n">left</span><span class="p">;</span>
+	<span class="n">TreeNode</span> <span class="o">*</span><span class="n">right</span><span class="p">;</span>
+	<span class="n">TreeNode</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="o">:</span> <span class="n">val</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">left</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span> <span class="n">right</span><span class="p">(</span><span class="nb">NULL</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">FindElements</span> <span class="p">{</span>
+<span class="nl">public:</span>
+	<span class="kt">void</span> <span class="n">helper</span><span class="p">(</span><span class="n">TreeNode</span><span class="o">*</span> <span class="n">node</span><span class="p">,</span> <span class="kt">int</span> <span class="n">val</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+			<span class="k">return</span><span class="p">;</span>
+		<span class="n">node</span><span class="o">-&gt;</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="p">;</span>
+		<span class="n">helper</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+		<span class="n">helper</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">node</span><span class="o">-&gt;</span><span class="n">val</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+	<span class="p">}</span>
+
+    <span class="n">FindElements</span><span class="p">(</span><span class="n">TreeNode</span><span class="o">*</span> <span class="n">root</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">head</span> <span class="o">=</span> <span class="n">root</span><span class="p">;</span>
+		<span class="n">root</span><span class="o">-&gt;</span><span class="n">val</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="n">helper</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+		<span class="n">helper</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+	<span class="kt">bool</span> <span class="n">helper2</span><span class="p">(</span><span class="n">TreeNode</span><span class="o">*</span> <span class="n">node</span><span class="p">,</span> <span class="kt">int</span><span class="o">&amp;</span>  <span class="n">target</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+			<span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">val</span> <span class="o">==</span> <span class="n">target</span><span class="p">)</span>
+			<span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+		<span class="k">return</span> <span class="n">helper2</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="o">||</span> <span class="n">helper2</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+	<span class="p">}</span>
+
+    <span class="kt">bool</span> <span class="n">find</span><span class="p">(</span><span class="kt">int</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">helper2</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="nl">private:</span>
+	<span class="n">TreeNode</span><span class="o">*</span> <span class="n">head</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="第三道-1262-greatest-sum-divisible-by-three">第三道 1262. Greatest Sum Divisible by Three</h1>
+<h2 id="问题描述-2">问题描述</h2>
+<p>Given an array <code class="highlighter-rouge">nums</code> of integers, we need to find the maximum possible sum of elements of the array such that it is divisible by three.</p>
+<h4 id="example-1-2">Example 1:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">18</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Pick</span> <span class="n">numbers</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span> <span class="n">and</span> <span class="mi">8</span> <span class="n">their</span> <span class="n">sum</span> <span class="n">is</span> <span class="mi">18</span> <span class="p">(</span><span class="n">maximum</span> <span class="n">sum</span> <span class="n">divisible</span> <span class="n">by</span> <span class="mi">3</span><span class="p">).</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2-2">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Since</span> <span class="mi">4</span> <span class="n">is</span> <span class="n">not</span> <span class="n">divisible</span> <span class="n">by</span> <span class="mi">3</span><span class="p">,</span> <span class="k">do</span> <span class="n">not</span> <span class="n">pick</span> <span class="n">any</span> <span class="n">number</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-3-2">Example 3:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">12</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Pick</span> <span class="n">numbers</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span> <span class="n">and</span> <span class="mi">4</span> <span class="n">their</span> <span class="n">sum</span> <span class="n">is</span> <span class="mi">12</span> <span class="p">(</span><span class="n">maximum</span> <span class="n">sum</span> <span class="n">divisible</span> <span class="n">by</span> <span class="mi">3</span><span class="p">).</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="constraints-2">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= nums.length &lt;= 4 * 10^4</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= nums[i] &lt;= 10^4</code></li>
+</ul>
+
+<h2 id="解法-2">解法</h2>
+<p>这道题要求出数组中能被3整除的最大子数组和，这里不是限定连续子数组，所有贪心无法解，就只有动态规划了。<br />
+那么首先要解决动态数组如何定义的问题，咋一看好像是定义为dp[i]表示到第i(或者i+1)个位置能被3整除的最大子数组和，但这样定义没有保留除3余1和2的子数组和，后面能被
+3整除的和可以由前面除3余1或2加某些数得到。所以dp[i]应该表示除3余i的子数组最大和，(i=0,1,2)。这里建立一维就行了，因为状态方程会不停更新覆盖。<br />
+第二点要解决的就是状态转移方程。对nums中的每个数num除3的余数为num%3。它可以和别的数组成除3余0，1，2的子数组和，假设mod=num%3，那么除3余0的子数组和就是
+dp[(3+0-mod)%3] + num,除3余1的子数组和就是dp[(3+1-mod)%3] + num,除3余2的子数组和就是dp[(3+2-mod)%3] + num。注意这里加3的作用是为了防止例如0-mod小于0，反正后面还会余3，就算大于等于3也没影响。然后根据dp大小取大的。<br />
+这里还有初始情况考虑，if (a || mod == 0) dp[0] = max(dp[0], a + num)。因为刚开书动态数组没有加过数为0，就根据mod来更新相关位置。<br />
+最终返回dp[0]。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">maxSumDivThree</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="mi">3</span><span class="p">;</span>
+		<span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[(</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">0</span> <span class="o">-</span> <span class="n">mod</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">];</span>
+		<span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[(</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">mod</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">];</span>
+		<span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[(</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">mod</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">||</span> <span class="n">mod</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+			<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span> <span class="o">+</span> <span class="n">num</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">b</span> <span class="o">||</span> <span class="n">mod</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+			<span class="n">dp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span> <span class="o">+</span> <span class="n">num</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">||</span> <span class="n">mod</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+			<span class="n">dp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span> <span class="o">+</span> <span class="n">num</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>timecomplexity: O(n)<br />
+space complexity: O(1)<br />
+runtime: 85.71%<br />
+memory usage: 100.00%</p>
+
+<h1 id="第四道-1262-greatest-sum-divisible-by-three">第四道 1262. Greatest Sum Divisible by Three</h1>
+<h2 id="问题描述-3">问题描述</h2>
+<p>Storekeeper is a game, in which the player pushes boxes around in a warehouse, trying to get them to target locations.</p>
+
+<p>The game is represented by a grid of size n*m, where each element is a wall, floor or a box.
+Your task is move the box ‘B’ to the target position ‘T’ under the following rules:</p>
+<ul>
+  <li>Player is represented by character ‘S’ and can move up, down, left, right in the grid if its a floor (empy cell).</li>
+  <li>Floor is represented by character ‘.’ that means free cell to walk.</li>
+  <li>Wall is represented by character ‘#’ that means obstacle  (impossible to walk there).</li>
+  <li>There is only one box ‘B’ and one target cell ‘T’ in the grid.</li>
+  <li>The box can be moved to an adjacent free cell by standing next to the box and then moving in the direction of the box. This is a <strong>push</strong>.</li>
+  <li>The player cannot walk through the box.</li>
+</ul>
+
+<h4 id="example-1-3">Example 1:</h4>
+<p><img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-11-17/1262-example1.PNG" alt="example1" /></p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"T"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"B"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"S"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">3</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">We</span> <span class="k">return</span> <span class="n">only</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">times</span> <span class="n">the</span> <span class="n">box</span> <span class="n">is</span> <span class="n">pushed</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-2-3">Example 2:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"T"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"B"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"S"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-3-3">Example 3:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"T"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"B"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"S"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">5</span>
+<span class="n">Explanation</span><span class="o">:</span>  <span class="n">push</span> <span class="n">the</span> <span class="n">box</span> <span class="n">down</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">up</span> <span class="n">and</span> <span class="n">up</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="example-4">Example 4:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">grid</span> <span class="o">=</span> <span class="p">[[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"S"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"."</span><span class="p">,</span><span class="s">"B"</span><span class="p">,</span><span class="s">"T"</span><span class="p">,</span><span class="s">"#"</span><span class="p">],</span>
+               <span class="p">[</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">,</span><span class="s">"#"</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h4 id="constraints-3">Constraints:</h4>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= grid.length &lt;= 20</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= grid[i].length &lt;= 20</code></li>
+  <li><code class="highlighter-rouge">grid</code>contains only characters <code class="highlighter-rouge">'.', '#',  'S' , 'T',</code> or <code class="highlighter-rouge">'B'</code>.</li>
+  <li>There is only one character <code class="highlighter-rouge">'S'</code>, <code class="highlighter-rouge">'B'</code> and <code class="highlighter-rouge">'T'</code> in the grid.</li>
+</ul>
+
+<h2 id="解法-3">解法</h2>
+<p>这题属于广度优先搜索的问题。这里用优先队列存储所有可能的状态，把推的次数少的放顶部，<strong>注意这里比较函数是greater，优先队列中greater表示小的在顶部</strong>。用一个map存储所有走过的位置。 <br />
+首先要用s，b，t获取人开始的位置，箱子的位置，目标位置的横纵坐标。然后把{s[0], s[1], b[0], b[1], 0}推入队列，第4位的0表示现在推了0次。用一个偏移数组ma[{s[0], s[1], b[0], b[1]}]=1,表示初始位置已经走过了。<br />
+dir_offset={0, -1, 0, 1, 0}存储横纵坐标偏移量，向左移时取x += dir_offset[0], y += dir_offset[1];向上移时取x += dir_offset[1], y += dir_offset[2]…能看出从0到3依次表示向左，上，右，下移动偏移，相当巧妙。<br />
+然后取出队列中移动次数最少的状态，分别向左，上，右，下移动一个位置，遇到’#’表示是墙，continue。如果向某方向移动一下到了箱子的位置，就可以把状态更新。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">minPushBox</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;&gt;&amp;</span> <span class="n">grid</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dir_offset</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">};</span>
+	<span class="k">auto</span> <span class="n">cmp</span> <span class="o">=</span> <span class="p">[](</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">4</span><span class="p">];};</span>
+	<span class="n">priority_queue</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">,</span> <span class="k">decltype</span><span class="p">(</span><span class="n">cmp</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">q</span><span class="p">(</span><span class="n">cmp</span><span class="p">);</span>
+	<span class="n">map</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">ma</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">s</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">grid</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">n</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'S'</span><span class="p">){</span>
+				<span class="n">s</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+				<span class="n">s</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'B'</span><span class="p">){</span>
+				<span class="n">b</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+				<span class="n">b</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'T'</span><span class="p">){</span>
+				<span class="n">t</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+				<span class="n">t</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="n">s</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+	<span class="n">s</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+	<span class="n">s</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+	<span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+	<span class="n">ma</span><span class="p">[{</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]}]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">()){</span>
+		<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">q</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+		<span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">cur</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">cur</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+			<span class="k">return</span> <span class="n">cur</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">dir_offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">cur</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+			<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">dir_offset</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">cur</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">x</span> <span class="o">==</span> <span class="n">m</span> <span class="o">||</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">y</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span>
+				<span class="k">continue</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'#'</span><span class="p">)</span>
+				<span class="k">continue</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">cur</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">y</span> <span class="o">==</span> <span class="n">cur</span><span class="p">[</span><span class="mi">3</span><span class="p">]){</span>
+				<span class="kt">int</span> <span class="n">xx</span> <span class="o">=</span> <span class="n">dir_offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">;</span>
+				<span class="kt">int</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">dir_offset</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">xx</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">xx</span> <span class="o">==</span> <span class="n">m</span> <span class="o">||</span> <span class="n">yy</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">yy</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span>
+					<span class="k">continue</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">xx</span><span class="p">][</span><span class="n">yy</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'#'</span><span class="p">)</span>
+					<span class="k">continue</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">ma</span><span class="p">.</span><span class="n">count</span><span class="p">({</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">})){</span>
+					<span class="n">ma</span><span class="p">[{</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">}]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+					<span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">({</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">cur</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">});</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">ma</span><span class="p">.</span><span class="n">count</span><span class="p">({</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cur</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cur</span><span class="p">[</span><span class="mi">3</span><span class="p">]})){</span>
+				<span class="n">ma</span><span class="p">[{</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cur</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cur</span><span class="p">[</span><span class="mi">3</span><span class="p">]}]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+				<span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">({</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cur</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cur</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">cur</span><span class="p">[</span><span class="mi">4</span><span class="p">]});</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 25.00%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/contest/weekly-contest-163/problems/shift-2d-grid/">1260. Shift 2D Grid</a><br />
+<a href="https://leetcode.com/contest/weekly-contest-163/problems/find-elements-in-a-contaminated-binary-tree/">1261. Find Elements in a Contaminated Binary Tree</a><br />
+<a href="https://leetcode.com/contest/weekly-contest-163/problems/greatest-sum-divisible-by-three/">1262. Greatest Sum Divisible by Three</a><br />
+<a href="https://leetcode.com/contest/weekly-contest-163/problems/minimum-moves-to-move-a-box-to-their-target-location/">1263. Minimum Moves to Move a Box to Their Target Location</a><br />
+<a href="https://leetcode-cn.com/problems/minimum-moves-to-move-a-box-to-their-target-location/solution/c-you-xian-dui-lie-by-war-war-toe/">推箱子题解</a></p>
+
+:ET

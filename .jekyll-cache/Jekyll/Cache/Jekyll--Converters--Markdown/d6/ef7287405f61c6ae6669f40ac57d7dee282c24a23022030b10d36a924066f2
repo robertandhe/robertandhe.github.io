@@ -1,0 +1,155 @@
+I"�!<h1 id="feature-engineering"><center>Feature Engineering</center></h1>
+<blockquote>
+  <p>More data beats clever algorithms, but better data betas more data - by Peter Norving</p>
+</blockquote>
+
+<h2 id="1-类别特征">1. 类别特征</h2>
+<ol>
+  <li>Onehot encoding <br />
+适用于线性模型，稀疏，极大扩充数据维度。在本次比赛中，采用lgb分类，为非线性树模型，所以没用onehot。<br />
+sklearn.preprocessing.OntHotEncoder()</li>
+  <li>Hash encoding 
+ 散列表，避免onehot过度稀疏，但同一键值可散列到同一表示，导致冲突。 <br />
+ sklearn.feature_extraction.FeatureHasher()</li>
+  <li>Label encoding <br />
+每个类别一个编码，适用于非线性树模型，不增加数据维度，本次比赛主要采用label encoding. <br />
+sklearn.preprocessing.LabelEncoder()</li>
+  <li>Count encoding <br />
+用出现频率替换类别特征。适用于线性和非线性模型，对缺失值敏感， 缺点：不同变量，同一编码。</li>
+  <li>LabelCount encoding <br />
+特征按频率排序编码。 适用于线性和非线性模型，对缺失值不敏感，不同变量不同编码，即使频率一样，最优。</li>
+  <li>Target encoding <br />
+Encode categorical variables by their ratio of target. <br />
+Be careful to avoid overfit! <br />
+Form of stacking: single-variable model which outputs average target. <br />
+Add smooting to avoid setting variable encodings to 0. 
+Add random noise to combat overfit.</li>
+  <li>Category embedding <br />
+Use a Neural Network to create dense embeddings from categorical variables.  <br />
+Map categorical variables in a function approximation problem into Euclidean spaces. <br />
+Faster model training. <br />
+Less memory overhead.<br />
+Can give better accuracy that 1-hot encoded.<br />
+<a href="https://arxiv.org/abs/1604.06737">related paper-Entity Embeddings of Categorical Variables</a>.</li>
+  <li>Nan encoding <br />
+Give Nan values an explicit encoding instead of ignoring.<br />
+Be careful to avoid overfit!</li>
+  <li>Polynomial encoding 
+ Encode interactions between categorical variables. <br />
+ 相当重要！ 因为lgb树模型训练为贪心算法，只从现有特征寻找最优特征，不能发现交互特征，所以必须手工创建。  <br />
+ sklearn.preprocessing.PolynomialFeatures()</li>
+  <li>Expansion encoding <br />
+Create multiple categorical variables from a single variable. <br />
+有些高序特征high cardinality features包含许多信息。 like user-agents, is mobile? is latest version? Operation system,
+Browser build etc.</li>
+  <li>Consolidation encoding <br />
+Map different categorical variables to the same variable. <br />
+Spelling errors, slightly different job descriptions, full name vs. abbreviations.<br />
+Eg. Shell, shell, SHELL, Shell Gasoline-&gt; Shell</li>
+</ol>
+
+<h2 id="2-数值特征">2. 数值特征</h2>
+<ol>
+  <li>Rounding<br />
+Round numerical variables. <br />
+Retain most significant features of the data. Sometimes too much precision is just noise.<br />
+Rounded variables can be treated as categorical variables.</li>
+  <li>Binning 
+Put numerical variables into a bin and encode with bin-ID.<br />
+Binning can be set pragmatically, by quantiles, evenly, or use models to find optimal bins. <br />
+Can work gracefully with variables outside of ranges seen in the train set.</li>
+  <li>Scaling<br />
+Scale to numerical variables into a certain range.<br />
+Standard(Z) Scaling -&gt; sklearn.preprocessing.scale()
+MinMax Scaling -&gt; sklearn.preprocessing.MinMaxScaler() 
+Root Scaling <br />
+Log Scaling -&gt; np.log1p()</li>
+  <li>Imputation <br />
+Impute missing variables. <br />
+Mean: very basic. <br />
+Mean: More robust to outliers. <br />
+Ignoring: just postpones the problem, not bad to lgb classifier.<br />
+Using a model: Can expose algorithm bias.  <br />
+sklearn.impute.SimpleImputer()</li>
+  <li>Interactions<br />
+Specifically encodes the interactions between numerical variables.<br />
+Substraction, Addition, Multiplication, Divison. <br />
+Use: Feature selection by statistical tests, or trained model feature importances.<br />
+Application related.<br />
+Ignore: Human intuition; weird interactions can give signification improvement!</li>
+  <li>Non-linear encoding for linear algo’s <br />
+Hardcode non-linearitist to improve linear algorithms.<br />
+Polynomial kernel. <br />
+Leafcoding(random forest embeddings). <br />
+Genetic algorithms. <br />
+Locally Linear Embedding, Spectral Embedding, TSNE.</li>
+  <li>Row statistics <br />
+Create statistics on a row of data. <br />
+Number of NaN’s, Number of 0’s, Number of negative values, Mean, Max, Min, Skewness etc.</li>
+</ol>
+
+<h2 id="3-时间特征">3. 时间特征</h2>
+<p>dates, lots of opportunity for major improments.</p>
+<ol>
+  <li>Projecting to a circle <br />
+ Turn single features, like day_of_week, into two coordinates on a circle. <br />
+ Use for day_of_week, day_of_month, hour_of_day etc.</li>
+  <li>Trendlines  <br />
+Instead of encoding: total spend, encode things like: Spend in last week, Spend in last month, spend in last year.</li>
+  <li>Closeness to major events <br />
+Hardcode categorical features like: date_3_days_before_holiday: 0/1. <br />
+National holidays, major sport events, weekends, firt Saturday of month etc. <br />
+These factors can have major influence on spending behavior.</li>
+</ol>
+
+<h2 id="4-空间特征">4. 空间特征</h2>
+<p>Spatial variables are variables that encode a location in space.  Examples include: GPS-coordinates, cities, countries, addresses.</p>
+<ol>
+  <li>Categorizing location<br />
+ K-means clustering, Raw latitude longitude, Convert Cities to latitude longitude,
+ Add zip codes to streetnames.</li>
+  <li>Closeness to hubs <br />
+Find closeness between a location to a major hub.  <br />
+Small towns inherit some of the culture/context of nearby big cities. <br />
+Phone locatin can be mapped to nearby businesses and supermarkets.</li>
+  <li>Spatial fradulent behavior <br />
+Location event data can be indicative of suspicious behavior. <br />
+Impossible travel speed: Multiple simultaneous transactions in different countries. <br />
+Spending in different town that home or shipping address.  <br />
+Never spending at the same location.</li>
+</ol>
+
+<h2 id="5-label-engineering">5. Label Engineering</h2>
+<p>Can treat a label/target/dependent varaibles as a feature of the data and vice versa. <br />
+Log-transform: y-&gt;log(y+1)|exp(y_pred) - 1
+Square-transform <br />
+Box-Cox transform <br />
+Create a score, to turn binary target in regression. <br />
+Train regressor to predict a feature not available in test set.</p>
+
+<h1 id="techniques-from-discussion"><center>techniques from discussion</center></h1>
+<ol>
+  <li>NAN processing<br />
+<a href="https://www.kaggle.com/c/ieee-fraud-detection/discussion/108575#latest-641841">link</a><br />
+If you give np.nan to LGBM, then at each tree node split, it will split the non-NAN values and then send all the NANs to either the left child or right child depending on what’s best. Therefore NANs get special treatment at every node and can become overfit. By simply converting all NAN to a negative number lower than all non-NAN values (such as - 999),
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">999</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>then LGBM will no longer overprocess NAN</p>
+  </li>
+  <li>特征选择<br />
+<a href="https://www.kaggle.com/c/ieee-fraud-detection/discussion/111308">link</a>
+    <ul>
+      <li>forward feature selection (using single or groups of features)</li>
+      <li>recursive feature elimination (using single or groups of features)</li>
+      <li>permutation importance<a href="https://www.kaggle.com/paultimothymooney/feature-selection-with-permutation-importance">link</a></li>
+      <li>adversarial validation</li>
+      <li>correlation analysis</li>
+      <li>time consistency</li>
+      <li>client consistency</li>
+      <li>train/test distribution analysis</li>
+    </ul>
+  </li>
+</ol>
+
+:ET

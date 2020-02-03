@@ -1,0 +1,7 @@
+I"<h1 id="问题描述">问题描述</h1>
+<p>Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.</p>
+<h3 id="example">Example:</h3>
+<p>```c++
+nums = [1, 2, 3]
+target = 4</p>
+:ET

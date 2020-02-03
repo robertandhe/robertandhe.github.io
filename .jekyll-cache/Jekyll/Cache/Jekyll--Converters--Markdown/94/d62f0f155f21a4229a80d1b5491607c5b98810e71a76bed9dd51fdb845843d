@@ -1,0 +1,105 @@
+I"�&<h1 id="问题描述">问题描述</h1>
+<p>You have <strong>n</strong> super washing machines on a line. Initially, each washing machine has some dresses or is empty.</p>
+
+<p>For each <strong>move</strong>, you could choose <strong>any m</strong> (1 ≤ m ≤ n) washing machines, and pass <strong>one dress</strong> of each washing machine to one of its adjacent washing machines <strong>at the same time</strong>.</p>
+
+<p>Given an integer array representing the number of dresses in each washing machine from left to right on the line, you should find the <strong>minimum number of moves</strong> to make all the washing machines have the same number of dresses. If it is not possible to do it, return -1.</p>
+
+<h3 id="example-1">Example 1</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span>
+
+<span class="n">Output</span><span class="o">:</span> <span class="mi">3</span>
+
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="mx">1s</span><span class="n">t</span> <span class="n">move</span><span class="o">:</span>    <span class="mi">1</span>     <span class="mi">0</span> <span class="o">&lt;--</span> <span class="mi">5</span>    <span class="o">=&gt;</span>    <span class="mi">1</span>     <span class="mi">1</span>     <span class="mi">4</span>
+<span class="mi">2</span><span class="n">nd</span> <span class="n">move</span><span class="o">:</span>    <span class="mi">1</span> <span class="o">&lt;--</span> <span class="mi">1</span> <span class="o">&lt;--</span> <span class="mi">4</span>    <span class="o">=&gt;</span>    <span class="mi">2</span>     <span class="mi">1</span>     <span class="mi">3</span>    
+<span class="mi">3</span><span class="n">rd</span> <span class="n">move</span><span class="o">:</span>    <span class="mi">2</span>     <span class="mi">1</span> <span class="o">&lt;--</span> <span class="mi">3</span>    <span class="o">=&gt;</span>    <span class="mi">2</span>     <span class="mi">2</span>     <span class="mi">2</span>  
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">Output</span><span class="o">:</span> <span class="mi">2</span>
+
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="mx">1s</span><span class="n">t</span> <span class="n">move</span><span class="o">:</span>    <span class="mi">0</span> <span class="o">&lt;--</span> <span class="mi">3</span>     <span class="mi">0</span>    <span class="o">=&gt;</span>    <span class="mi">1</span>     <span class="mi">2</span>     <span class="mi">0</span>    
+<span class="mi">2</span><span class="n">nd</span> <span class="n">move</span><span class="o">:</span>    <span class="mi">1</span>     <span class="mi">2</span> <span class="o">--&gt;</span> <span class="mi">0</span>    <span class="o">=&gt;</span>    <span class="mi">1</span>     <span class="mi">1</span>     <span class="mi">1</span>    
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">Example 3</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">Output</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">It</span><span class="err">'</span><span class="n">s</span> <span class="n">impossible</span> <span class="n">to</span> <span class="n">make</span> <span class="n">all</span> <span class="n">the</span> <span class="n">three</span> <span class="n">washing</span> <span class="n">machines</span> <span class="n">have</span> <span class="n">the</span> <span class="n">same</span> <span class="n">number</span> <span class="n">of</span> <span class="n">dresses</span><span class="p">.</span>    
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li>The range of n is <code class="highlighter-rouge">[1, 10000]</code>.</li>
+  <li>The range of dresses number in a super washing machine is <code class="highlighter-rouge">[0, 1e5]</code>.</li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<p>这道题还是动态规划解法。首先求出所有dress总和看能否整除，不能整除就直接返回-1了，能整除就把平均值记为ave，这个就是move结束后所有洗衣机应该
+有的dress数目。那么如何求move次数，这道题中有个特点可以选取m个洗衣机连续向左或者右移动一件dress，为了让它们平均肯定是从多的移到少的。用每台洗衣机中dress数目减去ave就是它需要移给别的获得得到的数量。例如machines = {0, 0, 11, 5}。ave=4, 差值数组为[-4, -4, 7, 1]分别表示第一台洗衣机需要获得4件衣服，第二台也要获得4件衣服，第三台给别的7件…。那么如何由这个求move次数，从左至右累加差值，第一次累加为[0, -8, 7, 1]， 第二次累加为[0, 0, -1, 1]，第三次累加为[0, 0, 0, 0]，move等于累加中所有累加和绝对值和所有原始差值中的最大值，这里即为8。<br />
+那么为啥，因为当相邻的洗衣机一个需要加，一个需要减时是可以在一次move中解决的，只有都要加或者都要减才要累加move次数，所以需要求累加和绝对值极大值，那么为啥还要原始差值极大值，因为可能存在某个洗衣机要往两边move，如[0, 3, 0],累加和为0, -1, 1, 0，绝对值极大值为1,差值极大值为2，2才是结果。<br />
+accumulate函数来自numeric头文件。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findMinMoves</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">machines</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">machines</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">machines</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">machines</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">sum</span> <span class="o">%</span> <span class="n">n</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">ave</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">m</span> <span class="o">:</span> <span class="n">machines</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">cnt</span> <span class="o">+=</span> <span class="n">m</span> <span class="o">-</span> <span class="n">ave</span><span class="p">;</span>
+		<span class="n">res</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">max</span><span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="n">cnt</span><span class="p">),</span> <span class="n">m</span> <span class="o">-</span> <span class="n">ave</span><span class="p">));</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n)<br />
+space complexity: O(1)<br />
+runtime: 6.52%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/super-washing-machines/">leetcode-517</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/6648557.html">solution-grandyang</a><br />
+<a href="https://leetcode.com/problems/super-washing-machines/discuss/99185/super-short-easy-java-on-solution">solution</a></p>
+:ET

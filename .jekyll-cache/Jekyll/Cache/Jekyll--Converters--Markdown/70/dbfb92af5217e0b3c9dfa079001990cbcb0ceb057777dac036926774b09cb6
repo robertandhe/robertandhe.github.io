@@ -1,0 +1,8 @@
+I"e<h1 id="问题描述">问题描述</h1>
+<p>Given a non-empty array containing only positive integers, find if the array can be partitioned into two subsets such that the sum of elements in both subsets is equal.</p>
+<h3 id="note">Note:</h3>
+<ol>
+  <li>Each of the array element will not exceed 100.</li>
+  <li>The array size will not exceed 200.</li>
+</ol>
+:ET

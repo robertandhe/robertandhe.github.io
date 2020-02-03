@@ -1,0 +1,64 @@
+I"3<h1 id="问题描述">问题描述</h1>
+<p>There are <code class="highlighter-rouge">2N</code> people a company is planning to interview. The cost of flying the <code class="highlighter-rouge">i</code>-th person to city <code class="highlighter-rouge">A</code> is <code class="highlighter-rouge">costs[i][0]</code>, and the cost of flying the i-th person to city <code class="highlighter-rouge">B</code> is <code class="highlighter-rouge">costs[i][1]</code>.</p>
+
+<p>Return the minimum cost to fly every person to a city such that exactly <code class="highlighter-rouge">N</code> people arrive in each city.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[[</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">30</span><span class="p">,</span><span class="mi">200</span><span class="p">],[</span><span class="mi">400</span><span class="p">,</span><span class="mi">50</span><span class="p">],[</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">]]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">110</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">first</span> <span class="n">person</span> <span class="n">goes</span> <span class="n">to</span> <span class="n">city</span> <span class="n">A</span> <span class="k">for</span> <span class="n">a</span> <span class="n">cost</span> <span class="n">of</span> <span class="mf">10.</span>
+<span class="n">The</span> <span class="n">second</span> <span class="n">person</span> <span class="n">goes</span> <span class="n">to</span> <span class="n">city</span> <span class="n">A</span> <span class="k">for</span> <span class="n">a</span> <span class="n">cost</span> <span class="n">of</span> <span class="mf">30.</span>
+<span class="n">The</span> <span class="n">third</span> <span class="n">person</span> <span class="n">goes</span> <span class="n">to</span> <span class="n">city</span> <span class="n">B</span> <span class="k">for</span> <span class="n">a</span> <span class="n">cost</span> <span class="n">of</span> <span class="mf">50.</span>
+<span class="n">The</span> <span class="n">fourth</span> <span class="n">person</span> <span class="n">goes</span> <span class="n">to</span> <span class="n">city</span> <span class="n">B</span> <span class="k">for</span> <span class="n">a</span> <span class="n">cost</span> <span class="n">of</span> <span class="mf">20.</span>
+
+<span class="n">The</span> <span class="n">total</span> <span class="n">minimum</span> <span class="n">cost</span> <span class="n">is</span> <span class="mi">10</span> <span class="o">+</span> <span class="mi">30</span> <span class="o">+</span> <span class="mi">50</span> <span class="o">+</span> <span class="mi">20</span> <span class="o">=</span> <span class="mi">110</span> <span class="n">to</span> <span class="n">have</span> <span class="n">half</span> <span class="n">the</span> <span class="n">people</span> <span class="n">interviewing</span> <span class="n">in</span> <span class="n">each</span> <span class="n">city</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">1 &lt;= costs.length &lt;= 100</code></li>
+  <li>It is guaranteed that <code class="highlighter-rouge">costs.length</code> is even.</li>
+  <li><code class="highlighter-rouge">1 &lt;= costs[i][0], costs[i][1] &lt;= 1000</code></li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<p>这道题虽然是easy难度，但还是挺有意思的。咋一看无法下手，感觉是看0，1那个小就放到那个A或者B，但同时还要是两个均等分布。其实这道题应该看0，1两个位置的差值，按照差值由小到大排序，前N个放到A，后N个放到B。因为我们关心的是开支，按照差值排使放到A效益最大化。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">twoCitySchedCost</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">costs</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">costs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="k">auto</span> <span class="n">cmp</span> <span class="o">=</span> <span class="p">[](</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">];};</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">costs</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">costs</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">cmp</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">){</span>
+		<span class="n">res</span> <span class="o">+=</span> <span class="n">costs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+		<span class="n">res</span> <span class="o">+=</span> <span class="n">costs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">n</span> <span class="o">/</span> <span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>	
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlog(n))<br />
+空间复杂度：O(1)<br />
+runtime: 100.00%<br />
+memory usage: 94.74%</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/two-city-scheduling/">leetcode-1029</a></p>
+:ET

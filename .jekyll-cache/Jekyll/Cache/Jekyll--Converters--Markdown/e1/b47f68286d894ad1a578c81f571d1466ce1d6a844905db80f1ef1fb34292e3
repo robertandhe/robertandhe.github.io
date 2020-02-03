@@ -1,0 +1,7 @@
+I"�<h1 id="问题描述">问题描述</h1>
+<p>A subarray <code class="highlighter-rouge">A[i], A[i+1], ..., A[j]</code> of A is said to be turbulent if and only if:</p>
+<ul>
+  <li>For <code class="highlighter-rouge">i &lt;= k &lt; j, A[k] &gt; A[k+1]</code> when <code class="highlighter-rouge">k</code> is odd, and <code class="highlighter-rouge">A[k] &lt; A[k+1]</code> when <code class="highlighter-rouge">k</code> is even;</li>
+  <li><strong>OR</strong>, for <code class="highlighter-rouge">i &lt;= k &lt; j, A[k] &gt; A[k+1]</code> when <code class="highlighter-rouge">k</code> is even, and <code class="highlighter-rouge">A[k] &lt; A[k+1]</code> when k is odd.</li>
+</ul>
+:ET

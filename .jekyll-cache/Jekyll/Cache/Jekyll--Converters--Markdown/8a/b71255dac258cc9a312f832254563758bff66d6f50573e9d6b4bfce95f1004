@@ -1,0 +1,210 @@
+I"�:<p>python属于解释性语言，如果想在别人的电脑上运行自己的脚本，还得要先装上python环境以及相关的包，费时费力。在最近的一个
+项目中，恰好遇到了这种需求，要把自己的程序发布，借助<a href="https://www.pyinstaller.org/index.html">pyinstaller</a>可以解决。</p>
+<h2 id="pyinstaller安装">pyinstaller安装</h2>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">pyinstaller</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>或者去网站下载到本地安装。</p>
+<h2 id="pyinstaller使用">pyinstaller使用</h2>
+<ol>
+  <li>命令格式
+命令为
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pyinstaller</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="n">script</span> <span class="p">[</span><span class="n">script</span><span class="p">]</span><span class="o">|</span><span class="n">specfile</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>最简单使用，命令行进入相关目录，运行</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pyinstaller</span> <span class="n">myscript</span><span class="o">.</span><span class="n">py</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>即可生成先关exe文件。</p>
+  </li>
+  <li>打包过程
+    <ul>
+      <li>在当前目录生成myscript.spec文件</li>
+      <li>在当前目录创建build文件夹</li>
+      <li>把一些log文件写入build文件夹</li>
+      <li>在当前目录创建dist文件夹</li>
+      <li>在dist文件夹下生成可执行文件</li>
+    </ul>
+  </li>
+  <li>常用参数详解
+    <ul>
+      <li>-y or –onconfirm
+不询问管理员权限</li>
+      <li>-D or –onedir
+只生成一个文件夹</li>
+      <li>-F or –onefile
+只生成一个exe文件</li>
+      <li>-n or –name 
+设置app文件名，默认和myscirpt.py同名</li>
+      <li>–add-data 
+添加非二进制资源文件</li>
+      <li>–add-binary
+添加非二进制资源文件</li>
+      <li>-hidden-import
+不可见导入包</li>
+      <li>-d or –debug
+调试模式，后可接all, imports, bootloader, noarchive</li>
+      <li>-i or –icon
+设置程序图标</li>
+      <li>-c or –console or –nowindowed
+打开控制台（cmd）</li>
+      <li>-w or –windowed or –noconsole
+不打开控制台（cmd）</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="例子">例子</h2>
+<ol>
+  <li>命令行<br />
+windows平台
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="n">pyinstaller</span> <span class="o">--</span><span class="n">noconfirm</span> <span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">level</span><span class="o">=</span><span class="n">WARN</span> <span class="o">^</span>
+ <span class="o">--</span><span class="n">onefile</span> <span class="o">--</span><span class="n">nowindow</span> <span class="o">^</span>
+ <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">data</span><span class="o">=</span><span class="s">"README;."</span> <span class="o">^</span>
+ <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">data</span><span class="o">=</span><span class="s">"image1.png;img"</span> <span class="o">^</span>
+ <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">binary</span><span class="o">=</span><span class="s">"libfoo.so;lib"</span> <span class="o">^</span>
+ <span class="o">--</span><span class="n">hidden</span><span class="o">-</span><span class="k">import</span><span class="o">=</span><span class="n">secret1</span> <span class="o">^</span>
+ <span class="o">--</span><span class="n">hidden</span><span class="o">-</span><span class="k">import</span><span class="o">=</span><span class="n">secret2</span> <span class="o">^</span>
+ <span class="o">--</span><span class="n">icon</span><span class="o">=..</span>\<span class="n">MLNMFLCN</span><span class="o">.</span><span class="n">ICO</span> <span class="o">^</span>
+ <span class="n">myscript</span><span class="o">.</span><span class="n">spec</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>Linux平台</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="n">pyinstaller</span> <span class="o">--</span><span class="n">noconfirm</span> <span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">level</span><span class="o">=</span><span class="n">WARN</span> \
+ <span class="o">--</span><span class="n">onefile</span> <span class="o">--</span><span class="n">nowindow</span> \
+ <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">data</span><span class="o">=</span><span class="s">"README:."</span> \
+ <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">data</span><span class="o">=</span><span class="s">"image1.png:img"</span> \
+ <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">binary</span><span class="o">=</span><span class="s">"libfoo.so:lib"</span> \
+ <span class="o">--</span><span class="n">hidden</span><span class="o">-</span><span class="k">import</span><span class="o">=</span><span class="n">secret1</span> \
+ <span class="o">--</span><span class="n">hidden</span><span class="o">-</span><span class="k">import</span><span class="o">=</span><span class="n">secret2</span> \
+ <span class="o">--</span><span class="n">upx</span><span class="o">-</span><span class="nb">dir</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span> \
+ <span class="n">myscript</span><span class="o">.</span><span class="n">spec</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>通过spec文件<br />
+通过命令行命令
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pyi</span><span class="o">-</span><span class="n">makespec</span> <span class="n">myscript</span><span class="o">.</span><span class="n">py</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>生成.spec文件，在spec文件中设置资源文件等。 <br />
+在我的使用中，需要相关图标文件及实验数据，全部放在data文件夹。</p>
+  </li>
+</ol>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td><td class="rouge-code"><pre><span class="n">block_cipher</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Analysis</span><span class="p">([</span><span class="s">'gui.py'</span><span class="p">],</span>
+             <span class="n">pathex</span><span class="o">=</span><span class="p">[</span><span class="s">'D:</span><span class="se">\\</span><span class="s">py_remote_local</span><span class="se">\\</span><span class="s">imbalancedData'</span><span class="p">],</span>
+             <span class="n">binaries</span><span class="o">=</span><span class="p">[],</span>
+             <span class="n">datas</span><span class="o">=</span><span class="p">[(</span><span class="s">'data'</span><span class="p">,</span> <span class="s">'data'</span><span class="p">)],</span>
+             <span class="n">hiddenimports</span><span class="o">=</span><span class="p">[</span><span class="s">'sklearn.utils._cython_blas'</span><span class="p">,</span> <span class="s">'cython'</span><span class="p">,</span> <span class="s">'sklearn'</span><span class="p">,</span> <span class="s">'sklearn.ensemble'</span><span class="p">,</span> <span class="s">'sklearn.neighbors.typedefs'</span><span class="p">,</span> <span class="s">'sklearn.neighbors.quad_tree'</span><span class="p">,</span> <span class="s">'sklearn.tree._utils'</span><span class="p">],</span>
+             <span class="n">hookspath</span><span class="o">=</span><span class="p">[],</span>
+             <span class="n">runtime_hooks</span><span class="o">=</span><span class="p">[],</span>
+             <span class="n">excludes</span><span class="o">=</span><span class="p">[],</span>
+             <span class="n">win_no_prefer_redirects</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">win_private_assemblies</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+             <span class="n">cipher</span><span class="o">=</span><span class="n">block_cipher</span><span class="p">,</span>
+             <span class="n">noarchive</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">pyz</span> <span class="o">=</span> <span class="n">PYZ</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">pure</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">zipped_data</span><span class="p">,</span>
+             <span class="n">cipher</span><span class="o">=</span><span class="n">block_cipher</span><span class="p">)</span>
+<span class="n">exe</span> <span class="o">=</span> <span class="n">EXE</span><span class="p">(</span><span class="n">pyz</span><span class="p">,</span>
+          <span class="n">a</span><span class="o">.</span><span class="n">scripts</span><span class="p">,</span>
+          <span class="p">[],</span>
+          <span class="n">exclude_binaries</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+          <span class="n">name</span><span class="o">=</span><span class="s">'gui'</span><span class="p">,</span>
+          <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+          <span class="n">bootloader_ignore_signals</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+          <span class="n">strip</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+          <span class="n">upx</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+          <span class="n">console</span><span class="o">=</span><span class="bp">True</span> <span class="p">)</span>
+<span class="n">coll</span> <span class="o">=</span> <span class="n">COLLECT</span><span class="p">(</span><span class="n">exe</span><span class="p">,</span>
+               <span class="n">a</span><span class="o">.</span><span class="n">binaries</span><span class="p">,</span>
+               <span class="n">a</span><span class="o">.</span><span class="n">zipfiles</span><span class="p">,</span>
+               <span class="n">a</span><span class="o">.</span><span class="n">datas</span><span class="p">,</span>
+               <span class="n">strip</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+               <span class="n">upx</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+               <span class="n">upx_exclude</span><span class="o">=</span><span class="p">[],</span>
+               <span class="n">name</span><span class="o">=</span><span class="s">'gui'</span><span class="p">)</span>
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>binaries列表放二进制资源文件，datas列表放非二进制资源文件。里面元素均为一元组，第一个位置为在本地目录，第二个位置为打包后目录。</p>
+<blockquote>
+  <p>注：打包后位置应对应程序中文件路径</p>
+</blockquote>
+
+<p>之后运行</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pyinstaller</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="n">mycript</span><span class="o">.</span><span class="n">spec</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="报错如何解决">报错如何解决</h2>
+<ol>
+  <li>先升级pyinstaller
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">pyinstaller</span><span class="o">/</span><span class="n">pyinstaller</span><span class="o">/</span><span class="n">archive</span><span class="o">/</span><span class="n">develop</span><span class="o">.</span><span class="nb">zip</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>可能有超过最大depth错误，修改spec文件</li>
+  <li>设置为<code class="highlighter-rouge">--debug all</code>模式，打包后在命令行启动exe文件，观察调试信息
+    <blockquote>
+      <p>注：调试完应该编译发布版，否则运行时输出很多中间信息。</p>
+    </blockquote>
+  </li>
+  <li>经常有filenotfound错误，则设置hiddenimports</li>
+  <li><a href="https://github.com/pyinstaller/pyinstaller/wiki/How-to-Report-Bugs">github link</a>
+    <h2 id="what-to-do-next">what to do next</h2>
+    <p><code class="highlighter-rouge">docker</code>?</p>
+  </li>
+</ol>
+:ET

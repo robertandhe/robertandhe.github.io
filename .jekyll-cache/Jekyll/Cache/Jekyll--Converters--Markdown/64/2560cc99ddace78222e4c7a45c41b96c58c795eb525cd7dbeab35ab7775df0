@@ -1,0 +1,139 @@
+I"�G<h1 id="问题描述">问题描述</h1>
+<p>Given two strings <code class="highlighter-rouge">s1</code>, <code class="highlighter-rouge">s2</code>, find the lowest ASCII sum of deleted characters to make two strings equal.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s1</span> <span class="o">=</span> <span class="s">"sea"</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="s">"eat"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">231</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Deleting</span> <span class="s">"s"</span> <span class="n">from</span> <span class="s">"sea"</span> <span class="n">adds</span> <span class="n">the</span> <span class="n">ASCII</span> <span class="n">value</span> <span class="n">of</span> <span class="s">"s"</span> <span class="p">(</span><span class="mi">115</span><span class="p">)</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>
+<span class="n">Deleting</span> <span class="s">"t"</span> <span class="n">from</span> <span class="s">"eat"</span> <span class="n">adds</span> <span class="mi">116</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>
+<span class="n">At</span> <span class="n">the</span> <span class="n">end</span><span class="p">,</span> <span class="n">both</span> <span class="n">strings</span> <span class="n">are</span> <span class="n">equal</span><span class="p">,</span> <span class="n">and</span> <span class="mi">115</span> <span class="o">+</span> <span class="mi">116</span> <span class="o">=</span> <span class="mi">231</span> <span class="n">is</span> <span class="n">the</span> <span class="n">minimum</span> <span class="n">sum</span> <span class="n">possible</span> <span class="n">to</span> <span class="n">achieve</span> <span class="k">this</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s1</span> <span class="o">=</span> <span class="s">"delete"</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="s">"leet"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">403</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Deleting</span> <span class="s">"dee"</span> <span class="n">from</span> <span class="s">"delete"</span> <span class="n">to</span> <span class="n">turn</span> <span class="n">the</span> <span class="n">string</span> <span class="n">into</span> <span class="s">"let"</span><span class="p">,</span>
+<span class="n">adds</span> <span class="mi">100</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">+</span><span class="mi">101</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">+</span><span class="mi">101</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>  <span class="n">Deleting</span> <span class="s">"e"</span> <span class="n">from</span> <span class="s">"leet"</span> <span class="n">adds</span> <span class="mi">101</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>
+<span class="n">At</span> <span class="n">the</span> <span class="n">end</span><span class="p">,</span> <span class="n">both</span> <span class="n">strings</span> <span class="n">are</span> <span class="n">equal</span> <span class="n">to</span> <span class="s">"let"</span><span class="p">,</span> <span class="n">and</span> <span class="n">the</span> <span class="n">answer</span> <span class="n">is</span> <span class="mi">100</span><span class="o">+</span><span class="mi">101</span><span class="o">+</span><span class="mi">101</span><span class="o">+</span><span class="mi">101</span> <span class="o">=</span> <span class="mf">403.</span>
+<span class="n">If</span> <span class="n">instead</span> <span class="n">we</span> <span class="n">turned</span> <span class="n">both</span> <span class="n">strings</span> <span class="n">into</span> <span class="s">"lee"</span> <span class="n">or</span> <span class="s">"eet"</span><span class="p">,</span> <span class="n">we</span> <span class="n">would</span> <span class="n">get</span> <span class="n">answers</span> <span class="n">of</span> <span class="mi">433</span> <span class="n">or</span> <span class="mi">417</span><span class="p">,</span> <span class="n">which</span> <span class="n">are</span> <span class="n">higher</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ul>
+  <li>0 &lt; s1.length, s2.length &lt;= 1000.</li>
+  <li>All elements of each string will have an ASCII value in [<code class="highlighter-rouge">97, 122</code>].</li>
+</ul>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p> 这道题和之前那道<a href="https://leetcode.com/problems/delete-operation-for-two-strings/">583. Delete Operation for Two Strings</a>很相似。这里是给出两个字符串，求出使它们相等需要删除字符的最小ASCII的和。<br />
+ 还是动态规划来解，dp[i][j]表示使s1前i个字符和s2前j个字符相等需要删除字符的最小ASCII码和。dp[0][j]和dp[i][0]边界情况就按照s2所有字符相加和s1所有字符相加即可。状态转移方程为：</p>
+<ul>
+  <li>当s1[i - 1] == s2[j - 1],那么需要删除的字符还是和之前相同，dp[i][j] = dp[i - 1][j - 1];</li>
+  <li>当s1[i - 1]和s2[j - 1]不等时，需要删除其中一个，当然是哪个小删哪个了，dp[i][j] = min(dp[i][j - 1] + s2[j - 1], dp[i - 1][j] + s1[i - 1]).</li>
+</ul>
+
+<p> 最终返回dp[m][n]。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">minimumDeleteSum</span><span class="p">(</span><span class="n">string</span> <span class="n">s1</span><span class="p">,</span> <span class="n">string</span> <span class="n">s2</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">s1</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">n</span> <span class="o">=</span> <span class="n">s2</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">s2</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">s1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">s1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">s2</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+			<span class="k">else</span> <span class="p">{</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">s1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">s2</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(m * n)<br />
+space complexity: O(m * n)<br />
+runtime: 80.20%<br />
+memory usage: 77.78%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p> 和解法1思想相反，这里求他们相同的最大子串。dp[i][j]表示s1前i个字符和s2前j个字符相同子串的最大ASCII值。当s1[i - 1] == s2[j - 1]时，相同子串需要加这个字符，dp[i][j] = dp[i - 1][j - 1] + s1[i - 1];当s1[i - ]和s2[j - 1]不等时，尽量使他们子串大即可，dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])。</p>
+
+<p> 最终dp[m][n]是最大子串ASCII码值，两个字符串ASCII码值之和减去2倍最大子串就是返回值。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">minimumDeleteSum</span><span class="p">(</span><span class="n">string</span> <span class="n">s1</span><span class="p">,</span> <span class="n">string</span> <span class="n">s2</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">s1</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">n</span> <span class="o">=</span> <span class="n">s2</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">s1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">s2</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">s1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+			<span class="k">else</span> 
+				<span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="kt">int</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">s1</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">s1</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="kt">int</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">s2</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">s2</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">t2</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">dp</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(m * n)<br />
+space complexity: O(m * n)<br />
+runtime: 93.18%<br />
+memory usage: 44.44%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/minimum-ascii-delete-sum-for-two-strings/">leetcode-712</a></p>
+:ET

@@ -1,0 +1,15 @@
+I"r<p>主要是总结几个函数</p>
+<ol>
+  <li>np.bincount
+在knn分类时，先找到k近邻，根据k近邻标签中的多数赋予测试样本。其实就是一个k近邻标签的众数，但numpy没有现成的众数函数。在这里采用np.bincount函数。
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">y_pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">closest_y</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>根据<a href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.bincount.html">文档</a>解释：</p>
+    <blockquote>
+      <p>Count number of occurrences of each value in array of non-negative ints.
+The number of bins (of size 1) is one larger than the largest value in x. If minlength is specified, there will be at least this number of bins in the output array (though it will be longer if necessary, depending on the contents of x). Each bin gives the number of occurrences of its index value in x. If weights is specified the input array is weighted by it, i.e. if a value n is found at position i, out[n] += weight[i] instead of out[n] += 1.</p>
+    </blockquote>
+  </li>
+</ol>
+:ET

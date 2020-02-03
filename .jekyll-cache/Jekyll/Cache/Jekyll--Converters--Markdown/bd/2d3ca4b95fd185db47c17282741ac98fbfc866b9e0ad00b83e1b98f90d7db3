@@ -1,0 +1,178 @@
+I"�I<h1 id="问题描述">问题描述</h1>
+<p>There are N gas stations along a circular route, where the amount of gas at station i is gas[i].<br />
+You have a car with an unlimited gas tank and it costs cost[i] of gas to travel from station i to its next station (i+1). You begin the journey with an empty tank at one of the gas stations.<br />
+Return the starting gas station’s index if you can travel around the circuit once in the clockwise direction, otherwise return -1.
+Note:</p>
+<ul>
+  <li>If there exists a solution, it is guaranteed to be unique.</li>
+  <li>Both input arrays are non-empty and have the same length.</li>
+  <li>Each element in the input arrays is a non-negative integer.</li>
+</ul>
+
+<p>Example1:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> 
+<span class="n">gas</span>  <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">cost</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">Output</span><span class="o">:</span> <span class="mi">3</span>
+
+<span class="n">Explanation</span><span class="o">:</span>
+<span class="n">Start</span> <span class="n">at</span> <span class="n">station</span> <span class="mi">3</span> <span class="p">(</span><span class="n">index</span> <span class="mi">3</span><span class="p">)</span> <span class="n">and</span> <span class="n">fill</span> <span class="n">up</span> <span class="n">with</span> <span class="mi">4</span> <span class="n">unit</span> <span class="n">of</span> <span class="n">gas</span><span class="p">.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Travel</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">4.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">Travel</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">0.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">Travel</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">1.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">7</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">Travel</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">2.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">Travel</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">3.</span> <span class="n">The</span> <span class="n">cost</span> <span class="n">is</span> <span class="mf">5.</span> <span class="n">Your</span> <span class="n">gas</span> <span class="n">is</span> <span class="n">just</span> <span class="n">enough</span> <span class="n">to</span> <span class="n">travel</span> <span class="n">back</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">3.</span>
+<span class="n">Therefore</span><span class="p">,</span> <span class="k">return</span> <span class="mi">3</span> <span class="n">as</span> <span class="n">the</span> <span class="n">starting</span> <span class="n">index</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Example2:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> 
+<span class="n">gas</span>  <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">cost</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="n">Output</span><span class="o">:</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="n">Explanation</span><span class="o">:</span>
+<span class="n">You</span> <span class="n">can</span><span class="err">'</span><span class="n">t</span> <span class="n">start</span> <span class="n">at</span> <span class="n">station</span> <span class="mi">0</span> <span class="n">or</span> <span class="mi">1</span><span class="p">,</span> <span class="n">as</span> <span class="n">there</span> <span class="n">is</span> <span class="n">not</span> <span class="n">enough</span> <span class="n">gas</span> <span class="n">to</span> <span class="n">travel</span> <span class="n">to</span> <span class="n">the</span> <span class="n">next</span> <span class="n">station</span><span class="p">.</span>
+<span class="n">Let</span><span class="err">'</span><span class="n">s</span> <span class="n">start</span> <span class="n">at</span> <span class="n">station</span> <span class="mi">2</span> <span class="n">and</span> <span class="n">fill</span> <span class="n">up</span> <span class="n">with</span> <span class="mi">4</span> <span class="n">unit</span> <span class="n">of</span> <span class="n">gas</span><span class="p">.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Travel</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">0.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Travel</span> <span class="n">to</span> <span class="n">station</span> <span class="mf">1.</span> <span class="n">Your</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">You</span> <span class="n">cannot</span> <span class="n">travel</span> <span class="n">back</span> <span class="n">to</span> <span class="n">station</span> <span class="mi">2</span><span class="p">,</span> <span class="n">as</span> <span class="n">it</span> <span class="n">requires</span> <span class="mi">4</span> <span class="n">unit</span> <span class="n">of</span> <span class="n">gas</span> <span class="n">but</span> <span class="n">you</span> <span class="n">only</span> <span class="n">have</span> <span class="mf">3.</span>
+<span class="n">Therefore</span><span class="p">,</span> <span class="n">you</span> <span class="n">can</span><span class="err">'</span><span class="n">t</span> <span class="n">travel</span> <span class="n">around</span> <span class="n">the</span> <span class="n">circuit</span> <span class="n">once</span> <span class="n">no</span> <span class="n">matter</span> <span class="n">where</span> <span class="n">you</span> <span class="n">start</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法1">解法1</h2>
+<p>这道题总体来说还是比较简单直观，首先用暴力法，从头遍历，每一个位置轮流当作起点，从起点开始在每个加油站算gas还剩多少，如果到某个位置gas小于0了，说明从这个起点开始没法走完全程，则退出从下一起点重新开始，如果某一起点能够走完全程，则返回。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">canCompleteCircuit</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">gas</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">cost</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">gas</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>	
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tank</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span> <span class="n">cnt</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">,</span> <span class="o">++</span><span class="n">cnt</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">j</span> <span class="o">%</span> <span class="n">n</span><span class="p">;</span>
+			<span class="n">tank</span> <span class="o">+=</span> <span class="n">gas</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">-</span> <span class="n">cost</span><span class="p">[</span><span class="n">t</span><span class="p">];</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">tank</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+				<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">cnt</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span>
+			<span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="解法2">解法2</h2>
+<p>想要走完全程必须满足gas总量大于cost总量。先设置start为0，从start到当前位置gas余量用sum表示。非常重要的一点是，如果到某一点sum小于0，则start置为i+1，因为sum小于0表示从当前起点开始无法到达当前位置，而起点gas余量肯定大于等于0，相当于start对sum有贡献，start后一个gas station肯定不能当做新的起点，以此类推，中间所有位置都不能当做新的起点，所以start=i+1。而sum小于0更新保证从新起点开始sum不受之前影响，
+和max sum思想异曲同工。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">canCompleteCircuit</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">gas</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">cost</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">gas</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">total</span> <span class="o">+=</span> <span class="n">gas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">cost</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">sum</span> <span class="o">+=</span> <span class="n">gas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">cost</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">sum</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+			<span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+			<span class="n">start</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="o">-</span><span class="mi">1</span> <span class="o">:</span> <span class="n">start</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="解法3">解法3</h2>
+<p>这个方法从后往前推，用mx记录gas余量最大值，如果当前位置gas余量total大于mx，说明以当前位置为起点更合适，更加宽松，所以更新start和mx。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">canCompleteCircuit</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">gas</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">cost</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">gas</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">total</span> <span class="o">+=</span> <span class="n">gas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">cost</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">total</span> <span class="o">&gt;</span> <span class="n">mx</span><span class="p">){</span>
+			<span class="n">mx</span> <span class="o">=</span> <span class="n">total</span><span class="p">;</span>
+			<span class="n">start</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="o">-</span><span class="mi">1</span> <span class="o">:</span> <span class="n">start</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/gas-station/">leetcode-134-gas-station</a></p>
+:ET

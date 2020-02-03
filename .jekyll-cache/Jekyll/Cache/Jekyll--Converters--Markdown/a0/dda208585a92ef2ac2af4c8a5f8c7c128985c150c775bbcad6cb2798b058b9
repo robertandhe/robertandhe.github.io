@@ -1,0 +1,22 @@
+I"�	<h1 id="问题描述">问题描述</h1>
+<p>A string <code class="highlighter-rouge">S</code> of lowercase letters is given. We want to partition this string into as many parts as possible so that each letter appears in at most one part, and return a list of integers representing the size of these parts.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">S</span> <span class="o">=</span> <span class="s">"ababcbacadefegdehijhklij"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+<span class="n">Explanation</span><span class="o">:</span>
+<span class="n">The</span> <span class="n">partition</span> <span class="n">is</span> <span class="s">"ababcbaca"</span><span class="p">,</span> <span class="s">"defegde"</span><span class="p">,</span> <span class="s">"hijhklij"</span><span class="p">.</span>
+<span class="n">This</span> <span class="n">is</span> <span class="n">a</span> <span class="n">partition</span> <span class="n">so</span> <span class="n">that</span> <span class="n">each</span> <span class="n">letter</span> <span class="n">appears</span> <span class="n">in</span> <span class="n">at</span> <span class="n">most</span> <span class="n">one</span> <span class="n">part</span><span class="p">.</span>
+<span class="n">A</span> <span class="n">partition</span> <span class="n">like</span> <span class="s">"ababcbacadefegde"</span><span class="p">,</span> <span class="s">"hijhklij"</span> <span class="n">is</span> <span class="n">incorrect</span><span class="p">,</span> <span class="n">because</span> <span class="n">it</span> <span class="n">splits</span> <span class="n">S</span> <span class="n">into</span> <span class="n">less</span> <span class="n">parts</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">S</code> will have length in range <code class="highlighter-rouge">[1, 500]</code>.</li>
+  <li><code class="highlighter-rouge">S</code> will consist of lowercase letters <code class="highlighter-rouge">('a' to 'z')</code> only.</li>
+</ol>
+:ET

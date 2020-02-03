@@ -1,0 +1,27 @@
+I"1<h1 id="问题描述">问题描述</h1>
+<p>Given a string s, find the longest palindromic subsequence’s length in s. You may assume that the maximum length of s is 1000.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span>
+<span class="s">"bbbab"</span>
+<span class="n">Output</span><span class="o">:</span>
+<span class="mi">4</span>
+<span class="n">One</span> <span class="n">possible</span> <span class="n">longest</span> <span class="n">palindromic</span> <span class="n">subsequence</span> <span class="n">is</span> <span class="s">"bbbb"</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span>
+<span class="s">"cbbd"</span>
+<span class="n">Output</span><span class="o">:</span>
+<span class="mi">2</span>
+<span class="n">One</span> <span class="n">possible</span> <span class="n">longest</span> <span class="n">palindromic</span> <span class="n">subsequence</span> <span class="n">is</span> <span class="s">"bb"</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET

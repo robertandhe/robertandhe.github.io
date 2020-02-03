@@ -1,0 +1,251 @@
+I"�?<h1 id="logging-package"><center>logging package</center></h1>
+<p>之所以产生这个需求是因为在做一个ui界面程序是，需要把程序中间状态print到<code class="highlighter-rouge">wx.TextCtrl</code>，在操作过程中发现大规模写入
+时出现程序卡，虽然在运行，但文本框无法及时写入，当前程序运行完才显示结果。猜测和多线程有关，但暂时不会,orz,所以转向日志
+记录及时把结果输出到控制台。</p>
+<h2 id="日志功能">日志功能</h2>
+<p>日志功能应以所追踪事件级别或严重性而定。各级别适用性如下：
+<!-- <table>
+    <tr>
+        <th>级别</th>
+        <th>何时使用</th>
+    </tr>
+    <tr>
+        <th>DEBUG</th>
+        <th>细节信息，仅当诊断问题时适用</th>
+    </tr>
+    <tr>
+        <th>INFO</th>
+        <th>确认程序按预期运行</th>
+    </tr>
+    <tr>
+        <th>WARNING</th>
+        <th>表明有已经或即将发生的意外（例如：磁盘空间不足）。程序仍按预期进行</th>
+    </tr>
+    <tr>
+        <th>ERROR</th>
+        <th>由于严重的问题，程序的某些功能已经不能正常执行</th>
+    </tr>
+    <tr>
+        <th>CRITICAL</th>
+        <th>严重的错误，表明程序已不能继续执行</th>
+    </tr>
+</table> --></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>级别</th>
+      <th>何时使用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DEBUG</td>
+      <td>细节信息，仅当诊断问题时适用</td>
+    </tr>
+    <tr>
+      <td>INFO</td>
+      <td>确认程序按预期运行</td>
+    </tr>
+    <tr>
+      <td>WARNING</td>
+      <td>表明有已经或即将发生的意外（例如：磁盘空间不足）,程序仍按预期进行</td>
+    </tr>
+    <tr>
+      <td>ERROR</td>
+      <td>由于严重的问题，程序的某些功能已经不能正常执行</td>
+    </tr>
+    <tr>
+      <td>CRITICAL</td>
+      <td>严重的错误，表明程序已不能继续执行</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>默认的级别是<code class="highlighter-rouge">WARNING</code>，意味着只会追踪该级别及以上的事件，除非更改日志配置。</p>
+<h2 id="基本概念">基本概念</h2>
+<p>logging日志库采用模块化方法，提供几类组件：记录器、处理程序、过滤器和格式化程序。</p>
+<ul>
+  <li>记录器暴露了应用程序代码直接使用的接口</li>
+  <li>处理程序将日志记录（由记录器创建）发送到适当的目标</li>
+  <li>过滤器提供了更精细的附加功能，用于确定要输出的日志记录</li>
+  <li>格式化程序指定最终输出中日志记录的样式
+日志事件信息在 LogRecord 实例中的记录器、处理程序、过滤器和格式化程序之间传递。<br />
+通过调用Logger类实例来执行日志记录。在命名记录器时使用的一个好习惯是在每个使用日志记录的模块中使用模块级记录器，命名如下:
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="记录流程">记录流程</h2>
+<p><img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-10-10/logging_outline.PNG" alt="logging" /></p>
+<h2 id="记录器">记录器</h2>
+<p>Logger对象三个作用：1.向应用程序代码公开几个方法；2. 根据严重性或过滤器对象确定要处理的日志消息；3. 将相关的日志消息
+传递给所有感兴趣的日志处理程序。
+记录器方法：配置和消息发送。</p>
+<ol>
+  <li>配置
+    <ul>
+      <li>Logger.setLevel()指定处理的最低严重性日志消息</li>
+      <li>Logger.addHandler()和Logger.removeHandler()从记录器对象添加和删除处理程序对象</li>
+      <li>Logger.addFilter()和Logger.removeFilter()添加或移除记录器对象中的过滤器</li>
+    </ul>
+  </li>
+  <li>创建消息
+    <ul>
+      <li>Logger.debug(),Logger().info(),Logger.warning(),Logger.error()和Logger.critical()创建日志记录</li>
+      <li>Logger.exception()创建于Logger.error()相似日志。区别在于Logger.exception()同时记录堆栈追踪</li>
+      <li>Logger.log()将日志级别作为显式参数
+getLogger()返回对具有指定名称的记录器实例的引用。</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="处理程序">处理程序</h2>
+<p>Handler对象负责将适当的日志消息分派给处理程序的指定目标。Logger对象使用addHandler()方法添加处理程序对象。
+标准库包含很多处理程序类型：<a href="https://docs.python.org/zh-cn/3/library/logging.handlers.html#logging.StreamHandler">StreamHandler()</a>和<a href="https://docs.python.org/zh-cn/3/library/logging.handlers.html#logging.FileHandler">FileHandler()</a>。
+StreamHandler()把消息发送到sys.stdout,sys.stderr等。
+FileHandler()把消息写入磁盘文件。<br />
+处理程序配置：</p>
+<ul>
+  <li>setLevel()</li>
+  <li>setFormatter()</li>
+  <li>addFilter()</li>
+</ul>
+
+<h2 id="格式化程序">格式化程序</h2>
+<p>格式化程序对象配置日志消息的最终顺序、结构和内容。应用程序代码可以实例化格式化程序类。</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s">'</span><span class="si">%</span><span class="s">'</span><span class="p">)</span><span class="err">¶</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>style 是<code class="highlighter-rouge">％</code>，<code class="highlighter-rouge">'{ '</code> 或 <code class="highlighter-rouge">'$'</code>之一。分别对应<code class="highlighter-rouge">%(&lt;dictionary key&gt;)s</code>,<code class="highlighter-rouge">str.format()</code>和<code class="highlighter-rouge">string.Template.substitute()</code></p>
+<h2 id="配置日志记录">配置日志记录</h2>
+<p>三种方式：</p>
+<ol>
+  <li>使用调用上面列出的配置方法的 Python 代码显式创建记录器、处理程序和格式化程序</li>
+  <li>创建日志配置文件并使用<code class="highlighter-rouge">fileConfig()</code>函数读取它</li>
+  <li>创建配置信息字典并将其传递给<code class="highlighter-rouge">dictConfig()</code>函数<a href="https://docs.python.org/zh-cn/3/library/logging.config.html#logging-config-api">link</a></li>
+</ol>
+
+<p>Example:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">logging.config</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fileConfig</span><span class="p">(</span><span class="s">'logging.conf'</span><span class="p">)</span>
+
+<span class="c1"># create logger
+</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">'simpleExample'</span><span class="p">)</span>
+
+<span class="c1"># 'application' code
+</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">'debug message'</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">'info message'</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">'warn message'</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">'error message'</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s">'critical message'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><code class="highlighter-rouge">logging.conf</code>文件</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre><span class="p">[</span><span class="n">loggers</span><span class="p">]</span>
+<span class="n">keys</span><span class="o">=</span><span class="n">root</span><span class="p">,</span><span class="n">simpleExample</span>
+
+<span class="p">[</span><span class="n">handlers</span><span class="p">]</span>
+<span class="n">keys</span><span class="o">=</span><span class="n">consoleHandler</span>
+
+<span class="p">[</span><span class="n">formatters</span><span class="p">]</span>
+<span class="n">keys</span><span class="o">=</span><span class="n">simpleFormatter</span>
+
+<span class="p">[</span><span class="n">logger_root</span><span class="p">]</span>
+<span class="n">level</span><span class="o">=</span><span class="n">DEBUG</span>
+<span class="n">handlers</span><span class="o">=</span><span class="n">consoleHandler</span>
+
+<span class="p">[</span><span class="n">logger_simpleExample</span><span class="p">]</span>
+<span class="n">level</span><span class="o">=</span><span class="n">DEBUG</span>
+<span class="n">handlers</span><span class="o">=</span><span class="n">consoleHandler</span>
+<span class="n">qualname</span><span class="o">=</span><span class="n">simpleExample</span>
+<span class="n">propagate</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="p">[</span><span class="n">handler_consoleHandler</span><span class="p">]</span>
+<span class="n">class</span><span class="o">=</span><span class="n">StreamHandler</span>
+<span class="n">level</span><span class="o">=</span><span class="n">DEBUG</span>
+<span class="n">formatter</span><span class="o">=</span><span class="n">simpleFormatter</span>
+<span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,)</span>
+
+<span class="p">[</span><span class="n">formatter_simpleFormatter</span><span class="p">]</span>
+<span class="nb">format</span><span class="o">=%</span><span class="p">(</span><span class="n">asctime</span><span class="p">)</span><span class="n">s</span> <span class="o">-</span> <span class="o">%</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="n">s</span> <span class="o">-</span> <span class="o">%</span><span class="p">(</span><span class="n">levelname</span><span class="p">)</span><span class="n">s</span> <span class="o">-</span> <span class="o">%</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="n">s</span>
+<span class="n">datefmt</span><span class="o">=</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h2 id="我的使用">我的使用</h2>
+<p>显式配置</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s">"</span><span class="si">%(asctime)</span><span class="s">s </span><span class="si">%(name)</span><span class="s">s </span><span class="si">%(levelname)</span><span class="s">s </span><span class="si">%(message)</span><span class="s">s"</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">handler1</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<span class="n">handler2</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">'./result/log.log'</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">)</span>
+<span class="n">handler1</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">)</span>
+<span class="n">handler2</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler1</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler2</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>需要输出时</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">"select sample size: </span><span class="si">%</span><span class="s">d"</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>console输出
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-10-10/logging_output.PNG" alt="logging" />
+打包后控制台输出
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-10-10/logging_output2.PNG" alt="logging" /></p>
+<h2 id="next">next</h2>
+<p><code class="highlighter-rouge">fileConfig()</code> and <code class="highlighter-rouge">dictConfig()</code>
+<a href="https://docs.python.org/zh-cn/3/library/logging.config.html#logging-config-api">link</a></p>
+:ET

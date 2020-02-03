@@ -1,0 +1,160 @@
+I"�=<h1 id="问题描述">问题描述</h1>
+<p>Given an array <code class="highlighter-rouge">nums</code> of integers, you can perform operations on the array.</p>
+
+<p>In each operation, you pick any <code class="highlighter-rouge">nums[i]</code> and delete it to earn <code class="highlighter-rouge">nums[i]</code> points. After, you must delete <strong>every</strong> element equal to <code class="highlighter-rouge">nums[i] - 1</code> or <code class="highlighter-rouge">nums[i] + 1</code>.</p>
+
+<p>You start with 0 points. Return the maximum number of points you can earn by applying such operations.</p>
+
+<h3 id="example-1">Example 1</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">6</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">Delete</span> <span class="mi">4</span> <span class="n">to</span> <span class="n">earn</span> <span class="mi">4</span> <span class="n">points</span><span class="p">,</span> <span class="n">consequently</span> <span class="mi">3</span> <span class="n">is</span> <span class="n">also</span> <span class="n">deleted</span><span class="p">.</span>
+<span class="n">Then</span><span class="p">,</span> <span class="k">delete</span> <span class="mi">2</span> <span class="n">to</span> <span class="n">earn</span> <span class="mi">2</span> <span class="n">points</span><span class="p">.</span> <span class="mi">6</span> <span class="n">total</span> <span class="n">points</span> <span class="n">are</span> <span class="n">earned</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">9</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">Delete</span> <span class="mi">3</span> <span class="n">to</span> <span class="n">earn</span> <span class="mi">3</span> <span class="n">points</span><span class="p">,</span> <span class="n">deleting</span> <span class="n">both</span> <span class="mi">2</span><span class="err">'</span><span class="n">s</span> <span class="n">and</span> <span class="n">the</span> <span class="mf">4.</span>
+<span class="n">Then</span><span class="p">,</span> <span class="k">delete</span> <span class="mi">3</span> <span class="n">again</span> <span class="n">to</span> <span class="n">earn</span> <span class="mi">3</span> <span class="n">points</span><span class="p">,</span> <span class="n">and</span> <span class="mi">3</span> <span class="n">again</span> <span class="n">to</span> <span class="n">earn</span> <span class="mi">3</span> <span class="n">points</span><span class="p">.</span>
+<span class="mi">9</span> <span class="n">total</span> <span class="n">points</span> <span class="n">are</span> <span class="n">earned</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ul>
+  <li>The length of <code class="highlighter-rouge">nums</code> is at most<code class="highlighter-rouge">20000</code>.</li>
+  <li>Each element <code class="highlighter-rouge">nums[i]</code> is an integer in the range [<code class="highlighter-rouge">1, 10000</code>].</li>
+</ul>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这题和之前那道<a href="https://leetcode.com/problems/house-robber/">leetcode 198. House Robber</a>很相似，那里不能同时偷相邻的房屋，这里不是保留相邻的数。这里可能存在重复数字，那么就需要统计每个数字出现的次数，同时要根据相邻数字来进行状态转移，那么每个数字一个桶正好能解决这个问题。对每个数字要分保留还是丢弃，保留的话就是前一个不保留加这个位置的数字总和Earn[i] = notEarn[i - 1] + i * dp[i]，丢弃的话就是就是前一个保留和丢弃中的较大值。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">deleteAndEarn</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">nums</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>	
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">mx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+		<span class="n">mx</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">num</span><span class="p">);</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Earn</span><span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">notEarn</span><span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+		<span class="o">++</span><span class="n">dp</span><span class="p">[</span><span class="n">num</span><span class="p">];</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">mx</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">Earn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">notEarn</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">notEarn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">Earn</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">notEarn</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">max</span><span class="p">(</span><span class="n">Earn</span><span class="p">.</span><span class="n">back</span><span class="p">(),</span> <span class="n">notEarn</span><span class="p">.</span><span class="n">back</span><span class="p">());</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>timecomplexity: O(n)<br />
+space complexity: O(mx)<br />
+runtime: 99.12%<br />
+memory usage: 75.00%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>和解法一一样，只是空间优化了。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">deleteAndEarn</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">nums</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>	
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">mx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+		<span class="n">mx</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">num</span><span class="p">);</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+		<span class="o">++</span><span class="n">dp</span><span class="p">[</span><span class="n">num</span><span class="p">];</span>
+	<span class="kt">int</span> <span class="n">take</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">skip</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">mx</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="kt">int</span> <span class="n">skipi</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">skip</span><span class="p">,</span> <span class="n">take</span><span class="p">);</span>
+		<span class="kt">int</span> <span class="n">takei</span> <span class="o">=</span> <span class="n">skip</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">take</span> <span class="o">=</span> <span class="n">takei</span><span class="p">;</span>
+		<span class="n">skip</span> <span class="o">=</span> <span class="n">skipi</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">max</span><span class="p">(</span><span class="n">take</span><span class="p">,</span> <span class="n">skip</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>timecomplexity: O(n)<br />
+space complexity: O(mx)<br />
+runtime: 99.12%<br />
+memory usage: 100.00%</p>
+
+<h2 id="解法-3">解法 3</h2>
+<p>直接在nums数组上更新</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">deleteAndEarn</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">sums</span><span class="p">(</span><span class="mi">10001</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">num</span> <span class="o">:</span> <span class="n">nums</span><span class="p">)</span>
+		<span class="n">sums</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">+=</span> <span class="n">num</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10001</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="n">sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">sums</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">sums</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">sums</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+	<span class="k">return</span> <span class="n">sums</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>timecomplexity: O(n)<br />
+space complexity: O(1)<br />
+runtime: 34.93%<br />
+memory usage: 25.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/delete-and-earn/">leetcode740</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/8176933.html">solution 2&amp;3</a></p>
+:ET

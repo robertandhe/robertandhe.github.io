@@ -1,0 +1,73 @@
+I"z<h1 id="问题描述">问题描述</h1>
+<p>The <code class="highlighter-rouge">i</code>-th person has weight <code class="highlighter-rouge">people[i]</code>, and each boat can carry a maximum weight of limit.</p>
+
+<p>Each boat carries at most 2 people at the same time, provided the sum of the weight of those people is at most <code class="highlighter-rouge">limit</code>.</p>
+
+<p>Return the minimum number of boats to carry every given person.  (It is guaranteed each person can be carried by a boat.)</p>
+<h3 id="example-1">example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">people</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">limit</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="mi">1</span> <span class="n">boat</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">people</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">limit</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">3</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="mi">3</span> <span class="n">boats</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="n">and</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-3">example 3:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">people</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="n">limit</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">4</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="mi">4</span> <span class="n">boats</span> <span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ul>
+  <li><code class="highlighter-rouge">1 &lt;= people.length &lt;= 50000</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= people[i] &lt;= limit &lt;= 30000</code></li>
+</ul>
+
+<h1 id="解法">解法</h1>
+<p>每艘船最多装两人，所以尽量最胖搭配最瘦的，至于能不能搭就要看两人体重之和在不在limit范围内,为贪心算法。所以要先排序，然后用双指针指向最胖和最瘦的人，最胖是一定要上船的，根据体重和的大小确定最瘦的上不上。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">numRescueBoats</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">people</span><span class="p">,</span> <span class="kt">int</span> <span class="n">limit</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">people</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">people</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">people</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="kt">int</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">){</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">people</span><span class="p">[</span><span class="n">left</span><span class="p">]</span> <span class="o">+</span> <span class="n">people</span><span class="p">[</span><span class="n">right</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">)</span>
+			<span class="o">++</span><span class="n">left</span><span class="p">;</span>
+		<span class="o">--</span><span class="n">right</span><span class="p">;</span>
+		<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlogn)<br />
+时间复杂度：O(1)<br />
+runtime: 13.42%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/boats-to-save-people/">leetcode 881</a></p>
+:ET

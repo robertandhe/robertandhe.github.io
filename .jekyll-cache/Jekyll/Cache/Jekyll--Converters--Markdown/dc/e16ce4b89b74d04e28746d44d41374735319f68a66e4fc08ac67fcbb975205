@@ -1,0 +1,33 @@
+I" <h1 id="logging-package"><center>logging package</center></h1>
+<p>之所以产生这个需求是因为在做一个ui界面程序是，需要把程序中间状态print到<code class="highlighter-rouge">wx.TextCtrl</code>，在操作过程中发现大规模写入
+时出现程序卡，虽然在运行，但文本框无法及时写入，当前程序运行完才显示结果。猜测和多线程有关，但暂时不会,orz,所以转向日志
+记录及时把结果输出到控制台。</p>
+<h2 id="日志功能">日志功能</h2>
+<p>日志功能应以所追踪事件级别或严重性而定。各级别适用性如下：
+<!-- <table>
+    <tr>
+        <th>级别</th>
+        <th>何时使用</th>
+    </tr>
+    <tr>
+        <th>DEBUG</th>
+        <th>细节信息，仅当诊断问题时适用</th>
+    </tr>
+    <tr>
+        <th>INFO</th>
+        <th>确认程序按预期运行</th>
+    </tr>
+    <tr>
+        <th>WARNING</th>
+        <th>表明有已经或即将发生的意外（例如：磁盘空间不足）。程序仍按预期进行</th>
+    </tr>
+    <tr>
+        <th>ERROR</th>
+        <th>由于严重的问题，程序的某些功能已经不能正常执行</th>
+    </tr>
+    <tr>
+        <th>CRITICAL</th>
+        <th>严重的错误，表明程序已不能继续执行</th>
+    </tr>
+</table> --></p>
+:ET

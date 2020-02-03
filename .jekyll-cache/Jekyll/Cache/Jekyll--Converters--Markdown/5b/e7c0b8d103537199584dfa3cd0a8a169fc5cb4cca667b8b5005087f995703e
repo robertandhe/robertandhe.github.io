@@ -1,0 +1,18 @@
+I"�<h2 id="1-dbscan理论介绍">1. DBSCAN理论介绍</h2>
+<p> DBSCAN(Density-Based Spatial Clustering of Applicaions with Noise,具有噪声的基于密度的聚类方法)是一种很典型的聚类算法，和KMeans,BIRCH这些一般只适用于凸样本集的聚类相比，DBSCAN既可以适用于凸样本集，也可以适用于非凸样本集。</p>
+<h3 id="11-密度聚类原理">1.1 密度聚类原理</h3>
+<p> DBSCAN是一种基于密度的聚类算法，这类密度聚类算法一般假定类别可以通过样本分布的紧密程度决定。同一类别的样本，他们之间是紧密相连的，也就是说，在该类别任意样本周围不远处一定有同类别的样本存在。</p>
+<h3 id="12-dbscan密度定义">1.2 DBSCAN密度定义</h3>
+<p> DBSCAN基于一组邻域参数$\left( {\varepsilon ,MinPts} \right)$来刻画样本分布的紧密程度。给定数据集<script type="math/tex">{\rm{D}} = \left\{ x_1,x_2,...,x_m\right\}</script>，定义下面几个概念：</p>
+<ul>
+  <li>$\varepsilon$-邻域：对${x_j} \in D$，其$\varepsilon$-邻域包含样本集$D$中与$x_j$的距离不大于$\varepsilon$的样本，即
+<script type="math/tex">N_\varepsilon(x_j)=\left\{x_i\in D|dist(x_i,x_j)\le\varepsilon\right\}</script>
+;</li>
+  <li>核心对象(core object): 若$x_j$的$\varepsilon$-邻域至少包含$MinPts$个样本，即
+<script type="math/tex">|{N_\varepsilon(x_j)}| \ge MinPts</script>
+，则$x_j$是一个核心对象；</li>
+  <li>密度直达(directly density-reachable): 若$x_j$位于$x_i$的$\varepsilon$-邻域中，且$x_i$是核心对象，则称$x_j$由$x_i$密度直达；</li>
+  <li>密度可达(density-reachable): 对$x_i$与$x_j$，若存在样本序列${p_1},{p_2},…,{p_n}$，其中$p_1=x_i,p_n=x_j$且$p_{i+1}$由$p_i$密度直达，则称$x_j$由$x_i$密度可达；</li>
+  <li>密度相连(density-connected): 对$x_i$与$x_j$, 若存在$x_k$使得$x_i$与$x_j$均由$x_k$密度可达，则称x_i$与$x_j$密度相连。</li>
+</ul>
+:ET

@@ -1,0 +1,21 @@
+I"�<h1 id="问题描述">问题描述</h1>
+<p>Given a non negative integer number <code class="highlighter-rouge">num</code>. For every numbers <code class="highlighter-rouge">i</code> in the range <code class="highlighter-rouge">0 ≤ i ≤ num</code> calculate the number of 1’s in their binary representation and return them as an array.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="mi">2</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="mi">5</span>
+<span class="n">Output</span><span class="o">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="follow-up">Follow up:</h3>
+<ul>
+  <li>It is very easy to come up with a solution with run time <code class="highlighter-rouge">O(n*sizeof(integer))</code>. But can you do it in linear time <code class="highlighter-rouge">O(n)</code> /possibly in a single pass?</li>
+  <li>Space complexity should be <code class="highlighter-rouge">O(n)</code>.</li>
+  <li>Can you do it like a boss? Do it without using any builtin function like <code class="highlighter-rouge">__builtin_popcount</code> in c++ or in any other language.</li>
+</ul>
+:ET

@@ -1,0 +1,173 @@
+I"=<h1 id="问题描述">问题描述</h1>
+<p>There are a number of spherical balloons spread in two-dimensional space. For each balloon, provided input is the start and end coordinates of the horizontal diameter. Since it’s horizontal, y-coordinates don’t matter and hence the x-coordinates of start and end of the diameter suffice. Start is always smaller than end. There will be at most 104 balloons.</p>
+
+<p>An arrow can be shot up exactly vertically from different points along the x-axis. A balloon with xstart and xend bursts by an arrow shot at x if xstart ≤ x ≤ xend. There is no limit to the number of arrows that can be shot. An arrow once shot keeps travelling up infinitely. The problem is to find the minimum number of arrows that must be shot to burst all balloons.</p>
+<h4 id="example">Example:</h4>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span>
+<span class="p">[[</span><span class="mi">10</span><span class="p">,</span><span class="mi">16</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">12</span><span class="p">]]</span>
+
+<span class="n">Output</span><span class="o">:</span>
+<span class="mi">2</span>
+
+<span class="n">Explanation</span><span class="o">:</span>
+<span class="n">One</span> <span class="n">way</span> <span class="n">is</span> <span class="n">to</span> <span class="n">shoot</span> <span class="n">one</span> <span class="n">arrow</span> <span class="k">for</span> <span class="n">example</span> <span class="n">at</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">6</span> <span class="p">(</span><span class="n">bursting</span> <span class="n">the</span> <span class="n">balloons</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span> <span class="n">and</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span> <span class="n">and</span> <span class="n">another</span> <span class="n">arrow</span> <span class="n">at</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">11</span> <span class="p">(</span><span class="n">bursting</span> <span class="n">the</span> <span class="n">other</span> <span class="n">two</span> <span class="n">balloons</span><span class="p">).</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法1">解法1</h2>
+<p>题目给定区间表示气球位置，从x轴某个位置垂直射箭，一条线上的气球均可击爆。为较简单的贪心问题。
+先给数组排序，位置靠前的在前。用一个stack st存放上一可射中区间。每遍历到一个气球，用气球起点和上一区间末尾短点比较可知道当前
+气球是否在上一可中范围内，如果不在则要再来一发。如果在的话就要更新区间，有区间的交集来更新。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findMinArrowShots</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">points</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">points</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">stack</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">st</span><span class="p">;</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">points</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">points</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>	
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">points</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="n">st</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span>
+			<span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span>
+			<span class="n">st</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">};</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">st</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlogn)<br />
+空间复杂度：O(n)<br />
+runtime : 82.55%   memory usage: 40.00%</p>
+<h2 id="解法2">解法2</h2>
+<p>和解法1思想一样，用一个数组pre存放上一区间，不停更新它。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findMinArrowShots</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">points</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">points</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">points</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">points</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">points</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>		
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">pre</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+	<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pre</span><span class="p">[</span><span class="mi">1</span><span class="p">]){</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+			<span class="n">pre</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="p">}</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="n">pre</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">pre</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span>
+			<span class="n">pre</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">pre</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlogn)<br />
+空间复杂度：O(n)<br />
+runtime : 53.12%   memory usage: 100.00%</p>
+<h2 id="解法2-1">解法2</h2>
+<p>和解法1，2思想一样，只是区间真正有用的是末尾端点，只需要存放末尾点end就行了。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findMinArrowShots</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">points</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">points</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">points</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">sort</span><span class="p">(</span><span class="n">points</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">points</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+	<span class="n">end</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+	<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">){</span>
+			<span class="n">end</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]);</span>
+		<span class="p">}</span>
+		<span class="k">else</span> <span class="p">{</span>
+			<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+			<span class="n">end</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>时间复杂度：O(nlogn)<br />
+空间复杂度：O(n)<br />
+runtime : 53.12%   memory usage: 100.00%</p>
+
+<h1 id="link">link</h1>
+<p><a href="https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/">leetcode-452</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/6050562.html">solution 3</a></p>
+:ET

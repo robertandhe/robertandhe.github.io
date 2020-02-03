@@ -1,0 +1,786 @@
+I"�<p> 在实验室项目过程中有需求自动存储数据到数据库，查了下mysql数据库提供了API供程序调用，这里总结下在C++程序中常用的api操作。</p>
+
+<h2 id="c-mysql操作">c++ mysql操作</h2>
+<p>mysqlc.h文件：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;winsock.h&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;mysql.h&gt;
+</span>
+<span class="cp">#pragma comment(lib, "libmysql.lib")
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">MySQLEngineC</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+	<span class="n">MySQLEngineC</span><span class="p">(</span><span class="n">string</span> <span class="n">host</span><span class="p">,</span> <span class="n">string</span> <span class="n">user</span><span class="p">,</span> <span class="n">string</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">string</span> <span class="n">database</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">);</span>
+	<span class="o">~</span><span class="n">MySQLEngineC</span><span class="p">();</span>
+	<span class="kt">void</span> <span class="n">CreateTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">fields</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">InsertOneValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">values</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">InsertMultiValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">values</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">SelectData</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">CheckTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">DropTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">Close</span><span class="p">();</span>
+	<span class="n">MYSQL</span> <span class="n">mydata</span><span class="p">;</span>
+
+<span class="nl">private:</span>
+	<span class="kt">int</span> <span class="n">numFields</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>mysqlc.cpp文件：</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+</pre></td><td class="rouge-code"><pre><span class="cp">#include "mysqlenginec.h"
+#include &lt;string&gt;
+</span>
+<span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">MySQLEngineC</span><span class="p">(</span><span class="n">string</span> <span class="n">host</span><span class="p">,</span> <span class="n">string</span> <span class="n">user</span><span class="p">,</span> <span class="n">string</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">string</span> <span class="n">database</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_library_init</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_library_init() failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_init() failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_options</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">,</span> <span class="n">MYSQL_SET_CHARSET_NAME</span><span class="p">,</span> <span class="s">"gbk"</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_options() failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_real_connect</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">,</span> <span class="n">host</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">user</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">passwd</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">database</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">port</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_real_connect() failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">MySQLEngineC</span><span class="o">::~</span><span class="n">MySQLEngineC</span><span class="p">()</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">CreateTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">fields</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">numFields</span> <span class="o">=</span> <span class="n">fields</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">string</span> <span class="n">sqlstr</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"CREATE TABLE IF NOT EXISTS "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"("</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fields</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">" "</span><span class="p">;</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"DOUBLE(16, 10) NOT NULL,"</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">fields</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">" "</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"DOUBLE(16, 10) NOT NULL"</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">");"</span><span class="p">;</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">sqlstr</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_query</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">,</span> <span class="n">sqlstr</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_query() create table failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">InsertOneValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">values</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">numFields</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"wrong values"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">string</span> <span class="n">sqlstr</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"insert into "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">" value"</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"("</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">values</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">to_string</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">","</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">to_string</span><span class="p">(</span><span class="n">values</span><span class="p">.</span><span class="n">back</span><span class="p">());</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">");"</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_query</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">,</span> <span class="n">sqlstr</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_query insert single value failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+
+<span class="p">}</span>
+
+
+<span class="kt">void</span> <span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">InsertMultiValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">values</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">values</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">InsertOneValue</span><span class="p">(</span><span class="n">tableName</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">SelectData</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">string</span> <span class="n">sqlstr</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"SELECT * FROM "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">MYSQL_RES</span> <span class="o">*</span><span class="n">result</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_query</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">,</span> <span class="n">sqlstr</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_query() select data failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="n">mysql_close</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">);</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">result</span> <span class="o">=</span> <span class="n">mysql_store_result</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">);</span>
+	<span class="kt">int</span> <span class="n">rowCount</span> <span class="o">=</span> <span class="n">mysql_num_rows</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"row count:"</span> <span class="o">&lt;&lt;</span> <span class="n">rowCount</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">title</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">data</span><span class="p">;</span>
+
+	<span class="n">MYSQL_FIELD</span> <span class="o">*</span><span class="n">field</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">fieldCount</span> <span class="o">=</span> <span class="n">mysql_num_fields</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fieldCount</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">field</span> <span class="o">=</span> <span class="n">mysql_fetch_field_direct</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">field</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\t\t</span><span class="s">"</span><span class="p">;</span>
+		<span class="n">title</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">field</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">));</span>
+	<span class="p">}</span>
+
+	<span class="n">MYSQL_ROW</span> <span class="n">row</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+	<span class="n">row</span> <span class="o">=</span> <span class="n">mysql_fetch_row</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">row</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">singleRow</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fieldCount</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="kt">double</span> <span class="n">t</span> <span class="o">=</span> <span class="n">stod</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+			<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">t</span> <span class="o">&lt;&lt;</span> <span class="s">"</span><span class="se">\t\t</span><span class="s">"</span><span class="p">;</span>
+			<span class="n">singleRow</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+		<span class="p">}</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="n">data</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">singleRow</span><span class="p">);</span>
+		<span class="n">row</span> <span class="o">=</span> <span class="n">mysql_fetch_row</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="n">mysql_free_result</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">CheckTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="c1">//查找刚才建的表</span>
+	<span class="n">string</span> <span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"SHOW TABLES LIKE '"</span> <span class="o">+</span> <span class="n">tableName</span> <span class="o">+</span> <span class="s">"'"</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_query</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">,</span> <span class="n">sqlstr</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_query() check table succeed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_query() check table failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">DropTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">string</span> <span class="n">sqlstr</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"DROP TABLE "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">mysql_query</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">,</span> <span class="n">sqlstr</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"mysql_query() drop table failed"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+		<span class="n">mysql_close</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">);</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"drop table "</span> <span class="o">&lt;&lt;</span> <span class="n">tableName</span> <span class="o">&lt;&lt;</span> <span class="s">" succeed."</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngineC</span><span class="o">::</span><span class="n">Close</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">mysql_close</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mydata</span><span class="p">);</span>
+	<span class="n">mysql_server_end</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="qt-mysql操作">qt mysql操作</h2>
+<p> 因为项目使用qt实现，而qt为各个数据库提供了统一的连接方式。这里实现的功能较上面少一些，不过够用，需要时再添加吧。<br />
+mysqlengine.h文件</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;Qtsql&gt;
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">MySQLEngine</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+	<span class="n">MySQLEngine</span><span class="p">(</span><span class="n">string</span> <span class="n">host</span><span class="p">,</span> <span class="n">string</span> <span class="n">user</span><span class="p">,</span> <span class="n">string</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">string</span> <span class="n">database</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">);</span>
+	<span class="o">~</span><span class="n">MySQLEngine</span><span class="p">();</span>
+	<span class="kt">void</span> <span class="n">CreateTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">fields</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">InsertOneValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">values</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">InsertMultiValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">values</span><span class="p">);</span>
+	<span class="cm">/*void UpdateTable(string tableName, int row, int col, double val);*/</span>
+	<span class="kt">void</span> <span class="n">SelectData</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">data</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">fields</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">DropIfExist</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">);</span>
+	<span class="kt">bool</span> <span class="n">CheckTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">DropTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">);</span>
+	<span class="kt">void</span> <span class="n">Close</span><span class="p">();</span>
+	<span class="n">QSqlDatabase</span> <span class="n">db</span><span class="p">;</span>
+	<span class="n">QSqlQuery</span> <span class="o">*</span><span class="n">query</span><span class="p">;</span>
+
+<span class="nl">private:</span>
+	<span class="kt">int</span> <span class="n">numFields</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>mysqlengine.cpp文件</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+</pre></td><td class="rouge-code"><pre><span class="cp">#include "mysqlengine.h"
+#include &lt;QDebug&gt;
+#include &lt;QMessageBox&gt;
+</span>
+<span class="n">MySQLEngine</span><span class="o">::</span><span class="n">MySQLEngine</span><span class="p">(</span><span class="n">string</span> <span class="n">host</span><span class="p">,</span> <span class="n">string</span> <span class="n">user</span><span class="p">,</span> <span class="n">string</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">string</span> <span class="n">database</span><span class="p">,</span> <span class="kt">int</span> <span class="n">port</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">db</span> <span class="o">=</span> <span class="n">QSqlDatabase</span><span class="o">::</span><span class="n">addDatabase</span><span class="p">(</span><span class="s">"QMYSQL"</span><span class="p">);</span>
+	<span class="n">db</span><span class="p">.</span><span class="n">setHostName</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">host</span><span class="p">));</span>
+	<span class="n">db</span><span class="p">.</span><span class="n">setUserName</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">user</span><span class="p">));</span>
+	<span class="n">db</span><span class="p">.</span><span class="n">setPassword</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">passwd</span><span class="p">));</span>
+	<span class="n">db</span><span class="p">.</span><span class="n">setDatabaseName</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">database</span><span class="p">));</span>
+	<span class="n">db</span><span class="p">.</span><span class="n">setPort</span><span class="p">(</span><span class="n">port</span><span class="p">);</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">db</span><span class="p">.</span><span class="n">open</span><span class="p">())</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">QObject</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">"Error:Open database failed"</span><span class="p">);</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">db</span><span class="p">.</span><span class="n">lastError</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"Open db success"</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">query</span> <span class="o">=</span> <span class="k">new</span> <span class="n">QSqlQuery</span><span class="p">(</span><span class="n">db</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">MySQLEngine</span><span class="o">::~</span><span class="n">MySQLEngine</span><span class="p">()</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">CreateTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">fields</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">numFields</span> <span class="o">=</span> <span class="n">fields</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">string</span> <span class="n">sqlstr</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"CREATE TABLE IF NOT EXISTS "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"("</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fields</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">" "</span><span class="p">;</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"DOUBLE(16, 10) NOT NULL,"</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">fields</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">" "</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"DOUBLE(16, 10) NOT NULL"</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">");"</span><span class="p">;</span>
+	<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">);</span>
+
+	<span class="n">query</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+	<span class="kt">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">query</span><span class="o">-&gt;</span><span class="n">exec</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">));</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">QObject</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">"use table success."</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">QObject</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">"use table failed."</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">InsertOneValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">values</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">CheckTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">))</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"table not exists!"</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">numFields</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"wrong values"</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">string</span> <span class="n">sqlstr</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"insert into "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">" value"</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"("</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">values</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">to_string</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+		<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">","</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">to_string</span><span class="p">(</span><span class="n">values</span><span class="p">.</span><span class="n">back</span><span class="p">());</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">");"</span><span class="p">;</span>
+	<span class="c1">// qDebug() &lt;&lt; QString::fromStdString(sqlstr );</span>
+
+	<span class="n">query</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+	<span class="kt">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">query</span><span class="o">-&gt;</span><span class="n">exec</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">));</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="p">{</span>
+		<span class="c1">//qDebug()&lt;&lt;QObject::tr("insert single to  table success.");</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">QObject</span><span class="o">::</span><span class="n">tr</span><span class="p">(</span><span class="s">"insert single to  table failed."</span><span class="p">);</span>
+	<span class="p">}</span>
+
+<span class="p">}</span>
+
+
+<span class="kt">void</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">InsertMultiValue</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">values</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">CheckTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">))</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"table not exists!"</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">values</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">InsertOneValue</span><span class="p">(</span><span class="n">tableName</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">SelectData</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">data</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">fields</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">string</span> <span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"SELECT * FROM "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">query</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+	<span class="n">fields</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+	<span class="kt">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">query</span><span class="o">-&gt;</span><span class="n">exec</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">));</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">query</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">())</span> <span class="p">{</span>
+		<span class="n">QSqlRecord</span> <span class="n">record</span> <span class="o">=</span> <span class="n">query</span><span class="o">-&gt;</span><span class="n">record</span><span class="p">();</span>
+		<span class="kt">int</span> <span class="n">colCount</span> <span class="o">=</span> <span class="n">record</span><span class="p">.</span><span class="n">count</span><span class="p">();</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">fields</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">colCount</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="n">QSqlField</span> <span class="n">column</span> <span class="o">=</span> <span class="n">record</span><span class="p">.</span><span class="n">field</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+				<span class="n">fields</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">column</span><span class="p">.</span><span class="n">name</span><span class="p">().</span><span class="n">toStdString</span><span class="p">());</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">row</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">colCount</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+			<span class="n">row</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">record</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="n">toString</span><span class="p">().</span><span class="n">toDouble</span><span class="p">());</span>
+		<span class="n">data</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">DropIfExist</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">string</span> <span class="n">sqlstr</span> <span class="o">=</span> <span class="s">"DROP TABLE IF EXISTS "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">query</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+	<span class="kt">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">query</span><span class="o">-&gt;</span><span class="n">exec</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">CheckTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">string</span> <span class="n">sqlstr</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"SHOW TABLES LIKE "</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"'"</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"'"</span><span class="p">;</span>
+	<span class="n">query</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+	<span class="kt">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">query</span><span class="o">-&gt;</span><span class="n">exec</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">));</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"check table exists"</span><span class="p">;</span>
+		<span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"check table not exists"</span><span class="p">;</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">DropTable</span><span class="p">(</span><span class="n">string</span> <span class="n">tableName</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">string</span> <span class="n">sqlstr</span> <span class="o">=</span> <span class="s">""</span><span class="p">;</span>
+	<span class="n">sqlstr</span> <span class="o">+=</span> <span class="s">"DROP TABLE "</span> <span class="o">+</span> <span class="n">tableName</span><span class="p">;</span>
+	<span class="n">query</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+	<span class="kt">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">query</span><span class="o">-&gt;</span><span class="n">exec</span><span class="p">(</span><span class="n">QString</span><span class="o">::</span><span class="n">fromStdString</span><span class="p">(</span><span class="n">sqlstr</span><span class="p">));</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"drop table succeed"</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="n">qDebug</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="s">"drop table failed"</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">MySQLEngine</span><span class="o">::</span><span class="n">Close</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">db</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<span class="p">}</span>
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p> 在qt调用mysql时常遇到驱动程序不正确，可以下载qt源码自己make一下，或者下载mysql connector c api，测试了下好像是c版本connector，不是c++版本connector。</p>
+
+<h2 id="reference">reference</h2>
+<p><a href="https://blog.csdn.net/to_Baidu/article/details/53819829">C/C++连接MySQL数据库例子</a><br />
+<a href="https://blog.csdn.net/tenlee/article/details/43614241">Qt5.4下连接Mysql,QSqlDatabase: QMYSQL driver not loaded but available</a><br />
+<a href="https://blog.csdn.net/fanyun_01/article/details/53958275">Qt的Mysql数据库表操作</a></p>
+:ET

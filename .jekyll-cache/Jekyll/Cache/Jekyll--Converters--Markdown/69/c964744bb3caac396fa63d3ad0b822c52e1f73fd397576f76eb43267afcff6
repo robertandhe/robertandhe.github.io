@@ -1,0 +1,3 @@
+I"n<h1 id="问题描述">问题描述</h1>
+<p>In an array <code class="highlighter-rouge">A</code>containing only 0s and 1s, a <code class="highlighter-rouge">K</code>-bit flip consists of choosing a (contiguous) subarray of length <code class="highlighter-rouge">K</code> and simultaneously changing every 0 in the subarray to 1, and every 1 in the subarray to 0.</p>
+:ET

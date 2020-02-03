@@ -1,0 +1,88 @@
+I"�&<h1 id="问题描述">问题描述</h1>
+<p>We have a collection of rocks, each rock has a positive integer weight.</p>
+
+<p>Each turn, we choose <strong>any two rocks</strong> and smash them together.  Suppose the stones have weights <code class="highlighter-rouge">x</code> and <code class="highlighter-rouge">y</code> with <code class="highlighter-rouge">x &lt;= y</code>.  The result of this smash is:</p>
+<ul>
+  <li>If <code class="highlighter-rouge">x == y</code>, both stones are totally destroyed;</li>
+  <li>If <code class="highlighter-rouge">x != y</code>, the stone of weight <code class="highlighter-rouge">x</code> is totally destroyed, and the stone of weight <code class="highlighter-rouge">y</code> has new weight <code class="highlighter-rouge">y-x</code>.</li>
+</ul>
+
+<p>At the end, there is at most <code class="highlighter-rouge">1</code> stone left.  Return the <strong>smallest possible</strong> weight of this stone (the weight is 0 if there are no stones left.)</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">We</span> <span class="n">can</span> <span class="n">combine</span> <span class="mi">2</span> <span class="n">and</span> <span class="mi">4</span> <span class="n">to</span> <span class="n">get</span> <span class="mi">2</span> <span class="n">so</span> <span class="n">the</span> <span class="n">array</span> <span class="n">converts</span> <span class="n">to</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="n">then</span><span class="p">,</span>
+<span class="n">we</span> <span class="n">can</span> <span class="n">combine</span> <span class="mi">7</span> <span class="n">and</span> <span class="mi">8</span> <span class="n">to</span> <span class="n">get</span> <span class="mi">1</span> <span class="n">so</span> <span class="n">the</span> <span class="n">array</span> <span class="n">converts</span> <span class="n">to</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="n">then</span><span class="p">,</span>
+<span class="n">we</span> <span class="n">can</span> <span class="n">combine</span> <span class="mi">2</span> <span class="n">and</span> <span class="mi">1</span> <span class="n">to</span> <span class="n">get</span> <span class="mi">1</span> <span class="n">so</span> <span class="n">the</span> <span class="n">array</span> <span class="n">converts</span> <span class="n">to</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="n">then</span><span class="p">,</span>
+<span class="n">we</span> <span class="n">can</span> <span class="n">combine</span> <span class="mi">1</span> <span class="n">and</span> <span class="mi">1</span> <span class="n">to</span> <span class="n">get</span> <span class="mi">0</span> <span class="n">so</span> <span class="n">the</span> <span class="n">array</span> <span class="n">converts</span> <span class="n">to</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="n">then</span> <span class="n">that</span><span class="err">'</span><span class="n">s</span> <span class="n">the</span> <span class="n">optimal</span> <span class="n">value</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li><code class="highlighter-rouge">1 &lt;= stones.length &lt;= 30</code></li>
+  <li><code class="highlighter-rouge">1 &lt;= stones[i] &lt;= 100</code></li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<p> 题目中给了一些石头，要求把它们smash，两个石头重量相等时，碰撞后消失，不等时留下重量等于它们差值的石头。<br />
+ 这道题本质上其实是对所有石头重量前赋予正负号，需要求怎么赋予正负号最后的和绝对值最小。  这里把符号为正的石头当作一堆，符号为负的当作另一堆，接下来就是怎么分堆了，假设所有石头总重量为sum, 肯定是某堆重量越接近sum/2时和越小。接下来就来求这个能分出来的接近sum/2的堆。<br />
+ 那就是动态规划了，假设重量和为sum,需要求出所有能分出来的堆重量。动态数组dp[i]为true时表示重量i可以得到，为false表示不可得到。初始化全为false，dp[0]=true。依次把每个石头加到所有已经得到的堆里面即可得到所有能分出的堆，dp[j] = dp[j] | dp[j - stones[i]]。<br />
+ 最终从sum/2往0遍历，第一个true就是最接近sum/2的堆，sum - i - i就是所求。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">lastStoneWeightII</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">stones</span><span class="p">)</span> 
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">stones</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">stone</span> <span class="o">:</span> <span class="n">stones</span><span class="p">)</span>
+		<span class="n">sum</span> <span class="o">+=</span> <span class="n">stone</span><span class="p">;</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">sum</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+	
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">stones</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span>
+			<span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">|</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="n">stones</span><span class="p">[</span><span class="n">i</span><span class="p">]];</span>
+	<span class="p">}</span>
+
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+			<span class="k">return</span> <span class="n">sum</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="n">i</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>time complexity: O(n * sum)<br />
+space complexity: O(sum)<br />
+runtime: 100.00%<br />
+memory usage: 100.00%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/last-stone-weight-ii/">leetcode-1049</a></p>
+:ET

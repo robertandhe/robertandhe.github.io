@@ -1,0 +1,34 @@
+I"<h1 id="问题描述">问题描述</h1>
+<p>Given two strings <code class="highlighter-rouge">s1</code>, <code class="highlighter-rouge">s2</code>, find the lowest ASCII sum of deleted characters to make two strings equal.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s1</span> <span class="o">=</span> <span class="s">"sea"</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="s">"eat"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">231</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Deleting</span> <span class="s">"s"</span> <span class="n">from</span> <span class="s">"sea"</span> <span class="n">adds</span> <span class="n">the</span> <span class="n">ASCII</span> <span class="n">value</span> <span class="n">of</span> <span class="s">"s"</span> <span class="p">(</span><span class="mi">115</span><span class="p">)</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>
+<span class="n">Deleting</span> <span class="s">"t"</span> <span class="n">from</span> <span class="s">"eat"</span> <span class="n">adds</span> <span class="mi">116</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>
+<span class="n">At</span> <span class="n">the</span> <span class="n">end</span><span class="p">,</span> <span class="n">both</span> <span class="n">strings</span> <span class="n">are</span> <span class="n">equal</span><span class="p">,</span> <span class="n">and</span> <span class="mi">115</span> <span class="o">+</span> <span class="mi">116</span> <span class="o">=</span> <span class="mi">231</span> <span class="n">is</span> <span class="n">the</span> <span class="n">minimum</span> <span class="n">sum</span> <span class="n">possible</span> <span class="n">to</span> <span class="n">achieve</span> <span class="k">this</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="example-2">Example 2:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">s1</span> <span class="o">=</span> <span class="s">"delete"</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="s">"leet"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="mi">403</span>
+<span class="n">Explanation</span><span class="o">:</span> <span class="n">Deleting</span> <span class="s">"dee"</span> <span class="n">from</span> <span class="s">"delete"</span> <span class="n">to</span> <span class="n">turn</span> <span class="n">the</span> <span class="n">string</span> <span class="n">into</span> <span class="s">"let"</span><span class="p">,</span>
+<span class="n">adds</span> <span class="mi">100</span><span class="p">[</span><span class="n">d</span><span class="p">]</span><span class="o">+</span><span class="mi">101</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">+</span><span class="mi">101</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>  <span class="n">Deleting</span> <span class="s">"e"</span> <span class="n">from</span> <span class="s">"leet"</span> <span class="n">adds</span> <span class="mi">101</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="n">to</span> <span class="n">the</span> <span class="n">sum</span><span class="p">.</span>
+<span class="n">At</span> <span class="n">the</span> <span class="n">end</span><span class="p">,</span> <span class="n">both</span> <span class="n">strings</span> <span class="n">are</span> <span class="n">equal</span> <span class="n">to</span> <span class="s">"let"</span><span class="p">,</span> <span class="n">and</span> <span class="n">the</span> <span class="n">answer</span> <span class="n">is</span> <span class="mi">100</span><span class="o">+</span><span class="mi">101</span><span class="o">+</span><span class="mi">101</span><span class="o">+</span><span class="mi">101</span> <span class="o">=</span> <span class="mf">403.</span>
+<span class="n">If</span> <span class="n">instead</span> <span class="n">we</span> <span class="n">turned</span> <span class="n">both</span> <span class="n">strings</span> <span class="n">into</span> <span class="s">"lee"</span> <span class="n">or</span> <span class="s">"eet"</span><span class="p">,</span> <span class="n">we</span> <span class="n">would</span> <span class="n">get</span> <span class="n">answers</span> <span class="n">of</span> <span class="mi">433</span> <span class="n">or</span> <span class="mi">417</span><span class="p">,</span> <span class="n">which</span> <span class="n">are</span> <span class="n">higher</span><span class="p">.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ul>
+  <li>0 &lt; s1.length, s2.length &lt;= 1000.</li>
+  <li>All elements of each string will have an ASCII value in [<code class="highlighter-rouge">97, 122</code>].</li>
+</ul>
+:ET

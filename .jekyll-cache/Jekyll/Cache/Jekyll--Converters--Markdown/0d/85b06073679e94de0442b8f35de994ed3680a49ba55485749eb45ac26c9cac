@@ -1,0 +1,375 @@
+I"��<h1 id="1st-place-solution">1st place solution</h1>
+<h2 id="discussion1">discussion1</h2>
+<p><a href="https://www.kaggle.com/c/ieee-fraud-detection/discussion/111284#latest-644768">link-discussion</a>
+第一名在discussion中提出了几个重点：</p>
+<ol>
+  <li>时间不是最重要的<br />
+因为欺诈行为的特征不会短时间内随时间变化，而是欺诈的人在随着时间变换。训练集、Public LB和Private LB在时间上是分离的，从下图可见，在Private LB中仅有16.4%的clients在训练集中出现过，68.2%的clients没有在训练集中出现，另外15.4%不确定。
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/ieee-fraud-detection-top-team-share/top1-discussion-train-test-time.png" alt="top1-discussion-train-test-time" />
+    <blockquote>
+      <p>注：每条线表示每个client，左端点是初次交易时间，右端点是最后一次交易时间</p>
+    </blockquote>
+  </li>
+  <li>Magic Feature<br />
+根据vesta公司工作人员对数据集的解释
+    <blockquote>
+      <p>The logic of our labeling is define reported chargeback on the card as fraud transaction (isFraud=1) and transactions posterior to it with either user account, email address or billing address directly linked to these attributes as fraud too. If none of above is reported and found beyond 120 days, then we define as legit transaction (isFraud=0).<br />
+比赛不是在预测交易行为，重点在于识别欺诈客户，classifying clients (credit cards) instead of transactions。</p>
+    </blockquote>
+  </li>
+  <li>Fraudulent Clients<br />
+top1队伍利用card、addr1和D1来辨别每个客户。D1是当前交易时间和开卡时间的间隔，D3表示当前交易时间和上笔交易时间的间隔，
+而TransactionDay(从TransactionDT求出)是当前交易日期，所以<code class="highlighter-rouge">D1n = TransactionDay - D1</code>表示开卡时间，<code class="highlighter-rouge">D3n = TransactionDay - D3</code>表示上笔交易时间。下图是2134个欺诈客户中<code class="highlighter-rouge">client=2988694</code>的例子。
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/ieee-fraud-detection-top-team-share/top1-discussion-fraudulent-client.png" alt="top1-discussion-fraudulent-clients" /></li>
+  <li>Preventing Overfitting
+测试集中68.2%的UID没有在训练集中出现过，为了防止在训练集和测试集上过拟合，不能把client UID当作特征。同时其他有利于识别client UID的特征如D, V, ID也不能用。
+相反，必须根据UID创建aggregated group features聚合特征，例如取所有的C,M列，<code class="highlighter-rouge">new_features = df.groupby('uid')[CM_columns].agg(['mean'])</code>。</li>
+</ol>
+
+<h2 id="kernel1">kernel1</h2>
+<p>EDA for Columns V and ID<a href="https://www.kaggle.com/cdeotte/eda-for-columns-v-and-id">link</a><br />
+这个kernel的主要思想是对V和ID特征降维。
+首先按照NAN个数把它们分组，在组内按照相关性分成各个子集，在子集内按照unique的个数挑选一个代表性变量。</p>
+
+<h2 id="kernel2">kernel2</h2>
+<p>在这个kernel中，top1队伍给出了Public LB达到0.962081的代码<a href="https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600">link</a>.</p>
+<ol>
+  <li>数据类型处理<br />
+把所有数值变量转换为float32类型，把所有名义变量转换为category类型。</li>
+  <li>D columns normalize<br />
+D各个列表示从某一时间点的<code class="highlighter-rouge">time deltas</code>，把这些列转化会它们原来的时间点<code class="highlighter-rouge">D15n = Transaction_Day - D15 and Transaction_Day = TransactionDT/(24*60*60)</code>，否则各个D列的值就是随时间增长，容易带来train，test的不一致性。</li>
+  <li>几个特征工程函数<br />
+使用了五个特征工程函数  <br />
+frequency encoding
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">encode_FE</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+ <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df1</span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="n">df2</span><span class="p">[</span><span class="n">col</span><span class="p">]])</span>
+     <span class="n">vc</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+     <span class="n">vc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+     <span class="n">nm</span> <span class="o">=</span> <span class="n">col</span><span class="o">+</span><span class="s">'_FE'</span>
+     <span class="n">df1</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span>
+     <span class="n">df1</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+     <span class="n">df2</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span>
+     <span class="n">df2</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+     <span class="k">print</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span><span class="s">', '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>label encoding</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">encode_LE</span><span class="p">(</span><span class="n">col</span><span class="p">,</span><span class="n">train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span><span class="n">test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+ <span class="n">df_comb</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train</span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="n">test</span><span class="p">[</span><span class="n">col</span><span class="p">]],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+ <span class="n">df_comb</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">df_comb</span><span class="o">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+ <span class="n">nm</span> <span class="o">=</span> <span class="n">col</span>
+ <span class="k">if</span> <span class="n">df_comb</span><span class="o">.</span><span class="nb">max</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">32000</span><span class="p">:</span> 
+     <span class="n">train</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int32'</span><span class="p">)</span>
+     <span class="n">test</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">):]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int32'</span><span class="p">)</span>
+ <span class="k">else</span><span class="p">:</span>
+     <span class="n">train</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int16'</span><span class="p">)</span>
+     <span class="n">test</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">):]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int16'</span><span class="p">)</span>
+ <span class="k">del</span> <span class="n">df_comb</span><span class="p">;</span> <span class="n">x</span><span class="o">=</span><span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+ <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span><span class="s">', '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>group aggregation</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">encode_AG</span><span class="p">(</span><span class="n">main_columns</span><span class="p">,</span> <span class="n">uids</span><span class="p">,</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">[</span><span class="s">'mean'</span><span class="p">],</span> <span class="n">train_df</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span> 
+           <span class="n">fillna</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">usena</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+ <span class="c1"># AGGREGATION OF MAIN WITH UID FOR GIVEN STATISTICS
+</span> <span class="k">for</span> <span class="n">main_column</span> <span class="ow">in</span> <span class="n">main_columns</span><span class="p">:</span>  
+     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">uids</span><span class="p">:</span>
+         <span class="k">for</span> <span class="n">agg_type</span> <span class="ow">in</span> <span class="n">aggregations</span><span class="p">:</span>
+             <span class="n">new_col_name</span> <span class="o">=</span> <span class="n">main_column</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">col</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">agg_type</span>
+             <span class="n">temp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train_df</span><span class="p">[[</span><span class="n">col</span><span class="p">,</span> <span class="n">main_column</span><span class="p">]],</span> <span class="n">test_df</span><span class="p">[[</span><span class="n">col</span><span class="p">,</span><span class="n">main_column</span><span class="p">]]])</span>
+             <span class="k">if</span> <span class="n">usena</span><span class="p">:</span> <span class="n">temp_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">temp_df</span><span class="p">[</span><span class="n">main_column</span><span class="p">]</span><span class="o">==-</span><span class="mi">1</span><span class="p">,</span><span class="n">main_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+             <span class="n">temp_df</span> <span class="o">=</span> <span class="n">temp_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">col</span><span class="p">])[</span><span class="n">main_column</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="n">agg_type</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                                                     <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">agg_type</span><span class="p">:</span> <span class="n">new_col_name</span><span class="p">})</span>
+
+             <span class="n">temp_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">temp_df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+             <span class="n">temp_df</span> <span class="o">=</span> <span class="n">temp_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>   
+
+             <span class="n">train_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+             <span class="n">test_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span>  <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+                
+             <span class="k">if</span> <span class="n">fillna</span><span class="p">:</span>
+                 <span class="n">train_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                 <span class="n">test_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                
+             <span class="k">print</span><span class="p">(</span><span class="s">"'"</span><span class="o">+</span><span class="n">new_col_name</span><span class="o">+</span><span class="s">"'"</span><span class="p">,</span><span class="s">', '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>combine features</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">encode_CB</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span><span class="n">col2</span><span class="p">,</span><span class="n">df1</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span><span class="n">df2</span><span class="o">=</span><span class="n">X_test</span><span class="p">):</span>
+ <span class="n">nm</span> <span class="o">=</span> <span class="n">col1</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">col2</span>
+ <span class="n">df1</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">col1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">df1</span><span class="p">[</span><span class="n">col2</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+ <span class="n">df2</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">col1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">df2</span><span class="p">[</span><span class="n">col2</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> 
+ <span class="n">encode_LE</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+ <span class="k">print</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span><span class="s">', '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>group aggregation nunique</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">encode_AG2</span><span class="p">(</span><span class="n">main_columns</span><span class="p">,</span> <span class="n">uids</span><span class="p">,</span> <span class="n">train_df</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">X_test</span><span class="p">):</span>
+ <span class="k">for</span> <span class="n">main_column</span> <span class="ow">in</span> <span class="n">main_columns</span><span class="p">:</span>  
+     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">uids</span><span class="p">:</span>
+         <span class="n">comb</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train_df</span><span class="p">[[</span><span class="n">col</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">main_column</span><span class="p">]],</span><span class="n">test_df</span><span class="p">[[</span><span class="n">col</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="n">main_column</span><span class="p">]]],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+         <span class="n">mp</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">col</span><span class="p">)[</span><span class="n">main_column</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s">'nunique'</span><span class="p">])[</span><span class="s">'nunique'</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+         <span class="n">train_df</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">main_column</span><span class="o">+</span><span class="s">'_ct'</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+         <span class="n">test_df</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">main_column</span><span class="o">+</span><span class="s">'_ct'</span><span class="p">]</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+         <span class="k">print</span><span class="p">(</span><span class="n">col</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">main_column</span><span class="o">+</span><span class="s">'_ct, '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>初步特征工程
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">X_train</span><span class="p">[</span><span class="s">'cents'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="s">'TransactionAmt'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="s">'TransactionAmt'</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+<span class="n">X_test</span><span class="p">[</span><span class="s">'cents'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_test</span><span class="p">[</span><span class="s">'TransactionAmt'</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">X_test</span><span class="p">[</span><span class="s">'TransactionAmt'</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+<span class="n">encode_FE</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,[</span><span class="s">'addr1'</span><span class="p">,</span><span class="s">'card1'</span><span class="p">,</span><span class="s">'card2'</span><span class="p">,</span><span class="s">'card3'</span><span class="p">,</span><span class="s">'P_emaildomain'</span><span class="p">])</span>
+<span class="n">encode_CB</span><span class="p">(</span><span class="s">'card1'</span><span class="p">,</span><span class="s">'addr1'</span><span class="p">)</span>
+<span class="n">encode_CB</span><span class="p">(</span><span class="s">'card1_addr1'</span><span class="p">,</span><span class="s">'P_emaildomain'</span><span class="p">)</span>
+<span class="n">encode_FE</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,[</span><span class="s">'card1_addr1'</span><span class="p">,</span><span class="s">'card1_addr1_P_emaildomain'</span><span class="p">])</span>
+<span class="n">encode_AG</span><span class="p">([</span><span class="s">'TransactionAmt'</span><span class="p">,</span><span class="s">'D9'</span><span class="p">,</span><span class="s">'D11'</span><span class="p">],[</span><span class="s">'card1'</span><span class="p">,</span><span class="s">'card1_addr1'</span><span class="p">,</span><span class="s">'card1_addr1_P_emaildomain'</span><span class="p">],[</span><span class="s">'mean'</span><span class="p">,</span><span class="s">'std'</span><span class="p">],</span><span class="n">usena</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>时间一致性 <br />
+对每个特征，根据第一个月这个唯一的特征训练模型去预测最后一个月，希望训练集和测试集auc大于0.5，如果差别大说明
+这个特征时间不一致，应该舍弃。这个队伍总共训练了242个模型.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c1"># FAILED TIME CONSISTENCY TEST
+</span><span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">X_train</span><span class="o">.</span><span class="n">columns</span> <span class="p">)</span>
+<span class="n">cols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">'TransactionDT'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'D6'</span><span class="p">,</span><span class="s">'D7'</span><span class="p">,</span><span class="s">'D8'</span><span class="p">,</span><span class="s">'D9'</span><span class="p">,</span><span class="s">'D12'</span><span class="p">,</span><span class="s">'D13'</span><span class="p">,</span><span class="s">'D14'</span><span class="p">]:</span>
+ <span class="n">cols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'C3'</span><span class="p">,</span><span class="s">'M5'</span><span class="p">,</span><span class="s">'id_08'</span><span class="p">,</span><span class="s">'id_33'</span><span class="p">]:</span>
+ <span class="n">cols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'card4'</span><span class="p">,</span><span class="s">'id_07'</span><span class="p">,</span><span class="s">'id_14'</span><span class="p">,</span><span class="s">'id_21'</span><span class="p">,</span><span class="s">'id_30'</span><span class="p">,</span><span class="s">'id_32'</span><span class="p">,</span><span class="s">'id_34'</span><span class="p">]:</span>
+ <span class="n">cols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'id_'</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span><span class="mi">28</span><span class="p">)]:</span>
+ <span class="n">cols</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>到这里xgboost模型Public LB达到0.951005。</p>
+  </li>
+  <li>Magic Feature-UID<br />
+利用card1，add1，D1n构建unique client id.
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">X_train</span><span class="p">[</span><span class="s">'day'</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">TransactionDT</span> <span class="o">/</span> <span class="p">(</span><span class="mi">24</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">X_train</span><span class="p">[</span><span class="s">'uid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">card1_addr1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">X_train</span><span class="o">.</span><span class="n">day</span><span class="o">-</span><span class="n">X_train</span><span class="o">.</span><span class="n">D1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">X_test</span><span class="p">[</span><span class="s">'day'</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">TransactionDT</span> <span class="o">/</span> <span class="p">(</span><span class="mi">24</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">X_test</span><span class="p">[</span><span class="s">'uid'</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">card1_addr1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">X_test</span><span class="o">.</span><span class="n">day</span><span class="o">-</span><span class="n">X_test</span><span class="o">.</span><span class="n">D1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>Group Aggregation Features
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="n">encode_FE</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,[</span><span class="s">'uid'</span><span class="p">])</span>
+<span class="c1"># AGGREGATE 
+</span><span class="n">encode_AG</span><span class="p">([</span><span class="s">'TransactionAmt'</span><span class="p">,</span><span class="s">'D4'</span><span class="p">,</span><span class="s">'D9'</span><span class="p">,</span><span class="s">'D10'</span><span class="p">,</span><span class="s">'D15'</span><span class="p">],[</span><span class="s">'uid'</span><span class="p">],[</span><span class="s">'mean'</span><span class="p">,</span><span class="s">'std'</span><span class="p">],</span><span class="n">fillna</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">usena</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># AGGREGATE
+</span><span class="n">encode_AG</span><span class="p">([</span><span class="s">'C'</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">15</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">!=</span><span class="mi">3</span><span class="p">],[</span><span class="s">'uid'</span><span class="p">],[</span><span class="s">'mean'</span><span class="p">],</span><span class="n">X_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,</span><span class="n">fillna</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">usena</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># AGGREGATE
+</span><span class="n">encode_AG</span><span class="p">([</span><span class="s">'M'</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)],[</span><span class="s">'uid'</span><span class="p">],[</span><span class="s">'mean'</span><span class="p">],</span><span class="n">fillna</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">usena</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># AGGREGATE
+</span><span class="n">encode_AG2</span><span class="p">([</span><span class="s">'P_emaildomain'</span><span class="p">,</span><span class="s">'dist1'</span><span class="p">,</span><span class="s">'DT_M'</span><span class="p">,</span><span class="s">'id_02'</span><span class="p">,</span><span class="s">'cents'</span><span class="p">],</span> <span class="p">[</span><span class="s">'uid'</span><span class="p">],</span> <span class="n">train_df</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">X_test</span><span class="p">)</span>
+<span class="c1"># AGGREGATE
+</span><span class="n">encode_AG</span><span class="p">([</span><span class="s">'C14'</span><span class="p">],[</span><span class="s">'uid'</span><span class="p">],[</span><span class="s">'std'</span><span class="p">],</span><span class="n">X_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,</span><span class="n">fillna</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">usena</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># AGGREGATE 
+</span><span class="n">encode_AG2</span><span class="p">([</span><span class="s">'C13'</span><span class="p">,</span><span class="s">'V314'</span><span class="p">],</span> <span class="p">[</span><span class="s">'uid'</span><span class="p">],</span> <span class="n">train_df</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">X_test</span><span class="p">)</span>
+<span class="c1"># AGGREATE 
+</span><span class="n">encode_AG2</span><span class="p">([</span><span class="s">'V127'</span><span class="p">,</span><span class="s">'V136'</span><span class="p">,</span><span class="s">'V309'</span><span class="p">,</span><span class="s">'V307'</span><span class="p">,</span><span class="s">'V320'</span><span class="p">],</span> <span class="p">[</span><span class="s">'uid'</span><span class="p">],</span> <span class="n">train_df</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">X_test</span><span class="p">)</span>
+<span class="c1"># NEW FEATURE
+</span><span class="n">X_train</span><span class="p">[</span><span class="s">'outsider15'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">abs</span><span class="p">(</span><span class="n">X_train</span><span class="o">.</span><span class="n">D1</span><span class="o">-</span><span class="n">X_train</span><span class="o">.</span><span class="n">D15</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int8'</span><span class="p">)</span>
+<span class="n">X_test</span><span class="p">[</span><span class="s">'outsider15'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="nb">abs</span><span class="p">(</span><span class="n">X_test</span><span class="o">.</span><span class="n">D1</span><span class="o">-</span><span class="n">X_test</span><span class="o">.</span><span class="n">D15</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int8'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>到这里xgboost模型Public LB达到0.960205。</p>
+  </li>
+  <li>后处理             <br />
+对每一client给出相同概率
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="n">X_test</span><span class="p">[</span><span class="s">'isFraud'</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_submission</span><span class="o">.</span><span class="n">isFraud</span><span class="o">.</span><span class="n">values</span>
+<span class="n">X_train</span><span class="p">[</span><span class="s">'isFraud'</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_train</span><span class="o">.</span><span class="n">values</span>
+<span class="n">comb</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">X_train</span><span class="p">[[</span><span class="s">'isFraud'</span><span class="p">]],</span><span class="n">X_test</span><span class="p">[[</span><span class="s">'isFraud'</span><span class="p">]]],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">uids</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'/kaggle/input/ieee-submissions-and-uids/uids_v4_no_multiuid_cleaning..csv'</span><span class="p">,</span><span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s">'TransactionID'</span><span class="p">,</span><span class="s">'uid'</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s">'uid'</span><span class="p">:</span><span class="s">'uid2'</span><span class="p">},</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">comb</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">uids</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s">'TransactionID'</span><span class="p">,</span><span class="n">how</span><span class="o">=</span><span class="s">'left'</span><span class="p">)</span>
+<span class="n">mp</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">'uid2'</span><span class="p">)</span><span class="o">.</span><span class="n">isFraud</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s">'mean'</span><span class="p">])</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comb</span><span class="o">.</span><span class="n">uid2</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span><span class="s">'isFraud'</span><span class="p">]</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comb</span><span class="o">.</span><span class="n">uid2</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">uid2</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">mp</span><span class="p">[</span><span class="s">'mean'</span><span class="p">])</span>
+<span class="n">uids</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'/kaggle/input/ieee-submissions-and-uids/uids_v1_no_multiuid_cleaning.csv'</span><span class="p">,</span><span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s">'TransactionID'</span><span class="p">,</span><span class="s">'uid'</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s">'uid'</span><span class="p">:</span><span class="s">'uid3'</span><span class="p">},</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">comb</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">uids</span><span class="p">,</span><span class="n">on</span><span class="o">=</span><span class="s">'TransactionID'</span><span class="p">,</span><span class="n">how</span><span class="o">=</span><span class="s">'left'</span><span class="p">)</span>
+<span class="n">mp</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">'uid3'</span><span class="p">)</span><span class="o">.</span><span class="n">isFraud</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s">'mean'</span><span class="p">])</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comb</span><span class="o">.</span><span class="n">uid3</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span><span class="s">'isFraud'</span><span class="p">]</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comb</span><span class="o">.</span><span class="n">uid3</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">uid3</span><span class="o">.</span><span class="nb">map</span><span class="p">(</span><span class="n">mp</span><span class="p">[</span><span class="s">'mean'</span><span class="p">])</span>
+<span class="n">sample_submission</span><span class="o">.</span><span class="n">isFraud</span> <span class="o">=</span> <span class="n">comb</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">):]</span><span class="o">.</span><span class="n">isFraud</span><span class="o">.</span><span class="n">values</span>
+<span class="n">sample_submission</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">'sub_xgb_96_PP.csv'</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>到这里xgboost模型Public LB达到0.961847。</p>
+  </li>
+</ol>
+
+<h1 id="2nd-place-solution">2nd place solution</h1>
+<p><a href="https://www.kaggle.com/c/ieee-fraud-detection/discussion/111321?utm_medium=email&amp;utm_source=intercom&amp;utm_campaign=competition-recaps-ieee-2019">link</a></p>
+<ol>
+  <li>Data Cleaning
+观察所有特征train vs. test分布图，例如
+<img src="https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/ieee-fraud-detection-top-team-share/top2-discussion1.PNG" alt="top2-dis1" />
+红色为训练集数据，蓝色为测试集数据，左边横轴为card1，右边横轴为card1的频率编码。
+可看出频率编码后训练集测试集分布更均衡。所以把card1转化为频率。</li>
+  <li>Cross Validation<br />
+Cross validation for time series is always tricky.<br />
+run these folds, using months starting with with 0. The | indicates the train/val split
+0 | 2 3 4 5 6
+0 1 | 3 4 5 6
+0 1 2 | 4 5 6
+0 1 2 3 | 5 6</li>
+  <li>Feature Engineering
+先用permuation importance进行特征选择。
+client id
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="n">data</span><span class="p">[</span><span class="s">'uid1'</span><span class="p">]</span><span class="err">`</span> <span class="o">=</span>  <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">day</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">D1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span><span class="s">'_'</span> <span class="o">+</span> \
+         <span class="n">data</span><span class="o">.</span><span class="n">P_emaildomain</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">data</span><span class="p">[</span><span class="s">'uid2'</span><span class="p">]</span> <span class="o">=</span>  <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">card1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span><span class="s">'_'</span> <span class="o">+</span> \
+         <span class="n">data</span><span class="o">.</span><span class="n">addr1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span><span class="s">'_'</span> <span class="o">+</span> \
+         <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">day</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">D1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span><span class="s">'_'</span> <span class="o">+</span> \
+         <span class="n">data</span><span class="o">.</span><span class="n">P_emaildomain</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>根据D1n和P_emaildomain构造uid1，再根据uid1，card1，addr1构造uid2.<br />
+聚合特征, col为uid1 or uid2.</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">add_gr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+ <span class="n">cols</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span>
+ <span class="n">gr</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_count'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">TransactionID</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s">'count'</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int32'</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_next_dt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">TransactionDT</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_next_dt'</span><span class="p">]</span> <span class="o">-=</span> <span class="n">data</span><span class="o">.</span><span class="n">TransactionDT</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_mean_dt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_next_dt'</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s">'mean'</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_std_dt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_next_dt'</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s">'std'</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_median_dt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_next_dt'</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s">'median'</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_next_amt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">TransactionAmt</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_mean_amt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">TransactionAmt</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s">'mean'</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_std_amt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">TransactionAmt</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s">'std'</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+ <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="o">+</span><span class="s">'_median_amt'</span><span class="p">]</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">TransactionAmt</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s">'median'</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+ <span class="n">new_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">-</span><span class="nb">set</span><span class="p">([</span><span class="n">col</span><span class="o">+</span><span class="s">'_next_dt'</span><span class="p">]))</span>
+ <span class="k">return</span> <span class="n">new_cols</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>对每一client找出下次交易时间，再计算时间差，取mean，std和median。
+再对每一个client找出下次交易金额，计算交易金额mean，std和median。</p>
+  </li>
+  <li>Posting processing</li>
+</ol>
+:ET

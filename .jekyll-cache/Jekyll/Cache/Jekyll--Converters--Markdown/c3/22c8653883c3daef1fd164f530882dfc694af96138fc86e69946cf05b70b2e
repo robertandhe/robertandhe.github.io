@@ -1,0 +1,195 @@
+I"J<h1 id="问题描述">问题描述</h1>
+<p>You are given a list of non-negative integers, a1, a2, …, an, and a target, S. Now you have 2 symbols + and -. For each integer, you should choose one from + and - as its new symbol.</p>
+
+<p>Find out how many ways to assign symbols to make sum of integers equal to target S.</p>
+<h3 id="example-1">Example 1:</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> <span class="n">nums</span> <span class="n">is</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">S</span> <span class="n">is</span> <span class="mf">3.</span> 
+<span class="n">Output</span><span class="o">:</span> <span class="mi">5</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+
+<span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">There</span> <span class="n">are</span> <span class="mi">5</span> <span class="n">ways</span> <span class="n">to</span> <span class="n">assign</span> <span class="n">symbols</span> <span class="n">to</span> <span class="n">make</span> <span class="n">the</span> <span class="n">sum</span> <span class="n">of</span> <span class="n">nums</span> <span class="n">be</span> <span class="n">target</span> <span class="mf">3.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<h3 id="note">Note:</h3>
+<ol>
+  <li>The length of the given array is positive and will not exceed 20.</li>
+  <li>The sum of elements in the given array will not exceed 1000.</li>
+  <li>Your output answer is guaranteed to be fitted in a 32-bit integer.</li>
+</ol>
+
+<h1 id="解法">解法</h1>
+<h2 id="解法-1">解法 1</h2>
+<p>这种分很多情形的问题无非就是递归和动态规划。先用递归。遍历到数组末尾时如果val==0则满足条件，res+1。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">helper</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">position</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">val</span><span class="p">,</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">res</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">position</span> <span class="o">==</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">val</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+		<span class="o">++</span><span class="n">res</span><span class="p">;</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">position</span> <span class="o">==</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="n">helper</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">val</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">position</span><span class="p">],</span> <span class="n">res</span><span class="p">);</span>
+	<span class="n">helper</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">val</span> <span class="o">-</span> <span class="n">nums</span><span class="p">[</span><span class="n">position</span><span class="p">],</span> <span class="n">res</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">findTargetSumWays</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">S</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">helper</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 11.94%<br />
+memory usage: 100.00%</p>
+
+<h2 id="解法-2">解法 2</h2>
+<p>还是递归，不过用了记忆数组减少重复计算。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">helper2</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">val</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span><span class="o">&gt;&gt;&amp;</span> <span class="n">m</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">==</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">())</span>
+		<span class="k">return</span> <span class="n">val</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="n">start</span><span class="p">].</span><span class="n">count</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+		<span class="k">return</span> <span class="n">m</span><span class="p">[</span><span class="n">start</span><span class="p">][</span><span class="n">val</span><span class="p">];</span>
+	<span class="kt">int</span> <span class="n">cnt1</span> <span class="o">=</span> <span class="n">helper2</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">val</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">start</span><span class="p">],</span> <span class="n">m</span><span class="p">);</span>
+	<span class="kt">int</span> <span class="n">cnt2</span> <span class="o">=</span> <span class="n">helper2</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">val</span> <span class="o">-</span> <span class="n">nums</span><span class="p">[</span><span class="n">start</span><span class="p">],</span> <span class="n">m</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">m</span><span class="p">[</span><span class="n">start</span><span class="p">][</span><span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt1</span> <span class="o">+</span> <span class="n">cnt2</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">nt</span> <span class="nf">findTargetSumWays</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">S</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">helper2</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">m</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 53.17%<br />
+memory usage: 7.69%</p>
+<h2 id="解法-3">解法 3</h2>
+<p>动态规划。动态数组表示到当前数组位置各个和的个数，vector&lt;unordered_map&lt;int, int» dp(n + 1)。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findTargetSumWays</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">S</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">vector</span><span class="o">&lt;</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+		<span class="p">{</span>
+			<span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">a</span><span class="p">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+			<span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">a</span><span class="p">.</span><span class="n">first</span> <span class="o">-</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">S</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 59.40%<br />
+memory usage: 15.38%</p>
+
+<h2 id="解法-4">解法 4</h2>
+<p>和解法3一样，因为当前位置i更新是仅和上一位置i-1有关，但更新过程中会改变哈希表，所以建立临时哈希表，更新完放回。</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kt">int</span> <span class="nf">findTargetSumWays</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">nums</span><span class="p">,</span> <span class="kt">int</span> <span class="n">S</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+	<span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">dp</span><span class="p">;</span>
+	<span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">t</span><span class="p">;</span>
+		<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">dp</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="n">t</span><span class="p">[</span><span class="n">a</span><span class="p">.</span><span class="n">first</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+			<span class="n">t</span><span class="p">[</span><span class="n">a</span><span class="p">.</span><span class="n">first</span> <span class="o">-</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">a</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">dp</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">S</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>runtime: 56.54%<br />
+memory usage: 7.69%</p>
+
+<h1 id="link">Link</h1>
+<p><a href="https://leetcode.com/problems/target-sum/">leetcode-494</a><br />
+<a href="https://www.cnblogs.com/grandyang/p/6395843.html?utm_source=itdadao&amp;utm_medium=referral">solution 2-4</a></p>
+:ET

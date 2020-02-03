@@ -1,0 +1,6 @@
+I"<p> 最近做项目过程中需要自动生成word报告，Microsoft的word支持通过COM组件调用。因为项目是用qt来做，所以使用Qt提供的ActiveQt框架中的QAxContainer模块下的QAxobject、QAxWidget类调用COM组件。<br />
+ 这里支持插入文字、表格、图片等。在调用之前需要先创建word模板文件，按照书签名来确定插入文字表格图片到相应位置。</p>
+<blockquote>
+  <p>注意应该在project.pro文件中添加 QT += axcontainer</p>
+</blockquote>
+:ET

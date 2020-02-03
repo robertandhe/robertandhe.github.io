@@ -1,0 +1,57 @@
+I"�<p>python属于解释性语言，如果想在别人的电脑上运行自己的脚本，还得要先装上python环境以及相关的包，费时费力。在最近的一个
+项目中，恰好遇到了这种需求，要把自己的程序发布，借助<a href="https://www.pyinstaller.org/index.html">pyinstaller</a>可以解决。</p>
+<h2 id="pyinstaller安装">pyinstaller安装</h2>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pip</span> <span class="n">install</span> <span class="n">pyinstaller</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>或者去网站下载到本地安装。</p>
+<h2 id="pyinstaller使用">pyinstaller使用</h2>
+<ol>
+  <li>命令格式
+命令为
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pyinstaller</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="n">script</span> <span class="p">[</span><span class="n">script</span><span class="p">]</span><span class="o">|</span><span class="n">specfile</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>最简单使用，命令行进入相关目录，运行</p>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">pyinstaller</span> <span class="n">myscript</span><span class="o">.</span><span class="n">py</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p>即可生成先关exe文件。</p>
+  </li>
+  <li>打包过程
+    <ul>
+      <li>在当前目录生成myscript.spec文件</li>
+      <li>在当前目录创建build文件夹</li>
+      <li>把一些log文件写入build文件夹</li>
+      <li>在当前目录创建dist文件夹</li>
+      <li>在dist文件夹下生成可执行文件</li>
+    </ul>
+  </li>
+  <li>常用参数详解
+    <ul>
+      <li>-y or –onconfirm
+不询问管理员权限</li>
+      <li>-D or –onedir
+只生成一个文件夹</li>
+      <li>-F or –onefile
+只生成一个exe文件</li>
+      <li>-n or –name 
+设置app文件名，默认和myscirpt.py同名</li>
+      <li>–add-data 
+添加非二进制资源文件</li>
+      <li>–add-binary
+添加非二进制资源文件</li>
+      <li>-hidden-import
+不可见导入包</li>
+      <li>-d or –debug
+调试模式，后可接all, imports, bootloader, noarchive</li>
+      <li>-i or –icon
+设置程序图标</li>
+      <li>-c or –console or –nowindowed
+打开控制台（cmd）</li>
+      <li>-w or –windowed or –noconsole
+不打开控制台（cmd）</li>
+    </ul>
+  </li>
+</ol>
+:ET

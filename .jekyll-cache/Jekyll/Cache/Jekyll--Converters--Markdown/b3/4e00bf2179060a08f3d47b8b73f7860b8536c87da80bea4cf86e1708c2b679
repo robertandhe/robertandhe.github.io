@@ -1,0 +1,50 @@
+I"�<h1 id="问题描述">问题描述：</h1>
+<p>Given a chemical formula (given as a string), return the count of each atom.
+An atomic element always starts with an uppercase character, then zero or more lowercase letters, representing the name.
+1 or more digits representing the count of that element may follow if the count is greater than 1. If the count is 1, no digits will follow. For example, H2O and H2O2 are possible, but H1O2 is impossible.
+Two formulas concatenated together produce another formula. For example, H2O2He3Mg4 is also a formula.
+A formula placed in parentheses, and a count (optionally added) is also a formula. For example, (H2O2) and (H2O2)3 are formulas.
+Given a formula, output the count of all elements as a string in the following form: the first name (in sorted order), followed by its count (if that count is more than 1), followed by the second name (in sorted order), followed by its count (if that count is more than 1), and so on.<br />
+Example 1:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> 
+<span class="n">formula</span> <span class="o">=</span> <span class="s">"H2O"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="s">"H2O"</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">count</span> <span class="n">of</span> <span class="n">elements</span> <span class="n">are</span> <span class="p">{</span><span class="sc">'H'</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="sc">'O'</span><span class="o">:</span> <span class="mi">1</span><span class="p">}.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Example 2:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> 
+<span class="n">formula</span> <span class="o">=</span> <span class="s">"Mg(OH)2"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="s">"H2MgO2"</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">count</span> <span class="n">of</span> <span class="n">elements</span> <span class="n">are</span> <span class="p">{</span><span class="sc">'H'</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="err">'</span><span class="n">Mg</span><span class="err">'</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="sc">'O'</span><span class="o">:</span> <span class="mi">2</span><span class="p">}.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Example 3:</p>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nl">Input:</span> 
+<span class="n">formula</span> <span class="o">=</span> <span class="s">"K4(ON(SO3)2)2"</span>
+<span class="n">Output</span><span class="o">:</span> <span class="s">"K4N2O14S4"</span>
+<span class="n">Explanation</span><span class="o">:</span> 
+<span class="n">The</span> <span class="n">count</span> <span class="n">of</span> <span class="n">elements</span> <span class="n">are</span> <span class="p">{</span><span class="sc">'K'</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span> <span class="sc">'N'</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="sc">'O'</span><span class="o">:</span> <span class="mi">14</span><span class="p">,</span> <span class="sc">'S'</span><span class="o">:</span> <span class="mi">4</span><span class="p">}.</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Note:</p>
+<ul>
+  <li>All atom names consist of lowercase letters, except for the first character which is uppercase.</li>
+  <li>The length of formula will be in the range [1, 1000].</li>
+  <li><code class="highlighter-rouge">formula</code> will only consist of letters, digits, and round parentheses, and is a valid formula as defined in the problem.</li>
+</ul>
+:ET
