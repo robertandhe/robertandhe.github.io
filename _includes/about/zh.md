@@ -1,4 +1,12 @@
-> 离开世界之前，一切都是过程。
+<!--
+ * @Author: your name
+ * @Date: 2020-02-03 10:05:29
+ * @LastEditTime : 2020-02-03 10:07:58
+ * @LastEditors  : Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \robertandhe.github.io\_includes\about\zh.md
+ -->
+<!-- > 离开世界之前，一切都是过程。
 
 Hi，我是黄玄，前端 Online NPC，编程语言/编译器初心者，[Facebook](https://www.facebook.com/) 签约软件工程师，[广院](https://baike.baidu.com/item/%E4%B8%AD%E5%9B%BD%E4%BC%A0%E5%AA%92%E5%A4%A7%E5%AD%A6)认证数字设计师。我曾被招募为阿里巴巴 · [阿里旅行（飞猪）](http://alitrip.com)· 前端工程师、微影时代 · 微票儿 · 前端基础设施工程团队负责人、[饿了么](https://ele.me/) · 大前端团队 · [PWA 顾问](https://medium.com/elemefe/upgrading-ele-me-to-progressive-web-app-2a446832e509) 等。
 
@@ -11,16 +19,15 @@ Hi，我是黄玄，前端 Online NPC，编程语言/编译器初心者，[Faceb
 
 > __从左到右__ 为喜欢程度，__从上到下__ 为了解程度，__版本__ 表示下界。
 
-|     | 💔️           | ❤️ ️                   | ❤️❤️ ️             | ❤️❤️❤️ ️               |
-| --- | ------------- | ---------------------- | ------------------ | ---------------------- |
-| 😅  | `PHP` `BASIC` | `ObjC` `Prolog` `Hack` | `Kotlin` `Dart`    | `Swift` `Agda` `Idris` |
-| 🧐  |               | `Asm` `C++`  `Lisp*`   | `C++11` `C#` `AS3` | `Scala` `Rust`         |
-| 😏  | `Shell`       | `C` `Java` `Python`    | `Typed JS*` `Wasm` | `Haskell` `Coq` `ML*`  |
-| 🤓  |               | `JavaScript`           | `ECMAScript6`      | `λ` `Λ` `Π` `Σ`        |
+|     | 💔️           | ❤️ ️                 | ❤️❤️ ️                     | ❤️❤️❤️ ️               |
+| --- | ------------- | -------------------- | -------------------------- | ---------------------- |
+| 😅  | `PHP` `BASIC` | `C` `ObjC` `Prolog`  | `Kotlin` `Dart` `Asm`      | `Swift` `Agda` `Idris` |
+| 🧐  |               | `C++` `Hack` `Lisp*` | `C++11` `C#` `AS3`         | `Scala` `Rust`         |
+| 😏  | `Shell`       | `Java` `Python`      | `TypeScript` `Flow` `Wasm` | `Haskell` `Coq` `ML*`  |
+| 🤓  |               | `JavaScript`         | `EcmaScript6`              | `λ` `Λ` `Π` `Σ`        |
 
 > __`ML*` 家族__：`OCaml` `ReasonML` `Standard ML`  
-> __`Lisp*` 家族__：`Clojure` `Scheme` `Racket`  
-> __`Typed JS*`__：`Flow` `TypeScript`
+> __`Lisp*` 家族__：`Clojure` `Scheme` `Racket`
 
 
 ##### 演讲与分享
@@ -43,4 +50,14 @@ Hi，我是黄玄，前端 Online NPC，编程语言/编译器初心者，[Faceb
 [6]: https://yanshuo.io/assets/player/?deck=58ac8598b123db0067292f92 "PWA Rehashing"
 [7]: https://yanshuo.io/assets/player/?deck=593ad6fbfe88c2006a0a0d6d "The State of PWA"
 [8]: https://yanshuo.io/assets/player/?deck=594d673d570c357d0698a950 "Building PWA"
-[9]: //huangxuan.me/jsconfcn2017/
+[9]: //huangxuan.me/jsconfcn2017/ -->
+
+
+> 冰冻三尺 非一日之寒 积土成山 非斯须之作
+
+Hi, 我是何新林，业余算法工程师，现就读于上海交通大学。研究方向为数据挖掘，视觉追踪。
+<p>这是我利用<a href="https://pages.github.com/">GitHub Pages</a>与<a href="http://jekyll.com.cn/">Jekyll</a>搭建的个人博客。</p>
+<p>我在GitHub的主页<a href="https://www.github.com/robertandhe">GitHub</a></p>
+
+##### 编程语言倾向
+C++ python

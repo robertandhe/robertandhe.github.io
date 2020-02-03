@@ -1,23 +1,35 @@
+# # Site settings
+# title: Hux Blog
+# SEOTitle: 黄玄的博客 | Hux Blog
+# header-img: img/home-bg.jpg
+# email: huxpro@gmail.com
+# description: "关于程序与设计、黑客与画家 | 黄玄，Web & Mobile Lover，Software Engineer，UX Designer | 这里是 @Hux黄玄 的个人博客，与你一起发现更大的世界。"
+# keyword: "黄玄, Hux黄玄, Hux, 鬼栈, huxpro, @huxpro, 黄玄的博客, Hux Blog, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计"
+# url: "https://huangxuan.me"              # your host, for absolute URL
+# baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
+
 # Site settings
-title: Hux Blog
-SEOTitle: 黄玄的博客 | Hux Blog
+title: Mudux Blog
+SEOTitle: Mudux 的博客 | Mudux Blog
 header-img: img/home-bg.jpg
-email: huxpro@gmail.com
-description: "关于程序与设计、黑客与画家 | 黄玄，Web & Mobile Lover，Software Engineer，UX Designer | 这里是 @Hux黄玄 的个人博客，与你一起发现更大的世界。"
-keyword: "黄玄, Hux黄玄, Hux, 鬼栈, huxpro, @huxpro, 黄玄的博客, Hux Blog, 博客, 个人网站, 互联网, Web, JavaScript, 前端, 设计"
-url: "https://huangxuan.me"              # your host, for absolute URL
+email: alston9721@gmail.com
+description: "关于程序与算法 | 何新林，Algorithm Engineering, SJTU, SCUT, SHUFE， | 这里是 mudux 的个人博客，与你一起发现更大的世界。"
+keyword: "何新林，mudux, alston"
+url: "https://robertandhe.github.io"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
+
 
 # Publish posts or collection documents with a future date.
 future: true
 
 # SNS settings
 RSS: false
-weibo_username:     huxpro
-zhihu_username:     huxpro
-github_username:    huxpro
-twitter_username:   huxpro
-#facebook_username:  huxpro
+weibo_username:     15913129385
+# zhihu_username:     mudux
+zhihu_username:     he-xin-lin-35
+github_username:    robertandhe
+twitter_username:   mudux2
+facebook_username:  robertandhe
 #linkedin_username:  firstname-lastname-idxxxx
 
 
@@ -59,7 +71,7 @@ kramdown:
 
 
 # Disqus settings
-disqus_username: hux
+disqus_username: mudux
 
 # Netease settings
 netease_comment: false
@@ -70,22 +82,42 @@ netease_comment: false
 # Baidu Analytics 
 # ba_track_id: [your track id]
 
+# # Google Analytics
+# ga_track_id: 'UA-49627206-1'            # Format: UA-xxxxxx-xx
+# ga_domain: huangxuan.me
+
+# Gitalk
+# gitalk:
+#   enable: true    #是否开启Gitalk评论
+#   clientID: f2c84e7629bb1446c1a4                            #生成的clientID
+#   clientSecret: ca6d6139d1e1b8c43f8b2e19492ddcac8b322d0d    #生成的clientSecret
+#   repo: qiubaiying.github.io    #仓库名称
+#   owner: qiubaiying    #github用户名
+#   admin: qiubaiying
+#   distractionFreeMode: true #是否启用类似FB的阴影遮罩
+
+
 # Google Analytics
-ga_track_id: 'UA-49627206-1'            # Format: UA-xxxxxx-xx
-ga_domain: huangxuan.me
+ga_track_id: 'UA-148436385-1'            # Format: UA-xxxxxx-xx
+ga_domain: hexinlin.top
 
 
+# add by alston 2019-10-08
+# Analytics settings
+# Baidu Analytics
+ba_track_id: b50bf2b12b5338a1845e33832976fd68
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "For the next quantum leap<br>离开世界之前，一切都是过程"
-sidebar-avatar: /img/avatar-hux-ny.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+# sidebar-about-description: "For the next quantum leap<br>离开世界之前，一切都是过程"
+sidebar-about-description: "What's past is prologue<br>凡是过往 皆为序章"
+sidebar-avatar: /img/gakki.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
 # Featured Tags
 featured-tags: true                     # whether or not using Feature-Tags
-featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
+featured-condition-size: 0              # A tag will be featured if the size of it is more than this condition value
 
 
 
@@ -96,41 +128,67 @@ service-worker: true
 
 
 # MathJax rendering for layout:page (e.g. post preview)
-page-mathjax: false
+page-mathjax: true
 
-
-
-# Friends
 friends: [
     {
-    #     title: "Su",
-    #     href: "http://su.gallery/"
-    # },{
-        title: "乱序",
-        href: "http://mida.re/"
+        title: 'google',
+        href: 'http://www.google.com'
     },{
-        title: "Sherry Wu",
-        href: "https://xuechundesign.github.io"
+        title: 'huya',
+        href: 'http://www.huya.com'
     },{
-        title: "Luke 的自留地",
-        href: "http://hmqk1995.github.io"
+        title: 'gratuate school',
+        href: 'http://www.sjtu.edu.cn'
     },{
-        title: "Ebn's Blog",
-        href: "http://ebnbin.com/"
+      title: 'leetcode',
+      href: 'http://leetcode.com'
     },{
-        title: "SmdCn's Blog",
-        href: "http://blog.smdcn.net"
+      title: 'scikit-learn',
+      href: 'https://scikit-learn.org/stable/modules/classes.html'
     },{
-        title: "JiyinYiyong",
-        href: "http://tiye.me/"
-    },{
-        title: "David's Game",
-        href: "https://www.ruoyaowu.com/"
-    },{
-        title: "DHong Say",
-        href: "http://dhong.co"
-    },{
-        title: "尹峰以为",
-        href: "http://ingf.github.io/"
+      title: 'tensorflow',
+      href: 'https://tensorflow.google.cn/api_docs/python/tf'
     }
 ]
+
+# Friends
+# friends: [
+#     {
+#     #     title: "Su",
+#     #     href: "http://su.gallery/"
+#     # },{
+#         title: "乱序",
+#         href: "http://mida.re/"
+#     },{
+#         title: "前端外刊评论",
+#         href: "http://qianduan.guru/"
+#     },{
+#         title: "天镶的博客",
+#         href: "http://lingyu.wang/"
+#     },{
+#         title: "Luke 的自留地",
+#         href: "http://hmqk1995.github.io"
+#     },{
+#         title: "Ebn's Blog",
+#         href: "http://ebnbin.com/"
+#     },{
+#         title: "SmdCn's Blog",
+#         href: "http://blog.smdcn.net"
+#     },{
+#         title: "David's Game",
+#         href: "https://www.ruoyaowu.com/"
+#     },{
+#         title: "DHong Say",
+#         href: "http://dhong.co"
+#     },{
+#         title: "尹峰以为",
+#         href: "http://ingf.github.io/"
+#     },{
+#         title: "解旻的博客",
+#         href: "http://xieminis.me/"
+#     }
+# ]
+
+
+
