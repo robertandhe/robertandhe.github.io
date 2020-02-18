@@ -1,0 +1,118 @@
+I"s1<p>最近在学习推荐系统时，在很多模型如FM，FFM和DeepFM中对离散特征都使用了embedding方法，把稀疏特征映射为密集向量。这里总结下tensorflow中embedding的使用。</p>
+
+<h3 id="1-embedding_lookup等同于one-hot相乘">1. embedding_lookup等同于one-hot相乘</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">'embedding'</span><span class="p">,</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">random_uniform_initializer</span><span class="p">)</span>
+<span class="n">cat_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">get_embedding1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">cat_feature</span><span class="p">)</span>
+<span class="n">cat_feature_one_hot</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">cat_feature</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">get_embedding2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">cat_feature_one_hot</span><span class="p">,</span><span class="n">embedding</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+    <span class="n">embedding1</span><span class="p">,</span><span class="n">embedding2</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">get_embedding1</span><span class="p">,</span><span class="n">get_embedding2</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">embedding1</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">embedding2</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>输出为：
+[[0.54882884 0.23241234 0.41473126 0.9396106 ]
+ [0.5108671  0.01206315 0.553378   0.84107137]
+ [0.5031127  0.3810377  0.7152388  0.06897962]
+ [0.69333184 0.15539801 0.40856004 0.9438031 ]]
+[[0.54882884 0.23241234 0.41473126 0.9396106 ]
+ [0.5108671  0.01206315 0.553378   0.84107137]
+ [0.5031127  0.3810377  0.7152388  0.06897962]
+ [0.69333184 0.15539801 0.40856004 0.9438031 ]]</p>
+
+<p>可以看出embedding_lookup等同于embedding矩阵乘以one-hot向量。</p>
+
+<p>### 2. embedding联合gather单维索引
+ 通过gather获取对应位置embeddding。</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre> <span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.21</span><span class="p">,</span><span class="mf">0.41</span><span class="p">,</span><span class="mf">0.51</span><span class="p">,</span><span class="mf">0.11</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.22</span><span class="p">,</span><span class="mf">0.42</span><span class="p">,</span><span class="mf">0.52</span><span class="p">,</span><span class="mf">0.12</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.23</span><span class="p">,</span><span class="mf">0.43</span><span class="p">,</span><span class="mf">0.53</span><span class="p">,</span><span class="mf">0.13</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.24</span><span class="p">,</span><span class="mf">0.44</span><span class="p">,</span><span class="mf">0.54</span><span class="p">,</span><span class="mf">0.14</span><span class="p">]</span>
+    <span class="p">],</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">index_a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>    
+<span class="n">gather_a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">index_a</span><span class="p">)</span>
+<span class="n">gather_a_axis1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span><span class="n">index_a</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gather_a</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">gather_a_axis1</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>输出为：
+[[0.23 0.43 0.53 0.13]
+ [0.24 0.44 0.54 0.14]
+ [0.22 0.42 0.52 0.12]
+ [0.21 0.41 0.51 0.11]]
+[[0.51 0.11 0.41 0.21]
+ [0.52 0.12 0.42 0.22]
+ [0.53 0.13 0.43 0.23]
+ [0.54 0.14 0.44 0.24]]</p>
+
+<p>### 3. embedding联合gather多维索引</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre> <span class="n">a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">]])</span>
+<span class="n">index_a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">'b'</span><span class="p">,</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">random_normal_initializer</span><span class="p">)</span>
+<span class="n">index_b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">index_a</span><span class="p">)))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">index_b</span><span class="p">)))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>输出为：<br />
+ [11 12 13 14 15]
+[[[ 0.01930716 -0.62254894]
+  [ 1.3473835   1.840278  ]
+  [-0.85062003  1.1773872 ]]</p>
+
+<p>[[ 0.07472491 -1.1163161 ]
+  [-1.9266038   0.7734673 ]
+  [ 0.5189785  -0.4816973 ]]</p>
+
+<p>[[ 0.65923125  1.0562596 ]
+  [-0.71715087 -1.7175527 ]
+  [ 0.80931383 -0.84878135]]]
+[1.840278   0.80931383]</p>
+:ET

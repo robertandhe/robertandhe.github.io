@@ -1,0 +1,761 @@
+I"�<p> <a href="https://hexinlin.top/2020/02/03/logistic/">上个博客</a>详细介绍了logistic回归理论知识，这里讲解如何实现logistic回归。</p>
+
+<h2 id="1-cpp实现">1. CPP实现</h2>
+
+<h3 id="11-logistich文件">1.1 logistic.h文件</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+</span>
+<span class="k">class</span> <span class="nc">LogisticRegression</span><span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">LogisticRegression</span><span class="p">(</span><span class="kt">double</span> <span class="n">learningRate</span><span class="p">,</span> <span class="kt">int</span> <span class="n">iteration</span><span class="p">);</span>
+
+    <span class="o">~</span><span class="n">LogisticRegression</span><span class="p">();</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">input</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">sigmoid</span><span class="p">(</span><span class="kt">double</span><span class="p">);</span>
+    
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">fit</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">y</span><span class="p">);</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">batchGradDescent</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">y</span><span class="p">);</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">predict</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">testData</span><span class="p">);</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">predict_proba</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">score</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">y</span><span class="p">);</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">get_weights</span><span class="p">();</span>
+ 
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">weights</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">learningRate</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">iteration</span><span class="p">;</span>
+<span class="p">};</span>
+
+
+<span class="n">LogisticRegression</span><span class="o">::</span><span class="n">LogisticRegression</span><span class="p">(</span><span class="kt">double</span> <span class="n">learningRate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="kt">int</span> <span class="n">iteration</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">learningRate</span> <span class="o">=</span> <span class="n">learningRate</span><span class="p">;</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">iteration</span> <span class="o">=</span> <span class="n">iteration</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">LogisticRegression</span><span class="o">::~</span><span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="p">{</span>
+    
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">input</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">res</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="kt">double</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">sigmoid</span><span class="p">(</span><span class="kt">double</span> <span class="n">in</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">in</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">fit</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">batchGradDescent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">weights</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">batchGradDescent</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ite</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ite</span> <span class="o">&lt;</span> <span class="n">iteration</span><span class="p">;</span> <span class="o">++</span><span class="n">ite</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">t</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">double</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">sum</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+            <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">h</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">err</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">err</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">double</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">sum</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">err</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+            <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">learningRate</span> <span class="o">*</span> <span class="n">sum</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">weights</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">predict</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">testData</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">testData</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">n</span> <span class="o">=</span> <span class="n">testData</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">!=</span> <span class="n">weights</span><span class="p">.</span><span class="n">size</span><span class="p">()){</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Fatal error! unequal length of test data and weights"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ans</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">double</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+    
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">testData</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+        <span class="c1">// sum = sigmoid(sum);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sum</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">ans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">else</span>
+            <span class="n">ans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">!=</span> <span class="n">weights</span><span class="p">.</span><span class="n">size</span><span class="p">()){</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"Fatal error! unequal length of test data and weights"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">t</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">double</span> <span class="n">sum</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+            <span class="n">sum</span> <span class="o">+=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+        <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">ans</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">));</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>        
+    <span class="p">{</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="n">ans</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="kt">double</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">score</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&amp;</span> <span class="n">x</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="o">++</span><span class="n">cnt</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">cnt</span> <span class="o">/</span> <span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">m</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">LogisticRegression</span><span class="o">::</span><span class="n">get_weights</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">weights</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="12-测试一下">1.2 测试一下</h3>
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;fstream&gt;
+#include &lt;sstream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;iterator&gt;
+#include "logistic.h"
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">ifstream</span> <span class="n">in</span><span class="p">(</span><span class="s">".</span><span class="se">\\</span><span class="s">horseColicTraining.txt"</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">.</span><span class="n">is_open</span><span class="p">()){</span>
+        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"fatal error！ unable to open file"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">data</span><span class="p">;</span>
+    <span class="n">stringstream</span> <span class="n">ins</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">s</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">getline</span><span class="p">(</span><span class="n">in</span><span class="p">,</span> <span class="n">s</span><span class="p">)){</span>
+        <span class="n">ins</span> <span class="o">&lt;&lt;</span> <span class="n">s</span><span class="p">;</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">row</span><span class="p">;</span>
+        <span class="kt">double</span> <span class="n">t</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">ins</span> <span class="o">&gt;&gt;</span> <span class="n">t</span><span class="p">){</span>
+            <span class="n">row</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">data</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+        <span class="n">ins</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">in</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">trainX</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">trainY</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">trainY</span><span class="p">.</span><span class="n">push_back</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">back</span><span class="p">());</span>
+        <span class="n">trainX</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">trainX</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pop_back</span><span class="p">();</span>
+    <span class="p">}</span>
+    
+    <span class="n">in</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="s">".</span><span class="se">\\</span><span class="s">horseColicTest.txt"</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">.</span><span class="n">is_open</span><span class="p">()){</span>
+        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">"fatal error！ unable to open file"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">data2</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">getline</span><span class="p">(</span><span class="n">in</span><span class="p">,</span> <span class="n">s</span><span class="p">)){</span>
+        <span class="n">ins</span> <span class="o">&lt;&lt;</span> <span class="n">s</span><span class="p">;</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">row</span><span class="p">;</span>
+        <span class="kt">double</span> <span class="n">t</span><span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">ins</span> <span class="o">&gt;&gt;</span> <span class="n">t</span><span class="p">){</span>
+            <span class="n">row</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">data2</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">row</span><span class="p">);</span>
+        <span class="n">ins</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">in</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">testX</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">testY</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">data2</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">testY</span><span class="p">.</span><span class="n">push_back</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">data2</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">back</span><span class="p">());</span>
+        <span class="n">testX</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">data2</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">testX</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">pop_back</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="n">LogisticRegression</span> <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">();</span>
+    <span class="n">lr</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">trainX</span><span class="p">,</span> <span class="n">trainY</span><span class="p">);</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">lr</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">testX</span><span class="p">);</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Predict labels:"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">:</span> <span class="n">pred</span><span class="p">)</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">prob</span> <span class="o">=</span> <span class="n">lr</span><span class="p">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">testX</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">acc</span> <span class="o">=</span> <span class="n">lr</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">testX</span><span class="p">,</span> <span class="n">testY</span><span class="p">);</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Accuracy:"</span> <span class="o">&lt;&lt;</span> <span class="n">acc</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">lr</span><span class="p">.</span><span class="n">get_weights</span><span class="p">();</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Weights:"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">double</span><span class="o">&amp;</span> <span class="n">w</span> <span class="o">:</span> <span class="n">weights</span><span class="p">)</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">w</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>  
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出为：</p>
+
+<p><img src="https://gitee.com/alston972/MarkDownPhotos/raw/master/2020-02-03/cppTest.PNG" alt="cppTest" /></p>
+
+<h2 id="2-python实现">2. Python实现</h2>
+<h3 id="21-logisticpy文件">2.1 logistic.py文件</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+
+<span class="k">class</span> <span class="nc">LogisticRegressionClassifier</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learingRate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">iteration</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">'stochastic'</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learingRate</span> <span class="o">=</span> <span class="n">learingRate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration</span> <span class="o">=</span> <span class="n">iteration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method_</span> <span class="o">=</span> <span class="s">'stochastic'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inX</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">inX</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method_</span> <span class="o">==</span> <span class="s">'stochastic'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stocGradDescent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method_</span> <span class="o">==</span> <span class="s">'batch'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchGradDescent</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            
+    <span class="k">def</span> <span class="nf">batchGradDescent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iteration</span><span class="p">):</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">weights</span><span class="p">))</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">h</span> <span class="o">-</span> <span class="n">y</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">learingRate</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights_</span> <span class="o">=</span> <span class="n">weights</span>
+        <span class="k">return</span> <span class="n">weights</span>
+    
+    
+    <span class="k">def</span> <span class="nf">stocGradDescent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iteration</span><span class="p">):</span>
+            <span class="n">dataIndex</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">j</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">learingRate</span>
+                <span class="n">randIndex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataIndex</span><span class="p">))</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">randIndex</span><span class="p">,</span> <span class="p">:],</span> <span class="n">weights</span><span class="p">))</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="n">h</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">randIndex</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">randIndex</span><span class="p">,</span> <span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">error</span> <span class="o">*</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights_</span> <span class="o">=</span> <span class="n">weights</span>
+        <span class="k">return</span> <span class="n">weights</span>
+
+    
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">testData</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_is_fitted</span><span class="p">(</span><span class="s">'weights_'</span><span class="p">)</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">testData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights_</span><span class="p">))</span>    
+        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">testData</span><span class="p">)</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">prob</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">pred</span>
+
+
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">testData</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_is_fitted</span><span class="p">(</span><span class="s">'weights_'</span><span class="p">)</span>
+        <span class="n">probPos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">testData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights_</span><span class="p">))</span> 
+        <span class="n">probNeg</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">probPos</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">probNeg</span><span class="p">,</span> <span class="n">probPos</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prob</span>
+        
+    <span class="k">def</span> <span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_is_fitted</span><span class="p">(</span><span class="s">'weights_'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights_</span>
+
+    <span class="k">def</span> <span class="nf">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">all_or_any</span><span class="o">=</span><span class="nb">all</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">msg</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+           <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">"This </span><span class="si">%(name)</span><span class="s">s instance is not fitted yet. Call 'fit' with "</span>
+                   <span class="s">"appropriate arguments before using this method."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">'fit'</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span><span class="s">"This is not an estimator instance."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">attributes</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_or_any</span><span class="p">([</span><span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span><span class="n">msg</span> <span class="o">%</span> <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">})</span>
+
+    
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">testData</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">testData</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pred</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="22-测试一下">2.2 测试一下</h3>
+<p>logisticTest.py文件</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">logistic</span> <span class="kn">import</span> <span class="n">LogisticRegressionClassifier</span>
+
+<span class="n">trainData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'./logistic/horseColicTraining.txt'</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">' '</span><span class="p">)</span>
+<span class="n">trainData</span> <span class="o">=</span> <span class="n">trainData</span><span class="o">.</span><span class="n">values</span>
+<span class="n">trainX</span> <span class="o">=</span> <span class="n">trainData</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">trainY</span> <span class="o">=</span> <span class="n">trainData</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">testData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'./logistic/horseColictest.txt'</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">' '</span><span class="p">)</span>
+<span class="n">testData</span> <span class="o">=</span> <span class="n">testData</span><span class="o">.</span><span class="n">values</span>
+<span class="n">testX</span> <span class="o">=</span> <span class="n">testData</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">testY</span> <span class="o">=</span> <span class="n">testData</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegressionClassifier</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">trainX</span><span class="p">,</span> <span class="n">trainY</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">testX</span><span class="p">,</span> <span class="n">testY</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Accuracy:"</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>输出为：</p>
+
+<p><img src="https://gitee.com/alston972/MarkDownPhotos/raw/master/2020-02-03/pythonTest.PNG" alt="pythonTest" /></p>
+
+<h2 id="3-sklearn库实现">3. sklearn库实现</h2>
+<p>skLogistic.py文件</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">trainData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'./logistic/horseColicTraining.txt'</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">' '</span><span class="p">)</span>
+<span class="n">trainData</span> <span class="o">=</span> <span class="n">trainData</span><span class="o">.</span><span class="n">values</span>
+<span class="n">trainX</span> <span class="o">=</span> <span class="n">trainData</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">trainY</span> <span class="o">=</span> <span class="n">trainData</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">testData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'./logistic/horseColictest.txt'</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">' '</span><span class="p">)</span>
+<span class="n">testData</span> <span class="o">=</span> <span class="n">testData</span><span class="o">.</span><span class="n">values</span>
+<span class="n">testX</span> <span class="o">=</span> <span class="n">testData</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">testY</span> <span class="o">=</span> <span class="n">testData</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">trainX</span><span class="p">,</span> <span class="n">trainY</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">testX</span><span class="p">,</span> <span class="n">testY</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Accuracy:"</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>输出为：</p>
+
+<p><img src="https://gitee.com/alston972/MarkDownPhotos/raw/master/2020-02-03/skLR.PNG" alt="skLR" /></p>
+
+<p> <strong>可以看出自编CPP和PYTHON实现准确率一样，权重也差不多，符合预期，sklearn库实现上有少许差别，但结果基本差不多，符合预期。</strong></p>
+
+<h2 id="4-reference">4. Reference</h2>
+<p>机器学习实战-第5章<br />
+<a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression">sklearn-LR</a></p>
+:ET

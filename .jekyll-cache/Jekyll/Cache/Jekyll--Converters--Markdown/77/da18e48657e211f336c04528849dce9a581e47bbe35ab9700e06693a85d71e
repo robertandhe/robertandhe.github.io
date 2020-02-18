@@ -1,7 +1,8 @@
-I"�S<h2 id="1-应用背景">1. 应用背景</h2>
+I"�j<h2 id="1-应用背景">1. 应用背景</h2>
 
-<p> 在计算广告和推荐系统中，CTR预估(click-through rate)和转化率CVR(conversion rate)估计是非常重要的一个环节。判断一个物品是否进行推荐需要根据CTR预估的点击率排序决定。业界常用的方法有人工特征工程+<a href="https://hexinlin.top/2020/02/03/logistic/">LR</a>(Logistic Regression)、GBDT(Gradient Boosting Decision Tree) + LR、FM(Factorization Machine)和FFM(Field-aware Factorization Machine)等。在这些模型中，FM和FFM近年来表现突出，分别在由<a href="https://www.kaggle.com/c/criteo-display-ad-challenge">Criteo</a>和<a href="https://www.kaggle.com/c/avazu-ctr-prediction">Avazu</a>举办的CTR预测竞赛中夺得冠军。<br />
- 在进行CTR预估时，除了单特征外，往往要对特征进行组合。对于特征组合来说，业界现在通用的做法主要有两大类:FM系列与Tree系列。<br />
+<p> 在计算广告和推荐系统中，CTR预估(click-through rate)和转化率CVR(conversion rate)估计是非常重要的一个环节。判断一个物品是否进行推荐需要根据CTR预估的点击率排序决定。业界常用的方法有人工特征工程+<a href="https://hexinlin.top/2020/02/03/logistic/">LR</a>(Logistic Regression)、GBDT(Gradient Boosting Decision Tree) + LR、FM(Factorization Machine)和FFM(Field-aware Factorization Machine)等。<br />
+ 在进行CTR预估时，除了单特征外，往往要对特征进行组合。对于特征组合来说，业界现在通用的做法主要有两大类:FM系列与Tree系列。  <br />
+ 2010年，日本大阪大学(Osaka University)的 Steffen Rendle 在矩阵分解(MF)、SVD++、PITF、FPMC等基础之上，归纳出针对高维稀疏数据的因子机(Factorization Machine, FM)模型。因子机模型可以将上述模型全部纳入一个统一的框架进行分析。并且，Steffen Rendle 实现了一个单机多线程版本的 <a href="http://www.libfm.org/">libFM</a>。在随后的<a href="https://www.kaggle.com/c/kddcup2012-track2">KDD Cup 2012，track2 广告点击率预估(pCTR)</a>中，国立台湾大学和 Opera Solutions两只队伍都采用了 FM，并获得大赛的冠亚军而使得 FM 名声大噪。随后，台湾大学的 Yuchin Juan 等人在总结自己在两次比赛中的经验以及 Opera Solutions 队伍中使用的 FM 模型的总结，提出了一般化的 FFM 模型，并实现了单机多线程版的<a href="https://www.csie.ntu.edu.tw/~cjlin/libffm/">libFFM</a>，并做了深入的试验研究。事实上，Opera Solutions 在比赛中用的 FM 就是FFM。  <br />
  最近几年出现了许多基于FM改进的方法，如deepFM，FNN，PNN，DCN，xDeepFM等，这些后面介绍。这里主要讲解FM算法。</p>
 
 <h2 id="2-预测任务">2. 预测任务</h2>
@@ -104,23 +105,19 @@ X = \left(
 
 <script type="math/tex; mode=display">\widehat y\left( x \right) = {w_0} + \sum\limits_{i = 1}^n {w_ix_i}  + \sum\limits_{i = 1}^{n - 1} {\sum\limits_{j = i + 1}^n {w_{ij}x_ix_j} } \tag{3.2}</script>
 
-<p> 这样任意连个互异特征分量之间的关系也考虑进来了。不过，这种直接在$x_ix_j$前面配上一个系数$w_{ij}$的方式在稀疏数据中有一个很大的缺陷，例如在上例中，观测集$S$中没有Alice评价电影Star Trek的记录，如果直接估计Alice(A)和Star Trek(ST)之间，或者说特征分量$x_A$和$x_{ST}$之间的相互关系，显然会得到系数$w_{A,ST}=0$。即对于观测样本中未出现过交互的特征分量，不能对相应的参数进行估计。注意，在高度稀疏数据场景中，由于数据量的不足，样本中出现未交互的特征分量是很普遍的。</p>
-
-<p> 为克服这个缺陷，在系数$w_{ij}$上做文章，将其表示成另外的形式。为此，针对每个维度的特征分量$x_i$，引入辅助分量</p>
+<p> 这样任意连个互异特征分量之间的关系也考虑进来了。不过，这种直接在$x_ix_j$前面配上一个系数$w_{ij}$的方式在稀疏数据中有一个很大的缺陷，例如在上例中，观测集$S$中没有Alice评价电影Star Trek的记录，如果直接估计Alice(A)和Star Trek(ST)之间，或者说特征分量$x_A$和$x_{ST}$之间的相互关系，显然会得到系数$w_{A,ST}=0$。即对于观测样本中未出现过交互的特征分量，不能对相应的参数进行估计。注意，在高度稀疏数据场景中，由于数据量的不足，样本中出现未交互的特征分量是很普遍的。<br />
+ 为克服这个缺陷，在系数$w_{ij}$上做文章，将其表示成另外的形式。为此，针对每个维度的特征分量$x_i$，引入辅助分量</p>
 
 <script type="math/tex; mode=display">{v_i} = {\left( {v_{i1},v_{i2},...,v_{ik}} \right)^T} \in {R^k},i = 1,2,...,n\tag{3.3}</script>
 
 <p> 其中$k \in {N^ + }$为超参数，并将$w_{ij}$改写为</p>
 
-<script type="math/tex; mode=display">{\widehat w_{ij}} = v_i^T{v_j} = \sum\limits_{l = 1}^k {v_{il}v_{jl}} \tag{3.4}</script>
+<p><script type="math/tex">{\widehat w_{ij}} = v_i^T{v_j} = \sum\limits_{l = 1}^k {v_{il}v_{jl}} \tag{3.4}</script><br />
+ 这样就能克服上面提到的缺陷了?我们粗略地分析一下。在观测数据中，Bob(B)对Star Wars(SW)和Star Trek(ST)的评分差不多，由此可认为它们对应的辅助向量$v_{ST}$和$v_{SW}$也比较相似。从而，利用$\widehat w_{A,SW}$就可以对$\widehat w_{A,ST}$进行估计了。(当然，这里并不是说，真的要先计算出$\widehat w_{A,SW}$然后用它作为$\widehat w_{A,ST}$的近似。因为这些性质都是观测数据中内在的，我们要做的只是建好模型，让模型在训练阶段自动去学习。)  <br />
+ 于是，函数$\widehat y$可以进一步改写为</p>
 
-<p> 这样就能克服上面提到的缺陷了?我们粗略地分析一下。在观测数据中，Bob(B)对Star Wars(SW)和Star Trek(ST)的评分差不多，由此可认为它们对应的辅助向量$v_{ST}$和$v_{SW}$也比较相似。从而，利用$\widehat w_{A,SW}$就可以对$\widehat w_{A,ST}$进行估计了。(当然，这里并不是说，真的要先计算出$\widehat w_{A,SW}$然后用它作为$\widehat w_{A,ST}$的近似。因为这些性质都是观测数据中内在的，我们要做的只是建好模型，让模型在训练阶段自动去学习。)</p>
-
-<p> 于是，函数$\widehat y$可以进一步改写为</p>
-
-<script type="math/tex; mode=display">\widehat y\left( x \right) = {w_0} + \sum\limits_{i = 1}^n {w_ix_i}  + \sum\limits_{i = 1}^{n - 1} {\sum\limits_{j = i + 1}^n {\left( {v_i^T{v_j}} \right)x_ix_j} } \tag{3.5}</script>
-
-<p> 从数学的角度来看，(3.2)和(3.5)的主要区别在哪呢？对于交叉项$x_ix_j$的系数，前者用的是$w_{ij}$，后者用的是$\widehat y_{ij}$。为更好地看清楚它们之间的关系，引入几个矩阵。</p>
+<p><script type="math/tex">\widehat y\left( x \right) = {w_0} + \sum\limits_{i = 1}^n {w_ix_i}  + \sum\limits_{i = 1}^{n - 1} {\sum\limits_{j = i + 1}^n {\left( {v_i^T{v_j}} \right)x_ix_j} } \tag{3.5}</script><br />
+ 从数学的角度来看，(3.2)和(3.5)的主要区别在哪呢？对于交叉项$x_ix_j$的系数，前者用的是$w_{ij}$，后者用的是$\widehat y_{ij}$。为更好地看清楚它们之间的关系，引入几个矩阵。</p>
 
 <ul>
   <li>将${v_i}_{i=1}^n$按行拼接成的矩阵$V$</li>
@@ -192,13 +189,10 @@ W&=&VV^T=\left(
 \right)_{n \times n}
 \end{array}\tag{3.8} %]]></script>
 
-<p> 由此可见，(3.2)和(3.5)分别采用了交互矩阵$W$和$\widehat W$的<strong>非对角线</strong>元素作为$x_ix_j$的系数。由于$\widehat W=VV^T$是一种<a href="">矩阵分解</a>。因此将这种以(3.5)作为模型方程的方法称为Factorization Machines方法。</p>
-
-<p> 那么$VV^T$的表达能力怎么样呢？即任意给定一个交互矩阵$\widehat W$，能否找到相应的分解矩阵$V$呢？答案是肯定的，这里需要用到一个结论“<strong>当$k$足够大时，对于任意对称正定的实矩阵$\widehat W \in R^{n \times n}$，均存在实矩阵$V \in R^{n \times k}$，使得成立$\widehat w = VV^T$</strong>”。</p>
-
-<p> 由于(3.5)中只涉及满足$i&lt;j$的$x_ix_j$，因此$\widehat W$的对称性没有问题，那如何保证$\widehat W$的正定性呢？注意，我们只关心互异特征分量之间的相互关系，因此$\widehat W$的对角线元素是可以任意取值的，只需将它们取得足够大（例如保证行元素满足严格对角占优），就可以保证$\widehat W$的正定性。</p>
-
-<p> 理论分析中，我们要求参数$k$取得足够大，但是，在高度稀疏数据场景中，由于没有足够的样本来估计复杂的交互矩阵，因此$k$通常应取得很小。事实上，对参数$k$(亦即FM的表达能力)的限制，在一定程度上可以提高模型的泛化能力。这种能够利用$\widehat W$的低秩近似的性质也是FM的一个优势。</p>
+<p> 由此可见，(3.2)和(3.5)分别采用了交互矩阵$W$和$\widehat W$的<strong>非对角线</strong>元素作为$x_ix_j$的系数。由于$\widehat W=VV^T$是一种<a href="">矩阵分解</a>。因此将这种以(3.5)作为模型方程的方法称为Factorization Machines方法。<br />
+ 那么$VV^T$的表达能力怎么样呢？即任意给定一个交互矩阵$\widehat W$，能否找到相应的分解矩阵$V$呢？答案是肯定的，这里需要用到一个结论“<strong>当$k$足够大时，对于任意对称正定的实矩阵$\widehat W \in R^{n \times n}$，均存在实矩阵$V \in R^{n \times k}$，使得成立$\widehat w = VV^T$</strong>”。<br />
+ 由于(3.5)中只涉及满足$i&lt;j$的$x_ix_j$，因此$\widehat W$的对称性没有问题，那如何保证$\widehat W$的正定性呢？注意，我们只关心互异特征分量之间的相互关系，因此$\widehat W$的对角线元素是可以任意取值的，只需将它们取得足够大（例如保证行元素满足严格对角占优），就可以保证$\widehat W$的正定性。  <br />
+ 理论分析中，我们要求参数$k$取得足够大，但是，在高度稀疏数据场景中，由于没有足够的样本来估计复杂的交互矩阵，因此$k$通常应取得很小。事实上，对参数$k$(亦即FM的表达能力)的限制，在一定程度上可以提高模型的泛化能力。这种能够利用$\widehat W$的低秩近似的性质也是FM的一个优势。</p>
 
 <h3 id="32-复杂度分析">3.2 复杂度分析</h3>
 
@@ -206,15 +200,13 @@ W&=&VV^T=\left(
 
 <script type="math/tex; mode=display">w_0 \in R, \rm \in R^n, V \in R^{n \times k}</script>
 
-<p> 共有$1+n+nk$个参数，其中$w_0$为整体的偏置量，$\rm w$对特征向量的各个分量的强度进行建模，$V$对特征向量中任意两个分量之间的关系进行了建模。</p>
-
-<p> 那么，模型方程(3.5)的<strong>计算复杂度</strong>如何？直接从公式来看，其计算复杂度为</p>
+<p> 共有$1+n+nk$个参数，其中$w_0$为整体的偏置量，$\rm w$对特征向量的各个分量的强度进行建模，$V$对特征向量中任意两个分量之间的关系进行了建模。<br />
+ 那么，模型方程(3.5)的<strong>计算复杂度</strong>如何？直接从公式来看，其计算复杂度为</p>
 
 <script type="math/tex; mode=display">{n+(n-1)}+{\frac {n(n-1)}{2}[k+(k-1)+2]+\frac{n(n-1)}{2}-1}+2=O(kn^2)</script>
 
-<p> 其中第一个花括号对应$\sum \limits_{i=1}^n w_ix_i$的加法和乘法操作数，第二个括号对应$\sum \limits_{i=1}^{n-1}\sum \limits_{j=i+1}^{n}(\rm v_i^T v_j)x_ix_j$的加法和乘法操作数。</p>
-
-<p> 如果对(3.5)进行改写，可将其计算复杂度降成线性的$O(kn)$，具体推导过程如下。</p>
+<p> 其中第一个花括号对应$\sum \limits_{i=1}^n w_ix_i$的加法和乘法操作数，第二个括号对应$\sum \limits_{i=1}^{n-1}\sum \limits_{j=i+1}^{n}(\rm v_i^T v_j)x_ix_j$的加法和乘法操作数。<br />
+ 如果对(3.5)进行改写，可将其计算复杂度降成线性的$O(kn)$，具体推导过程如下。</p>
 
 <script type="math/tex; mode=display">% <![CDATA[
 \begin{array}{ll}
@@ -242,9 +234,8 @@ W&=&VV^T=\left(
 {x_i}\sum\nolimits_{j = 1}^n v_{j,f}{x_j} - v_{j,f}x_i^2,\text{if $\theta$ is $v_{i,f}$}
 \end{array}} \right.\tag{3.10}</script>
 
-<p> <strong>由上式可知，$v_{i,f}$的训练只需要样本的$x_i$特征非0即可，适合于稀疏数据</strong>。</p>
-
-<p> 在适用SGD训练模型是，在每次迭代中，只需计算一次所有的$f$的$\sum \limits_{j=1}^{n}v_{j,f}x_j$就能方便得到所有$v_{i,f}$的梯度。</p>
+<p> <strong>由上式可知，$v_{i,f}$的训练只需要样本的$x_i$特征非0即可，适合于稀疏数据</strong>。<br />
+ 在适用SGD训练模型是，在每次迭代中，只需计算一次所有的$f$的$\sum \limits_{j=1}^{n}v_{j,f}x_j$就能方便得到所有$v_{i,f}$的梯度。</p>
 
 <h3 id="34-推广到多阶">3.4 推广到多阶</h3>
 
@@ -329,18 +320,44 @@ W&=&VV^T=\left(
 <h2 id="5-其他">5. 其他</h2>
 
 <h3 id="51-关于隐向量v">5.1 关于隐向量V</h3>
-
 <p> 这里的$v_i$是$x_i$特征的低维稠密表达，实际中隐向量的长度$k$通常远小于特征维度$n$。FM学到的隐向量可以看做是特征的一种embedding表示，把离散特征转化为Dense Feature，这种Dense Feature还可以后续和DNN结合，作为DNN的输入，事实上用于DNN的CTR也是这个思路来做的。</p>
 
+<h3 id="52-fm与矩阵分解">5.2 FM与矩阵分解</h3>
+
+<p><img src="https://gitee.com/alston972/MarkDownPhotos/raw/master/2020-02-05/userItem.PNG" alt="userItem" />
+ 基于矩阵分解的协同过滤是推荐系统中常用的一种推荐方案，从历史数据中收集user对item的评分，可以是显式的打分，也可以是用户的隐式反馈计算的得分。由于user和item数量非常多，有过打分的user和item对通常是十分稀少的，基于矩阵分解的协同过滤是来预测那些没有过行为的user对item的打分，实际上是一个评分预测问题。矩阵分解的方法假设user对item的打分$\widehat r_{ui}$由下式决定</p>
+
+<script type="math/tex; mode=display">\widehat r_{ui}=q_i^Tp_u + \mu + b_i + b_u\tag{5.1}</script>
+
+<p> 其中$q_i$是第$i$个item对应的隐向量，$p_u$是第$u$个user对应的隐向量，$b_i$代表item的偏置，用于解释商品本身的热门和冷门，$b_u$代表user的偏置，用于解释用户本身的打分偏好(例如有些人喜欢打低分)，$\mu$是常数。即将评分矩阵分解为user矩阵和item矩阵的乘积加上线性项和常数项，而这两个矩阵是低秩的！这些参数通过对最小化经验误差得到。</p>
+
+<script type="math/tex; mode=display">\min_{p,q,b} \sum_{(u,i) \in K}(r_{ui}-\widehat r_{ui})^2 + \lambda({\left\| {p_u} \right\|^2} + {\left\| {q_i} \right\|^2} + b_u^2 + b_i^2)\tag{5.2}</script>
+
+<p> 从上面的叙述来看，FM的二阶矩阵也用了矩阵分解的技巧，那么基于矩阵分解的协同过滤和FM是什么关系呢？以user对item评分预测问题为例，基于矩阵分解的协同过滤可以看做FM的一个特殊例子，对于每一个样本，FM可以看做特征只有userid和itemid的onehot编码后的向量连接而成的向量。从FM和MFCF公式来看，MFCF的用户向量$p_u$和item向量$q_i$可以看做FM中的隐向量，user和iter的bias向量$b_u,b_i$就是FM中的一次项系数，常数$\mu$也和FM中的常数$w_0$相对应，可以看到，<strong>MFCF就是FM的一个特例</strong>!另外，FM可以采用更多的特征，学习更多的组合模式，这是单个矩阵分解的模式所做不到的！因此，FM比矩阵分解的方法更具普遍性！事实上，现在能用矩阵分解的方法做的方案都直接上FM了！</p>
+
+<h3 id="53-fm与决策树">5.3 FM与决策树</h3>
+<p> FM和决策树都可以做特征组合，Facebook就用GBDT学习特征的自动组合，决策树可以非常方便的对特征做高阶组合。如图所示，一棵决策的叶子节点实际上就对应一条特征规则，例如最左边的叶子节点就代表一条特征组合规则$x_1=1,x_2=1$。通过增加树的深度，可以很方便的学习到更高级的非线性组合模式。通过增加树的棵树，可以学习到很多这样的模式，论文[10]采用GBDT来建立决策树，使得新增的决策树能够拟合损失函数的残差。<br />
+ 但是，<strong>决策树和二项式模型有一个共同的问题，那就是无法学习到数据中不存在的模式</strong>。例如，对于模式$x_1=1,x_2=1$，如果这种模式在数据中不存在，或者数量特别少，那么决策树在对特征$x_1$分裂后，就不会再对$$x_2分裂了。当数据不是高度稀疏的，特征间的组合模式基本上都能够找到足够的样本，那么决策树能够有效地学习到比较复杂的特征组合；但是在高度稀疏的数据中，二阶组合的数量就足以让绝大多数模式找不到样本，这使得决策树无法学到这些简单的二阶模式，更不用说更高阶的组合了。</p>
+
+<h3 id="54-fm与神经网络">5.4 FM与神经网络</h3>
+<p> 神经网络天然地难以直接处理高维稀疏的离散特征，因为这将导致神经元的连接参数太多。但是低维嵌入（embedding）技巧可以解决这个问题，词的分布式表达就是一个很好的例子。事实上 <strong>FM就可以看做对高维稀疏的离散特征做 embedding</strong>。神经网络对稀疏离散特征做 embedding 后，可以做更复杂的非线性变换，具有比FM跟大的潜力学习到更深层的非线性关系！基于这个思想，2016年，Google提出 wide and deep 模型用作 Google Play的app推荐[11]，它利用神经网络做离散特征和连续特征之间的交叉，神经网络的输出和人工组合较低维度的离散特征一起预测，并且采用端到端的学习，联合优化DNN和LR。</p>
+
 <h2 id="6-后续">6. 后续</h2>
-<p>FM代码实现。</p>
+<ul>
+  <li>FM代码实现；</li>
+  <li>相关paper阅读。</li>
+</ul>
 
 <h2 id="7-reference">7. Reference</h2>
-<p><a href="https://www.cnblogs.com/pinard/p/6370127.html">分解机(Factorization Machines)推荐算法原理-刘建平</a><br />
-<a href="https://zhuanlan.zhihu.com/p/50426292">FM（Factorization Machines）的理论与实践-知乎</a><br />
-<a href="http://shomy.top/2018/12/31/factorization-machine/">FM-pytorch</a><br />
-<a href="https://tech.meituan.com/2016/03/03/deep-understanding-of-ffm-principles-and-practices.html">深入FFM原理与实践-美团技术团队</a><br />
-<a href="https://github.com/princewen/tensorflow_practice/tree/master/recommendation">princewen-github</a><br />
-<a href="https://zhuanlan.zhihu.com/p/37963267">FM算法解析</a><br />
-<a href="https://github.com/Aifcce/FM-FFM">FM-github</a></p>
+<p><a href="https://www.cnblogs.com/pinard/p/6370127.html">1.分解机(Factorization Machines)推荐算法原理-刘建平</a><br />
+<a href="https://tracholar.github.io/machine-learning/2017/03/10/factorization-machine.html">2.因子机深入解析</a><br />
+<a href="https://zhuanlan.zhihu.com/p/50426292">3.FM（Factorization Machines）的理论与实践-知乎</a><br />
+<a href="http://shomy.top/2018/12/31/factorization-machine/">4.FM-pytorch</a><br />
+<a href="https://tech.meituan.com/2016/03/03/deep-understanding-of-ffm-principles-and-practices.html">5.深入FFM原理与实践-美团技术团队</a> <br />
+<a href="https://zhuanlan.zhihu.com/p/37963267">6.FM算法解析</a><br />
+<a href="https://github.com/Aifcce/FM-FFM">7.FM-github</a><br />
+[8] Koren Y, Bell R M, Volinsky C, et al. Matrix Factorization Techniques for Recommender Systems[J]. IEEE Computer, 2009, 42(8): 30-37.<br />
+[9] Rendle S. Factorization Machines[C]. international conference on data mining, 2010. <br />
+[10] He X, Pan J, Jin O, et al. Practical Lessons from Predicting Clicks on Ads at Facebook[C]. knowledge discovery and data mining, 2014: 1-9.   <br />
+[11] Cheng H T, Koc L, Harmsen J, et al. Wide &amp; Deep Learning for Recommender Systems[C]// The Workshop on Deep Learning for Recommender Systems. ACM, 2016:7-10.</p>
 :ET

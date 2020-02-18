@@ -1,0 +1,4 @@
+I"/<p>最近在学习推荐系统时，在很多模型如FM，FFM和DeepFM中对离散特征都使用了embedding方法，把稀疏特征映射为密集向量。这里总结下tensorflow中embedding_lookup的使用。</p>
+
+<h3 id="1-embedding等同于one-hot相乘">1. embedding等同于one-hot相乘</h3>
+:ET

@@ -1,0 +1,6 @@
+I"A<p> 之前<a href="https://hexinlin.top/2020/02/06/fm/">博客</a>讲解了FM模型理论知识，这里用tensorflow实现FM模型。<br />
+ <a href="https://github.com/geffy/tffm">这个库</a>实现了任意FM模型，可作为参考。</p>
+<blockquote>
+  <p>注：这里只有二阶交叉项。</p>
+</blockquote>
+:ET

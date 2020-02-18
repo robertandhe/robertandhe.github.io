@@ -1,0 +1,3 @@
+I"R<h2 id="1-介绍">1. 介绍</h2>
+<p> 在CTR预估中，特征交互(feature interactions)对模型的性能有很大影响。在DeepFM模型出现之前，现有模型通常偏向低阶或者高阶交叉，或者需要特征工程。<a href="https://www.ijcai.org/Proceedings/2017/0239.pdf">DeepFM paper</a>提出了一个端到端的同时考虑低阶和高阶特征交互的模型DeepFM。这个模型结合了FM模型学习二阶交叉和DNN模型特征学习的优点。并和FNN,PNN,Wide&amp;Deep模型做了对比。实验结果显示了DeepFM模型的effectiveness和efficiency。</p>
+:ET

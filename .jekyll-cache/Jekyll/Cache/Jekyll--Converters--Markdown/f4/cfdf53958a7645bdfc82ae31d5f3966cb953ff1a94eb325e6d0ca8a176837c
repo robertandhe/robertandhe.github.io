@@ -1,0 +1,27 @@
+I"�<p>最近在学习推荐系统时，在很多模型如FM，FFM和DeepFM中对离散特征都使用了embedding方法，把稀疏特征映射为密集向量。这里总结下tensorflow中embedding_lookup的使用。</p>
+
+<h3 id="1-embedding_lookup等同于one-hot相乘">1. embedding_lookup等同于one-hot相乘</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="n">embedding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">'embedding'</span><span class="p">,</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="n">initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">random_uniform_initializer</span><span class="p">)</span>
+<span class="n">cat_feature</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">get_embedding1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">cat_feature</span><span class="p">)</span>
+<span class="n">cat_feature_one_hot</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">cat_feature</span><span class="p">,</span><span class="n">depth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">get_embedding2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">cat_feature_one_hot</span><span class="p">,</span><span class="n">embedding</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">())</span>
+    <span class="n">embedding1</span><span class="p">,</span><span class="n">embedding2</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">get_embedding1</span><span class="p">,</span><span class="n">get_embedding2</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">embedding1</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">embedding2</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+:ET
