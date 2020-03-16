@@ -110,7 +110,7 @@ ba_track_id: b50bf2b12b5338a1845e33832976fd68
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 # sidebar-about-description: "For the next quantum leap<br>离开世界之前，一切都是过程"
-sidebar-about-description: "What's past is prologue<br>凡是过往 皆为序章"
+sidebar-about-description: "What's past is prologue<br>不忘初心"
 sidebar-avatar: /img/gakki.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
