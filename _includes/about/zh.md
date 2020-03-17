@@ -55,9 +55,7 @@ Hi，我是黄玄，前端 Online NPC，编程语言/编译器初心者，[Faceb
 
 > 冰冻三尺 非一日之寒 积土成山 非斯须之作
 
-Hi, 我是何新林，业余算法工程师，现就读于上海交通大学。研究方向为数据挖掘，视觉追踪。
-<p>这是我利用<a href="https://pages.github.com/">GitHub Pages</a>与<a href="http://jekyll.com.cn/">Jekyll</a>搭建的个人博客。</p>
-<p>我在GitHub的主页<a href="https://www.github.com/robertandhe">GitHub</a></p>
+Hi, 我是何新林，正在攻读硕士。研究方向为数据挖掘，视觉追踪。关注nlp，推荐系统应用。
 
 ##### 编程语言倾向
-C++ python
+C++ python spark
