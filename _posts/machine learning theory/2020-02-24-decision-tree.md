@@ -126,7 +126,7 @@ $$g(D,A)=H(D)-H(D|A)$$
    的经验条件熵
    $$H(D|A)$$
    
-   $$H(D|A)=\sum\limits_{i=1}^n\frac{|D_i|}{|D|}H(D_i)=-\sum\limits_{i=1}^nfrac{|D_i|}{|D|}\sum\limits_{k=1}^K\frac{|D_{ik}|}{|D_i|}\log_2\frac{|D_{ik}|}{|D_i|}$$
+   $$H(D|A)=\sum\limits_{i=1}^n\frac{|D_i|}{|D|}H(D_i)=-\sum\limits_{i=1}^n\frac{|D_i|}{|D|}\sum\limits_{k=1}^K\frac{|D_{ik}|}{|D_i|}\log_2\frac{|D_{ik}|}{|D_i|}$$
 
 3. 计算信息增益
    
@@ -325,7 +325,6 @@ $$g(t)=\frac{C(t)-C(T_t)}{|T_t|-1}$$
   是对训练数据的预测误差，
   $$|T_t|$$
   是$T_t$的叶结点个数。  
-
 4. 从上而下的访问内部结点$t$，如果$g(t)\le \alpha$，进行剪枝。并决定叶结点的值。如果是分类树，则是概率高的类别，如果是回归树，则是所有样本输出的均值。得到树$T$；
 5. 设$k=k+1,\ \alpha_k=\alpha,\ T_k=T$;
 6. 如果$T_k$不是由根结点及两个叶结点构成的树，则回到步骤2；否则令$T_k=T_n$;
