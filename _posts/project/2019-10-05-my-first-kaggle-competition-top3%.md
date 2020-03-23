@@ -180,7 +180,7 @@ Train regressor to predict a feature not available in test set.
  4. 线下测试
  5. 去除无效特征
  6. 线上测试
- 重复上述步骤
+ 7. 重复上述步骤1-6
 
 ## 3.2 EDA 观察数据分布，缺失值，异常值，特征相关性，与标签的关系，训练集与测试集关系  
 在EDA过程中，基本都在使用pandas与seaborn，通过图形观察。
