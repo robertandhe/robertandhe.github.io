@@ -14,17 +14,16 @@ tags:
   - machine learning
 ---
 
-
-# <center>IEEE-CIS Fraud Detection</center>
+<center><b>IEEE-CIS Fraud Detection</b></center>
 
 >写在前面：初次参加kaggle比赛，取得了top 3%的成绩，好于预期。在接近一个半月的比赛中，学到了许多之前光做理论没有机会接触的东西，也发现了一些不足，总体来说，收获很大。大佬们的开源共享精神让人心生敬仰。感谢队友clancy的交流进步。
 
 
-## 1 比赛介绍   
+# 1 比赛介绍   
 
-### 1.1 比赛背景 
+## 1.1 比赛背景 
 IEEE与Vesta联合举办信用卡交易欺诈检测， 为经典的数据挖掘领域的欺诈检测问题[link](https://www.kaggle.com/c/ieee-fraud-detection)。    
-### 1.2 数据集描述
+## 1.2 数据集描述
 数据集包括五个文件train_transaction.csv, train_identitiy.csv, test_transaction.csv, test_identity.csv, sample_submission.csv
 train_transaction.csv, train_identitiy.csv为训练集交易数据与对应的交易身份记录，test_transaction.csv, test_identity.csv为测试数据。
 在训练集中，总交易数为590540，其中欺诈交易数为20663，符合不平衡分类问题特点。   
@@ -52,11 +51,11 @@ train_identitiy文件包括41个特征，分别为：
 - DeviceInfo: detail device information, such as SAMSUNG SM-G892A Build/NRD90M 
 
 train_transaction有590540笔记录，train_identity仅有144233笔记录，所以有些交易没有对应的身份数据。
-## 2 特征工程  
+# 2 特征工程  
 >More data beats clever algorithms, but better data betas more data - by Peter Norving     
 
 很重要，最有创造力的工作 
-### 2.1 类别特征
+## 2.1 类别特征
 1. Onehot encoding   
    适用于线性模型，稀疏，极大扩充数据维度。在本次比赛中，采用lgb分类，为非线性树模型，所以没用onehot。  
    sklearn.preprocessing.OntHotEncoder()    
@@ -99,7 +98,7 @@ train_transaction有590540笔记录，train_identity仅有144233笔记录，所�
     Spelling errors, slightly different job descriptions, full name vs. abbreviations.  
     Eg. Shell, shell, SHELL, Shell Gasoline-> Shell   
 
-### 2.2 数值特征
+## 2.2 数值特征
 1. Rounding  
    Round numerical variables.   
    Retain most significant features of the data. Sometimes too much precision is just noise.  
@@ -137,7 +136,7 @@ train_transaction有590540笔记录，train_identity仅有144233笔记录，所�
    Create statistics on a row of data.   
    Number of NaN's, Number of 0's, Number of negative values, Mean, Max, Min, Skewness etc.   
 
-### 2.3 时间特征     
+## 2.3 时间特征     
 dates, lots of opportunity for major improments.   
 1. Projecting to a circle   
     Turn single features, like day_of_week, into two coordinates on a circle.   
@@ -149,7 +148,7 @@ dates, lots of opportunity for major improments.
    National holidays, major sport events, weekends, firt Saturday of month etc.   
    These factors can have major influence on spending behavior.   
 
-### 2.4 空间特征  
+## 2.4 空间特征  
 Spatial variables are variables that encode a location in space.  Examples include: GPS-coordinates, cities, countries, addresses.   
 1. Categorizing location  
     K-means clustering, Raw latitude longitude, Convert Cities to latitude longitude,
@@ -164,7 +163,7 @@ Spatial variables are variables that encode a location in space.  Examples inclu
    Spending in different town that home or shipping address.    
    Never spending at the same location.   
 
-### 2.5 Label Engineering   
+## 2.5 Label Engineering   
 Can treat a label/target/dependent varaibles as a feature of the data and vice versa.   
 Log-transform: y->log(y+1)|exp(y_pred) - 1
 Square-transform   
@@ -173,8 +172,8 @@ Create a score, to turn binary target in regression.
 Train regressor to predict a feature not available in test set.   
 
 
-## 3 比赛过程
-### 3.1 比赛思路
+# 3 比赛过程
+## 3.1 比赛思路
  1. EDA
  2. 添加特征
  3. 交叉验证
@@ -183,10 +182,10 @@ Train regressor to predict a feature not available in test set.
  6. 线上测试
  重复上述步骤
 
-### 3.2 EDA 观察数据分布，缺失值，异常值，特征相关性，与标签的关系，训练集与测试集关系  
+## 3.2 EDA 观察数据分布，缺失值，异常值，特征相关性，与标签的关系，训练集与测试集关系  
 在EDA过程中，基本都在使用pandas与seaborn，通过图形观察。
 有几个常用技巧：
-#### 3.2.1 设种子  
+### 3.2.1 设种子  
 种子保证了实验结果的可重复性，便于前后比较
 ```python
 def seed_everything(seed=0):
@@ -195,7 +194,7 @@ def seed_everything(seed=0):
     np.random.seed(seed)
 ```
 
-#### 3.2.2 数据压缩  
+### 3.2.2 数据压缩  
 数据压缩能缩小数据占用空间，加快运行速度，常用的一个函数如下：   
 ```python
 def reduce_memory_usage(df, verbose=True):
@@ -226,7 +225,7 @@ end_mem = df.memory_usage().sum() / 1024**2
 if verbose: print('Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)'.format(end_mem, 100 * (start_mem - end_mem) / start_mem))
 return df
 ```
-#### 3.2.3 图形分布  
+### 3.2.3 图形分布  
 借助pandas和seaborn可快速绘制优美图形  
 Example 1：直接通过DataFrame.plot绘图 
 ```python
@@ -258,7 +257,7 @@ df_train.groupby('ProductCD')['TransactionID'].count().sort_index().plot(x='Prod
 ```
 ![eda_fig3](https://gitee.com/alston972/MarkDownPhotos/raw/master/2019-10-05-post/eda_fig3.png)
 其余常用函数为distplot, barplot, countplot, boxplot, violinplot
-#### 3.2.4 异常值  
+### 3.2.4 异常值  
 Example 1：quantile函数
 
 ```python
@@ -271,11 +270,11 @@ sns.boxplot(x='DT_M', y='D2', hue='isFraud', data=train_df, palette='hls')
 ```
 
 ![eda_fig4](https://gitee.com/alston972/MarkDownPhotos/raw/master/2019-10-05-post/eda_fig4.png)
-#### 3.2.5 缺失值  
+### 3.2.5 缺失值  
 数值型特征一般用均值，加权均值，中位数填充；分类特征一般可用众数填充。  
 在本次比赛中，lightgbm自身可对缺失值较好处理，故仅对card2-card6进行众数填充，用于后面构造虚拟身份特征。
 
-#### 3.2.6 冗余特征
+### 3.2.6 冗余特征
 去除变化小，缺失值太多，极端分布特征  
 ```python
 one_value_cols = [col for col in train.columns if train[col].nunique() <= 1]
@@ -291,7 +290,7 @@ cols_to_drop = list(set(one_value_cols + one_value_cols_test + many_null_cols + 
                         big_top_value_cols_test))
 ```  
 
-#### 3.2.7 其它 
+### 3.2.7 其它 
 
 ```python
 plt.style.use('ggplot')
@@ -304,8 +303,8 @@ DataFrame.merge(), DataFrame.concat(), DataFrame.sort_values(), DataFrame.rename
 DataFrame.to_pickle(), pd.read_pickle()等。
 
 
-### 3.3 构造特征  
-#### 3.3.1 一些常用函数  
+## 3.3 构造特征  
+### 3.3.1 一些常用函数  
 1. Count encoding  
 ```python
 def frequency_encoding(train_df, test_df, columns, self_encoding=False):
@@ -450,7 +449,7 @@ def make_test_predictions(tr_df, tt_df, target, lgb_params, NFOLDS=3):
         print('Holdout AUC:', metrics.roc_auc_score(tt_df[TARGET], tt_df['prediction']))
     return tt_df
 ```
-#### 3.3.2 添加时间特征  
+### 3.3.2 添加时间特征  
 本次比赛属于时间序列数据，可从TransactionDT构造时间特征，TransactionDT为从某一起始日期的时间戳。
 比赛社区经检验认为起始日期为2017-11-30。    
 ```python
@@ -497,7 +496,7 @@ for col in ['DT_M','DT_W','DT_D']:
     remove_features.append(col+'_total')
 ```
 
-#### 3.3.3 添加虚拟身份
+### 3.3.3 添加虚拟身份
 比赛数据没有给出每笔交易对应的交易人员身份，需要自己构造虚拟身份。  
 从card1-card6, addr1 & addr2, P_emaildomain & R_emaildomain创建身份。  
 为了增强模型泛化能力，同样的身份应该同时出现在训练集和测试集中，对不满足的身份去噪：
@@ -570,7 +569,7 @@ test_df['uid5'] = test_df['uid3'].astype(str)+'_'+test_df['R_emaildomain'].astyp
 
 ```
 
-#### 3.3.4 与时间段内平均交易时间和交易峰值的差距   
+### 3.3.4 与时间段内平均交易时间和交易峰值的差距   
 突出反常交易时间   
 ```python
 for df in [train_df, test_df]:
@@ -618,7 +617,7 @@ for col in ['card3','card5','bank_type']:
 ```
 
 
-#### 3.3.4 时间段内频率   
+### 3.3.4 时间段内频率   
 
 ```python  
 new_columns = ['uid','uid2','uid3','uid4','uid5']
@@ -633,7 +632,7 @@ train_df, test_df = timeblock_frequency_encoding(train_df, test_df, periods, i_c
                                  with_proportions=False, only_proportions=True)
 ```
 
-#### 3.3.5 频率编码   
+### 3.3.5 频率编码   
 ```python  
 new_columns = ['uid','uid2','uid3','uid4','uid5']
 i_cols = ['card1','card2','card3','card5'] + new_columns
@@ -647,7 +646,7 @@ i_cols = ['C'+str(i) for i in range(1,15)]
 train_df, test_df = frequency_encoding(train_df, test_df, i_cols, self_encoding=False)
 ```
 
-#### 3.3.6 D1-D15 timedelta特征    
+### 3.3.6 D1-D15 timedelta特征    
 最重要！为距离上次交易时间差， 距离发卡时间等。  
 ```python
 i_cols = ['D'+str(i) for i in range(1,16)]
@@ -682,7 +681,7 @@ for df in [train_df, test_df]:
 ```
 
 
-#### 3.3.7 C1-C14 特征  
+### 3.3.7 C1-C14 特征  
 
 ```python
 i_cols = ['C'+str(i) for i in range(1,15)] 
@@ -693,7 +692,7 @@ for df in [train_df, test_df]:
 ```  
 
 
-#### 3.3.8 id01-id38特征    
+### 3.3.8 id01-id38特征    
 表示交易对应id特征，包括网络连接类型，mobile/desktop, 手机品牌型号，浏览器厂商版本，屏幕长宽等。  
 Expansion encoding here.  
 ```python
@@ -722,7 +721,7 @@ i_cols = [
 train_df, test_df = frequency_encoding(train_df, test_df, i_cols, self_encoding=True)
 ```   
 
-#### 3.3.9 target encoding特征  
+### 3.3.9 target encoding特征  
 ```python
 for col in ['ProductCD','M4']:
     new_col_name = col + '_target_mean'
@@ -747,7 +746,7 @@ for col in ['card4', 'card6']:
 ```
 
 
-#### 3.3.10 TransactionAmt   
+### 3.3.10 TransactionAmt   
 log scaling here.  
 先去除极端值   
 ```python   
@@ -781,7 +780,7 @@ test_df['TransactionAmt'] = np.log1p(test_df['TransactionAmt'])
 ```  
 
 
-#### 3.3.11 ProductCD   
+### 3.3.11 ProductCD   
 ```python 
 train_df['product_type'] = train_df['ProductCD'].astype(str)+'_'+train_df['TransactionAmt'].astype(str)
 test_df['product_type'] = test_df['ProductCD'].astype(str)+'_'+test_df['TransactionAmt'].astype(str)
@@ -793,7 +792,7 @@ train_df, test_df = timeblock_frequency_encoding(train_df, test_df, periods, i_c
 train_df, test_df = frequency_encoding(train_df, test_df, i_cols, self_encoding=True)
 ```
 
-#### 3.3.12 Trend特征    
+### 3.3.12 Trend特征    
 ```python 
 for uid in ['uid3']:
     for df in [train_df, test_df]:
@@ -807,7 +806,7 @@ for uid in ['uid3']:
             df[new_col_name] = df['TransactionAmt'] - df[new_col_name].map(temp_df)
 ```
 
-#### 3.3.12 Spatial特征   
+### 3.3.12 Spatial特征   
 ```python
 for uid in ['uid']:
     for dist in ['dist1']:
@@ -851,7 +850,7 @@ for df in [train_df, test_df]:
 ```
 
 
-#### 3.3.13 去除噪声    
+### 3.3.13 去除噪声    
 去除噪声特征，too specific.   
 ```python
 remove_features = [
@@ -868,9 +867,9 @@ remove_features += new_columns
 
 
 
-## 4 特征选择   
+# 4 特征选择   
 特征选择减少特征数量，降维，降低过拟合，提高模型泛化能力。
-### 4.1 逐个筛选 
+## 4.1 逐个筛选 
 1. 去除变化小，缺失值太多，极端分布特征
 2. 线下验证   
 3. 检验同分布scipy.stats.ks_2samp()
@@ -879,18 +878,18 @@ remove_features += new_columns
 6. 基于学习模型的特征排序 
 利用机器学习算法，如RandomForestRegressor针对某个特征和目标变量建立预测模型。
 
-### 4.2 批量筛选    
+## 4.2 批量筛选    
 1. sklearn.feature_selection.RFECV()
 1. sklearn.model_selection.chi2()  
 2. sklearn.feature_selection.SelectKBest()
 3. 降维sklearn.decomposition.PCA()等
 4. sklearn.feature_selection.f_regression()批量相关性特征选择  
 
-## 5 交叉验证   
+# 5 交叉验证   
 常用的交叉验证方式有sklearn.model_selection.KFold, sklearn.model_selection.TimeSeriesSplit, 
 sklearn.model_selection.GroupKFold. 本次比赛中，由于数据为时间序列数据，且训练集测试集在时间上分离，所以
 选择GroupKFold交叉验证。以月份为组切分标准。  
-## 6 分类器   
+# 6 分类器   
 lgb
 ```python
 lgb_params = {
@@ -960,12 +959,12 @@ def make_predictions(tr_df, tt_df, features_columns, target, lgb_params, NFOLDS=
     return tt_df
 ```
 
-## 7 ensemble   
+# 7 ensemble   
 在比赛中尝试了stacknet，gmean，blending融合，显示blending效果最佳。 
 本次比赛评价指标为auc，预测概率值大小对结果没影响，重要的是排序，但应注意blending时应先对每个结果minmax，防止参照
 标准不一。 
 
-## 8 技巧  
+# 8 技巧  
 - 最好中间结果备份；
 - pd.read_csv速度慢，转为pickle；
 - 数据压缩；
@@ -977,7 +976,7 @@ def make_predictions(tr_df, tt_df, features_columns, target, lgb_params, NFOLDS=
 - 比赛结束学习top team的分享。
 
 
-## 9 收获与不足
+# 9 收获与不足
 - 数据挖掘入门；
 - 熟练使用pandas,seaborn，sklearn, plt；
 - 初步上手lightgbm, xgboost；
@@ -987,7 +986,7 @@ def make_predictions(tr_df, tt_df, features_columns, target, lgb_params, NFOLDS=
 - 针对这次比赛典型的不平衡学习问题，尝试了随机过采样方法但反而导致过拟合，或许有更好的过采样方法。
 
 
-## 10 What to do next 
+# 10 What to do next 
 - catboost；
 - 对业务的理解；
 - 图像比赛? 
