@@ -14,29 +14,21 @@ tags:
   - machine learning
 ---
 
-# <center>ASHRAE-Great Energy Predictor III</center>
+<center><b>ASHRAE-Great Energy Predictor III</b></center>
 > 写在前面：第二次参加kaggle比赛，比赛名次为10/3614。这次还是一个数据挖掘的比赛，相比于上个欺诈检测的比赛学到了东西就少了些，而且也没那么有趣，但还是有所收获。感谢给力的队友Clancy Lee。
 
-## 1. 比赛介绍
-### 1.1 比赛背景
+# 1. 比赛介绍
+## 1.1 比赛背景
 ASHRAE协会组织的关于能源消耗预测的比赛。  
 Founded in 1894, [ASHRAE](https://www.ashrae.org/) serves to advance the arts and sciences of heating, ventilation, air conditioning refrigeration and their allied fields. ASHRAE members represent building system design and industrial process professionals around the world. With over 54,000 members serving in 132 countries, ASHRAE supports research, standards writing, publishing and continuing education - shaping tomorrow’s built environment today.
-### 1.2 评价标准
-比赛评价标准为Root Mean Squared Logarithmic Error(RMSLE). 
 
-$$
-\varepsilon  = \sqrt{\frac{1}{n}\sum\limits_{i = 1}^n {\left( {\log \left( p_i + 1\right) - \log \left( a_i + 1\right)} \right)}^2}
-$$  
+## 1.2 评价标准
+上面$n$表示测试集大小,
+$p_i$表示预测值,
+$a_i$表示实际值,
+$\log(x)$表示对数。  
 
-其中：  
-$\varepsilon$表示RMSLE(score)；  
-$n$表示测试集大小；  
-$p_i$表示预测值；  
-$a_i$表示实际值；  
-$log(x)$表示对数。  
-
-
-### 1.3 数据集介绍
+## 1.3 数据集介绍
 train.csv:训练集数据，包括：
 - building_id - Foreign key for the building metadata.
 - meter - The meter id code. Read as {0: electricity, 1: chilledwater, 2: steam, 3: hotwater}. Not every building has all meter types.
@@ -69,9 +61,9 @@ test.csv:测试数据
 
 sample_submission.csv
 
-## 2. 数据预处理
+# 2. 数据预处理
 &emsp;这个比赛特征工程我们做的不多，主要是在于数据预处理。
-### 2.1数据压缩
+## 2.1数据压缩
 ```python
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype
@@ -117,18 +109,18 @@ def reduce_mem_usage(df, use_float16=False):
     
     return df
 ```
-### 2.2 异常值
+## 2.2 异常值
 &emsp;主要做了几个工作：
 - 移除site0异常值，因为site0数据为0的太多；
-- 时长超过48小时的0读数，；
+- 时长超过48小时的0读数，冬天超48小时不用热水或蒸汽，夏天超48小时不用冷水；
 - 电力消耗为0的读数，可以不用水，不用蒸汽，但不用电现在基本不可能了；
 - 对building 1099异常大的数，可能为错误读数，也可去除。
 [参照这里](https://www.kaggle.com/purist1024/ashrae-simple-data-cleanup-lb-1-08-no-leaks)  
 
-### 2.3 天气数据时间校正
+## 2.3 天气数据时间校正
 &emsp;根据天气数据可发现许多数据每天的最高温不是出现在中午附近，明显有问题，后面发现应该是记录天气是是用的本地时间，而比赛举办方当作UTC时间给出了，所以应该进行校正，具体就是假设每天最高温出现在下午两点左右，根据最高温校正，[参照这里](https://www.kaggle.com/patrick0302/locate-cities-according-weather-temperature)。  
 
-### 2.4 气温数据插值
+## 2.4 气温数据插值
 &emsp;在这个比赛中温度数据肯定是非常重要的，但天气数据中有许多缺失值，需要进行插值，插值的原理就是天气不会剧烈变化，前后应该有连贯性。具体使用的函数就是
 ```python
 weather_df = weather_df.groupby('site_id').apply(lambda  group: group.interpolate(limit=200, limit_direction='both'))
@@ -229,9 +221,10 @@ def fill_weather_dataset(weather_df):
 ```
 &emsp;这里使用了[meteocalc package](https://pypi.org/project/meteocalc/)进行天气特征工程。  
 
-### 2.5 数据转换
+## 2.5 数据转换
 &emsp;log1p转换，meter_reading和square_feet读数值都大，进行对数变换。
-## 3. 特征工程
+
+# 3. 特征工程
 1. 天气聚合特征
 ```python
 def aggregation_temperature(df, site, cols, periods, agg_types):
@@ -258,7 +251,8 @@ weather_df = aggregation_temperature(weather_df, 'site_id', ['dew_temperature', 
 ```
 
 &emsp;在每个site内求气温和露温的月均值。
-1. 天气滞后特征
+
+2. 天气滞后特征
 ```python
 def add_lag_feature(weather_df, window=3):
     group_df = weather_df.groupby('site_id')
@@ -276,10 +270,10 @@ def add_lag_feature(weather_df, window=3):
 ```
 &emsp;我们的本地测试就只有这几个特征有效。
 
-### 4.模型训练
+# 4.模型训练
 &emsp;因为这个问题的特殊性，可以按照meter_type，site,KFold等训练模型，为了增加模型的多样性，我们分开训练自己的模型。我是按照meter_type来就是4个模型，Clancy_Lee按照GroupKFold，12，1，2月假设为一个季度，3，4，5为一个季度，6，7，8和9，10，11为另外两个季度。
 
-### 5.模型融合
+# 5.模型融合
 &emsp;因为这个比赛存在数据泄露，所以可以根据泄露数据本地测试各个模型的好坏。我们训练个4个结果，融合时进行了一个网格搜索，所有各个模型的最优权重。
 ```python
 test_df['pred1'] = sample_submission1.meter_reading
@@ -329,26 +323,26 @@ print(score)
 final_combi = filtered_combis[best_combi[0][0]]
 ```
 
-## 6. 第一名做法
+# 6. 第一名做法
 &emsp;[第一名队伍的方案](https://www.kaggle.com/c/ashrae-energy-prediction/discussion/124709)如下：
-![scheme](https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2020-01-14/1stSolution.PNG)
-### 6.1 Processing
-#### Remove anomalies
+![scheme](https://gitee.com/alston972/MarkDownPhotos/raw/master/2020-01-14/1stSolution.PNG)
+## 6.1 Processing
+### Remove anomalies
 As others have noted, cleaning the data was very important in this competition. The assumption is that there are unpredictable and hence unlearnable anomalies in the data that, if trained on, degrade the quality of the predictions. We identified and filtered out three types of anomalies:
 1. Long streaks of constant values
 2. Large positive/negative spikes
 3. Additional anomalies determined by visual inspection
   
 We noticed that some of these anomalies were consistent across multiple buildings at a site. We validated potential anomalies using all buildings in a site--if an anomaly showed up at the same time at multiple buildings, we could be reasonably certain that this was indeed a true anomaly. This allowed us to remove anomalies that were not necessarily part of a long streak of constant values or a large spike.
-#### Impute Missing Temperature Values
+### Impute Missing Temperature Values
 There were a lot of missing values in temperature metadata. We found that imputing the missing data using linear interpolation helped our models.
-#### Local Time Zone Correlation
+### Local Time Zone Correlation
 As noted in the competition forum, the timezone in the train/test data was different from the timezone in the weather metadata. We used the information in this [discussion post](https://www.kaggle.com/c/ashrae-energy-prediction/discussion/112841) to correct the timezones.
-#### Target Transformations
+### Target Transformations
 Like most competitors, we started by predicting log1p(meter_reading). We also corrected the units for site 0 as per this [discussion post](https://www.kaggle.com/c/ashrae-energy-prediction/discussion/119261).
 Near the end of the competition, we tried standardizing meter_reading by dividing by square_feet; i.e., we predicted log1p(meter_reading/square_feet). Isamu came up with the idea after reading this [discussion post](https://www.kaggle.com/c/ashrae-energy-prediction/discussion/122263) by Artyom Vorobyov. The models trained with the standardized target added diversity to our final ensemble and improved our score by about 0.002. If we had more time we would have liked to explore this idea further; for example, we could have tried to predict log1p(meter_reading)/square_feet or created features using the standardized targets.
 
-### 6.2 Feature Engineering and Feature Selection
+## 6.2 Feature Engineering and Feature Selection
 - Raw features from train/test, weather metadata, and building metadata
 - Categorical interactions such as the concatenation of building_id and meter
 - Time series features including holiday flags and time of day features
@@ -358,7 +352,7 @@ Near the end of the competition, we tried standardizing meter_reading by dividin
 - **Cyclic encoding of periodic features**; e.g., hour gets mapped to hour_x = cos(2*pi*hour/24) and hour_y = sin(2*pi*hour/24)
 - **Bayesian target encoding** (see this [kernel](https://www.kaggle.com/mmotoki/hierarchical-bayesian-target-encoding))
 
-### 6.3 Models
+## 6.3 Models
 - 1 model per meter
 - 1 model per site_id
 - 1 model per (building_id, meter)
@@ -385,6 +379,6 @@ def get_validation_months(n):
 ```
 
 
-## 7. 改进
+# 7. 改进
 - 模型还是不够丰富，可以融合Catboost,MLP,xgboost等；
 - 特征工程太少，本地测试许多特征都没用，可能是数据清洗不到位。
