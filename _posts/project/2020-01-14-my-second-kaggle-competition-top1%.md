@@ -25,9 +25,7 @@ Founded in 1894, [ASHRAE](https://www.ashrae.org/) serves to advance the arts an
 比赛评价标准为Root Mean Squared Logarithmic Error(RMSLE). 
 
 $$
-\begin{equation}
-\varepsilon  = \sqrt {\frac{1}{n}\sum\limits_{i = 1}^n {\left( {\log \left( p_i + 1\right) - \log \left( a_i + 1\right)} \right)}^2}
-\end{equation}
+\varepsilon  = \sqrt{\frac{1}{n}\sum\limits_{i = 1}^n {\left( {\log \left( p_i + 1\right) - \log \left( a_i + 1\right)} \right)}^2}
 $$  
 
 其中：  
