@@ -233,7 +233,7 @@ Example 1：直接通过DataFrame.plot绘图
 df_train['TransactionAmt'].apply(np.log).plot(kind='hist', bins=100, figsize=(15, 5),
                                             title='Distribution of Log Transaction Amt')
 ```
-![eda_fig1](https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-10-05-post/eda_fig1.png)
+![eda_fig1](https://gitee.com/alston972/MarkDownPhotos/raw/master/2019-10-05-post/eda_fig1.png)
 Example 2: seaborn绘图 
 ```python
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
@@ -251,12 +251,12 @@ perc_fraud_days = perc_fraud_days.reset_index()
 sns.pointplot(x='days', y='isFraud', data=perc_fraud_days, ax=ax2t)
 ax2t.set_ylim([0, 0.05])
 ```
-![eda_fig2](https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-10-05-post/eda_fig2.png)
+![eda_fig2](https://gitee.com/alston972/MarkDownPhotos/raw/master/2019-10-05-post/eda_fig2.png)
 Example 3:
 ```python
 df_train.groupby('ProductCD')['TransactionID'].count().sort_index().plot(x='ProductCD', kind='barh', figsize=(15, 3), color=color_pal, title='Count of Observations by ProductCD')
 ```
-![eda_fig3](https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-10-05-post/eda_fig3.png)
+![eda_fig3](https://gitee.com/alston972/MarkDownPhotos/raw/master/2019-10-05-post/eda_fig3.png)
 其余常用函数为distplot, barplot, countplot, boxplot, violinplot
 #### 3.2.4 异常值  
 Example 1：quantile函数
@@ -270,7 +270,7 @@ Example 2： 箱线图
 sns.boxplot(x='DT_M', y='D2', hue='isFraud', data=train_df, palette='hls')
 ```
 
-![eda_fig4](https://raw.githubusercontent.com/robertandhe/MarkDownPhotos/master/2019-10-05-post/eda_fig4.png)
+![eda_fig4](https://gitee.com/alston972/MarkDownPhotos/raw/master/2019-10-05-post/eda_fig4.png)
 #### 3.2.5 缺失值  
 数值型特征一般用均值，加权均值，中位数填充；分类特征一般可用众数填充。  
 在本次比赛中，lightgbm自身可对缺失值较好处理，故仅对card2-card6进行众数填充，用于后面构造虚拟身份特征。
